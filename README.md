@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 智检鲜达 Demo
 
 AI-based fruit quality inspection and traceability demo system.
@@ -19,3 +20,7 @@ AI-based fruit quality inspection and traceability demo system.
 `main` 为稳定分支；`develop` 用于集成；`feature-ai`、`feature-business`、`feature-system` 分别由 A/B/C 开发。功能分支提交 PR，经至少另一名成员复核再合入 `develop`；稳定演示版本从 `develop` 提 PR 合入 `main`。A 负责 `ai-service/`，B 负责 `business/`，C 负责 `backend/`、`frontend/`、`database/`。共同维护 `docs/API.md`，变更字段时同步更新示例和 `docs/DATABASE.md`。
 
 首周日程与验收见 [WEEK1.md](docs/WEEK1.md)。
+=======
+# ZhiJian
+智检鲜达——面向山东果蔬加工产业的AI视觉质检与全链路品控溯源系统
+>>>>>>> 40fe3a6bd963f1e0deb55a980ce390b2ca293ae7
