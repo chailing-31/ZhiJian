@@ -1,0 +1,20 @@
+:root { font-family: Inter, 'Noto Sans SC', system-ui, sans-serif; color: #17342c; background: #f4f7f3; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+header { background: #fff; border-bottom: 1px solid #dce8df; padding: 20px max(24px, calc((100vw - 1024px)/2)); display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.brand { font-size: 23px; font-weight: 800; white-space: nowrap; }.brand small { font-size: 12px; font-weight: 400; color: #789087; display: block; }
+nav { display: flex; gap: 22px; } a { color: #245c45; text-decoration: none; } a:hover { text-decoration: underline; }
+main { max-width: 1024px; margin: 38px auto; padding: 0 24px; } h1 { font-size: 32px; margin: 7px 0 28px; } h2 { font-size: 19px; margin: 0 0 18px; }
+.eyebrow { color: #388166; letter-spacing: 0.12em; font-size: 13px; font-weight: 700; }
+.card, .stat { background: #fff; border: 1px solid #dce8df; border-radius: 16px; padding: 25px; margin: 18px 0; box-shadow: 0 8px 25px #143b2510; }
+.stat { display: inline-flex; min-width: 220px; justify-content: space-between; align-items: center; gap: 40px; }.stat strong { font-size: 33px; }
+.row { width: 100%; border: 0; background: #f6faf7; color: #17342c; display: flex; justify-content: space-between; padding: 16px; border-radius: 8px; margin: 8px 0; text-align: left; }
+.row:hover { background: #e8f3ec; }.row span, time { color: #6e8379; }
+form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; } label { font-size: 13px; color: #527464; } input { display: block; width: 100%; border: 1px solid #cadbd0; border-radius: 8px; padding: 10px; margin-top: 6px; }
+form button, main > button { background: #246848; color: #fff; border: 0; border-radius: 8px; padding: 10px 19px; align-self: end; } button:disabled { opacity: .5; }
+dl { display: grid; grid-template-columns: 90px 1fr; gap: 12px; margin: 0; } dt { color: #74877d; } dd { margin: 0; }
+.timeline { padding-left: 24px; }.timeline li { padding: 0 0 22px 12px; }.timeline time, .timeline strong, .timeline span { display: block; }.timeline strong { margin: 4px 0; }
+.message { padding: 12px; background: #e7f0e8; border-radius: 8px; }.error { background: #ffe9e3; color: #9d3b22; }.text-button { margin-top: 12px; }
+@media (max-width: 600px) { header { padding: 16px 20px; flex-wrap: wrap; } main { margin: 26px auto; padding: 0 18px; } nav { font-size: 14px; } h1 { font-size: 27px; } .row { display: block; }.row span { display: block; margin-top: 6px; } }
