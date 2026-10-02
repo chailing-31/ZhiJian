@@ -292,3 +292,41 @@ dd { margin: 0; font-size: 13px; overflow-wrap: anywhere; }
   .table-wrap { overflow: visible; }
   @page { margin: 16mm; }
 }
+/* I2 public trace summary: only reflects records already returned by the public API. */
+.public-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+.public-summary-card {
+  min-width: 0;
+  border: 1px solid #e5ecdf;
+  background: #f8faf5;
+  border-radius: 10px;
+  padding: 17px 18px;
+}
+.public-summary-label {
+  display: block;
+  color: #758b70;
+  font-size: 10px;
+  letter-spacing: .8px;
+  margin-bottom: 8px;
+}
+.public-summary-card strong {
+  display: block;
+  color: #244b39;
+  font-size: 15px;
+  font-weight: 650;
+}
+.public-summary-card small,
+.public-summary-card time {
+  display: block;
+  color: #83927d;
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 6px;
+}
+@media (max-width: 560px) {
+  .public-summary-grid { grid-template-columns: 1fr; }
+}

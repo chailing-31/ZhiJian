@@ -8,7 +8,7 @@
 | `GET /batches` | 无 | 批次数组，按内部 ID 倒序；已实现 |
 | `POST /batches` | `batch_code`, `product`, `variety`, `origin`, `supplier` | `batch_id`, `batch_code`；已实现，重复编号返回 409，非法编号返回 400 |
 | `GET /batches/{id}` | 内部 ID | 批次基础信息与全部事件；已实现，未找到返回 404 |
-| `GET /trace/{batch_code}` | 公开编号 | 只含产品、品种、产地以及 `visibility=public` 的事件；已实现，未找到返回 404 |
+| `GET /trace/{batch_code}` | 公开编号 | I2：只返回产品、品种、产地、`visibility=public` 事件及仅由这些公开事件计算的 `public_summary`；不返回内部字段，未找到返回 404 |
 | `POST /batches/{id}/inspections` | multipart `image` + `Idempotency-Key` UUID | A3 实现；保存原始预测和图片，返回质检记录。无自动等级 |
 | `PATCH /inspections/{id}/review` | 版本号、逐候选标记、图像结论、复核人、说明 | A3 实现；追加复核版本，不改原预测。字段见 A3 接口说明 |
 | `POST /batches/{id}/processing-advice` | 工艺输入 | `advice_type=rule`、规则依据与建议；后续实现 |
