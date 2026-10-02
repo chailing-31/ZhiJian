@@ -8,13 +8,13 @@
 | `GET /batches` | 无 | 批次数组，按内部 ID 倒序；已实现 |
 | `POST /batches` | `batch_code`, `product`, `variety`, `origin`, `supplier` | `batch_id`, `batch_code`；已实现，重复编号返回 409，非法编号返回 400 |
 | `GET /batches/{id}` | 内部 ID | 批次基础信息与全部事件；已实现，未找到返回 404 |
-| `GET /trace/{batch_code}` | 公开编号 | 只含产品、品种、产地以及 `visibility=public` 的事件；已实现，未找到返回 404 |
+| `GET /trace/{batch_code}` | 公开编号 | I2：只返回产品、品种、产地、`visibility=public` 事件及仅由这些公开事件计算的 `public_summary`；不返回内部字段，未找到返回 404 |
 | `POST /batches/{id}/inspections` | multipart `image` + `Idempotency-Key` UUID | A3 实现；保存原始预测和图片，返回质检记录。无自动等级 |
 | `PATCH /inspections/{id}/review` | 版本号、逐候选标记、图像结论、复核人、说明 | A3 实现；追加复核版本，不改原预测。字段见 A3 接口说明 |
 | `POST /batches/{id}/processing-advice` | 工艺输入 | `advice_type=rule`、规则依据与建议；后续实现 |
 | `POST /batches/{id}/sensor-readings` | 时间戳和温湿度 | 写入与告警结果；后续实现 |
 | `POST /alerts/{id}/resolve` | 处置人、说明 | 处置结果；后续实现 |
-| `GET /batches/{id}/report` | 内部 ID | 批次汇总；后续实现 |
+| `GET /batches/{id}/report` | 内部 ID | I1 已实现；只读聚合已保存的质检/复核、加工、冷链、告警与事件，不推导整批合格结论 |
 
 固定验收样例：`GET /batches` 返回包含 `{"batch_id": 1, "batch_code": "APPLE-2026-001", "product": "苹果", "status": "created"}` 的数组；实际 `batch_id` 以数据库生成值为准。初始种子中 `GET /trace/APPLE-2026-001` 只显示 `入厂` 演示事件；其他阶段未发生则显示“暂无记录”。新建批次不会自动伪造后续事件。A 与 B 接入前各提交独立服务的请求/响应 JSON 示例。
 

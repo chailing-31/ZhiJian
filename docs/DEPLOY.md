@@ -1,423 +1,296 @@
-# 部署与启动说明 v1.2
+# 部署与启动说明 v1.3
 
-本文档用于帮助项目成员在本地复现并运行当前批次 Demo。
-
-当前已跑通范围：
+当前完整 Demo 已跑通：
 
 ```text
-MySQL → Spring Boot API → Vue 首页/批次详情/公开溯源页
+MySQL
+  ↓
+Spring Boot 8080
+  ↓
+Vue 5173
+
+Spring Boot 8080
+  ↓
+AI Service 8001
+  ↓
+YOLO
 ```
 
-AI 图片质检、加工建议和冷链告警暂未接入。
+并已验证：AI 上传 → 持久化 → 人工复核 → 综合记录 → 公开溯源。
 
----
+加工和冷链业务写入仍待 B 接入。
 
-## 1. 获取代码
+## 1. 当前推荐方式
 
-首次获取项目：
+Windows 本机开发推荐直接运行 MySQL + AI service + Spring Boot + Vue。
 
-```bash
-git clone https://github.com/chailing-31/ZhiJian.git
-cd ZhiJian
-```
+现有 `docker-compose.yml` 仍是早期基础版：
 
-当前批次流程仍位于：
+- 没有 AI service；
+- 不会自动执行 A3 增量迁移；
+- backend 也没有按完整 inspection profile 配置。
 
-```text
-feature-batch-flow
-```
+因此当前不要把 Docker Compose 当作完整 AI Demo 一键部署。
 
-因此在合并到 `develop` 前，需要执行：
-
-```bash
-git switch feature-batch-flow
-```
-
-如果本地还没有该分支：
-
-```bash
-git fetch origin
-git switch -c feature-batch-flow --track origin/feature-batch-flow
-```
-
-后续该功能合并到 `develop` 后，团队统一使用：
-
-```bash
-git switch develop
-git pull
-```
-
----
-
-## 2. 已验证开发环境
-
-当前已验证环境：
-
-- Windows 11
-- JDK 17
-- Maven 3.9+
-- Node.js 24
-- npm 11
-- MySQL 8.0
-- Python 3.x
-
-检查命令：
-
-```bat
-java -version
-mvn -version
-node -v
-npm -v
-mysql --version
-python --version
-```
-
----
-
-## 3. 数据库协作方式
-
-开发阶段，每个成员可以在自己的电脑上维护一个本地：
+## 2. 数据库
 
 ```text
 smart_fresh_demo
 ```
 
-例如 A、B、C 各有一个本地开发数据库，这是正常的开发方式。
-
-最终数据库规划：
-
-```text
-个人开发：本地数据库
-        ↓
-多人联调：1 套共享测试数据库
-        ↓
-正式部署：1 套正式数据库
-```
-
-数据库结构与基础演示数据必须通过 Git 中以下文件统一维护：
-
-```text
-database/tables.sql
-database/demo.sql
-```
-
-不要只在本地手工修改表结构而不更新 SQL 文件。
-
----
-
-## 4. Windows 本机运行
-
-### 4.1 创建数据库
-
-确认 MySQL 服务已经启动，然后登录：
+基础初始化：
 
 ```bat
-mysql -u root -p
+cd /d D:\Projects\ZhiJian
 ```
-
-执行：
-
-```sql
-CREATE DATABASE IF NOT EXISTS smart_fresh_demo
-DEFAULT CHARACTER SET utf8mb4;
-exit
-```
-
----
-
-### 4.2 导入数据库结构和演示数据
-
-在仓库根目录执行：
 
 ```bat
 mysql --default-character-set=utf8mb4 -u root -p smart_fresh_demo < database\tables.sql
+```
+
+```bat
 mysql --default-character-set=utf8mb4 -u root -p smart_fresh_demo < database\demo.sql
 ```
 
-进入数据库检查：
+A3 迁移：
 
 ```bat
-mysql --default-character-set=utf8mb4 -u root -p smart_fresh_demo
+mysql --default-character-set=utf8mb4 -u root -p smart_fresh_demo < database\migrations\20261001_A3_inspection_integration.sql
 ```
 
-执行：
-
-```sql
-SHOW TABLES;
-
-SELECT id, batch_code, product, variety, origin, supplier, status
-FROM batches;
-
-SELECT event_type, summary, visibility
-FROM batch_events;
-```
-
-当前演示数据应至少包含：
-
-```text
-批次：APPLE-2026-001
-产品：苹果
-品种：红富士
-产地：山东烟台
-供应商：示例合作社
-状态：created
-```
-
-并存在一条公开的入厂事件。
-
-退出：
-
-```sql
-exit
-```
-
----
-
-### 4.3 配置并启动后端
-
-后端配置文件：
-
-```text
-backend/src/main/resources/application.properties
-```
-
-默认数据库地址：
-
-```text
-localhost:3306/smart_fresh_demo
-```
-
-Windows CMD 中进入后端目录：
+## 3. AI 服务 8001
 
 ```bat
-cd /d <项目路径>\backend
+cd /d D:\Projects\ZhiJian\ai-service
 ```
 
-设置数据库账号：
+如默认 Python 环境可用：
 
 ```bat
-set DB_USER=root
-set DB_PASSWORD=<本机 MySQL 密码>
+run-cpu-local.cmd
 ```
 
-注意：以上两条命令必须分别执行，不要写在同一行。
-
-启动：
+若 Python 位置不同：
 
 ```bat
-mvn spring-boot:run
+set "AI_PYTHON=<实际可用python.exe>"
 ```
 
-正常启动后，后端监听：
+若 manifest 位置不同：
 
-```text
-http://localhost:8080
+```bat
+set "AI_MODEL_MANIFEST=<实际model-manifest.json路径>"
+```
+
+再：
+
+```bat
+run-cpu-local.cmd
 ```
 
 验证：
 
 ```bat
-curl.exe http://localhost:8080/health
-curl.exe http://localhost:8080/batches
+curl.exe --noproxy "*" http://127.0.0.1:8001/ready
 ```
 
-健康接口应返回：
+需确认 `model_ready=true`。
 
-```json
-{"status":"ok"}
-```
-
-批次接口应返回包含：
-
-```text
-APPLE-2026-001
-```
-
----
-
-### 4.4 启动前端
-
-新开一个 CMD 窗口：
+## 4. Spring Boot 8080
 
 ```bat
-cd /d <项目路径>\frontend
+cd /d D:\Projects\ZhiJian\backend
+```
+
+```bat
+set "DB_USER=root"
+```
+
+```bat
+set "DB_PASSWORD=<本机MySQL密码>"
+```
+
+```bat
+run-inspection.cmd
+```
+
+验证：
+
+```bat
+curl.exe --noproxy "*" http://127.0.0.1:8080/health
+```
+
+```bat
+curl.exe --noproxy "*" http://127.0.0.1:8080/inspection-service/ready
+```
+
+```bat
+curl.exe --noproxy "*" http://127.0.0.1:8080/batches
+```
+
+如 8080 被占用：
+
+```bat
+netstat -ano | findstr :8080
+```
+
+确认旧 Java 进程后再停止，不要同时启动两个后端。
+
+## 5. Vue 5173
+
+```bat
+cd /d D:\Projects\ZhiJian\frontend
+```
+
+首次：
+
+```bat
 npm install
+```
+
+开发：
+
+```bat
 npm run dev
 ```
 
-正常情况下 Vite 会启动：
+访问：
 
 ```text
-http://localhost:5173
+http://127.0.0.1:5173/
+http://127.0.0.1:5173/inspection
+http://127.0.0.1:5173/traceability?batch_id=1
+http://127.0.0.1:5173/batches/1/report
+http://127.0.0.1:5173/trace/APPLE-2026-001
 ```
 
-浏览器访问：
+5173 已占用时，优先直接访问已有 Vite，不要重复启动。
+
+## 6. 测试和构建
+
+后端：
+
+```bat
+cd /d D:\Projects\ZhiJian\backend
+```
+
+```bat
+mvn test
+```
+
+前端：
+
+```bat
+cd /d D:\Projects\ZhiJian\frontend
+```
+
+```bat
+npm test
+```
+
+默认：
+
+```bat
+npm run build
+```
+
+部分 Windows 开发机若在模块转换后 minify 阶段长时间无响应：
+
+```bat
+npm run build:safe
+```
+
+`build:safe` 等价于 `vite build --minify=false`。它仍完成模块转换、chunk 生成与 dist 写入，仅不压缩 JS。
+
+## 7. 当前验收
+
+AI：
 
 ```text
-http://localhost:5173
+http://127.0.0.1:5173/inspection
 ```
 
-公开溯源页面：
+至少确认上传、检测、复核、刷新历史都正常。
+
+内部综合记录：
+
+```bat
+curl.exe --noproxy "*" http://127.0.0.1:8080/batches/1/report
+```
 
 ```text
-http://localhost:5173/trace/APPLE-2026-001
+http://127.0.0.1:5173/batches/1/report
 ```
 
----
-
-### 4.5 冒烟测试
-
-保持 MySQL、后端服务正在运行，在仓库根目录执行：
+公开溯源：
 
 ```bat
-python scripts\smoke_batch.py
+curl.exe --noproxy "*" http://127.0.0.1:8080/trace/APPLE-2026-001
 ```
 
-当前 Windows 开发机推荐使用 `python`，如果本机 `py` 启动器配置异常，不必使用 `py`。
+应包含 `public_summary`，且不返回内部 supplier、batch_id、模型信息或 private event。
 
-测试通过时输出：
+## 8. 手机二维码
+
+同一可信局域网：
+
+```bat
+npm run dev:lan
+```
+
+二维码目标使用电脑局域网 IP，例如：
 
 ```text
-Batch flow passed: list, detail, public trace, duplicate and missing batch
+http://192.168.x.x:5173
 ```
 
-这表示以下流程均通过：
+不要为了扫码开放 MySQL 3306 或 AI 8001。
 
-- 批次列表
-- 批次详情
-- 公开溯源
-- 重复批次处理
-- 不存在批次处理
+## 9. 安全边界
 
----
+当前是开发 Demo：
 
-## 5. Docker Compose 启动
+- 管理端无正式鉴权；
+- 8001 仅监听本机；
+- MySQL 不对公网开放；
+- `evaluation_status=not_evaluated`；
+- 无框不等于正常；
+- 单张图复核不等于整批合格；
+- public 页面只展示明确公开事件。
 
-如果开发机已安装并正确配置 Docker Desktop，可使用 Docker Compose。
+## 10. I4 全量只读冒烟
 
-在仓库根目录：
+MySQL、AI 8001、Spring Boot 8080 和 Vue 5173 全部启动后：
 
 ```bat
-copy .env.example .env
+cd /d D:\Projects\ZhiJian
 ```
-
-检查配置：
 
 ```bat
-docker compose config
+python scripts\smoke_full_demo.py
 ```
 
-启动 MySQL：
+脚本为只读验收，不执行 POST/PATCH，不会创建或修改业务数据。
 
-```bat
-docker compose up -d mysql
-```
-
-查看状态：
-
-```bat
-docker compose ps
-```
-
-首次创建 MySQL 数据卷时，会自动执行：
+当前验收内容：
 
 ```text
-database/tables.sql
-database/demo.sql
+AI /health
+AI /ready
+Backend /health
+Backend /inspection-service/ready
+批次列表与数据库链路
+批次详情
+A3 质检历史接口
+I1 内部综合记录
+I2 公开溯源与隐私边界
+Frontend 5173
 ```
 
-然后启动应用：
-
-```bat
-docker compose up --build -d backend frontend
-```
-
-查看状态：
-
-```bat
-docker compose ps
-```
-
-验证：
-
-```bat
-curl.exe http://localhost:8080/health
-curl.exe http://localhost:8080/batches
-python scripts\smoke_batch.py
-```
-
-注意：已有 MySQL 数据卷不会自动重新执行初始化 SQL。不要随意对包含有效数据的环境执行：
+全部必需检查通过时输出：
 
 ```text
-docker compose down -v
+FULL DEMO READY (for the checks above)
 ```
 
----
-
-## 6. 当前验收标准
-
-当前批次 Demo 验收通过需要满足：
-
-1. MySQL 中存在 `APPLE-2026-001`
-2. `/health` 返回正常
-3. `/batches` 能返回批次数据
-4. 首页能看到演示批次
-5. 批次详情页可正常打开
-6. 公开溯源页可正常打开
-7. `python scripts\smoke_batch.py` 测试通过
-
-当前只验收批次主链路。
-
-以下功能尚未纳入本阶段验收：
-
-- AI 图片检测
-- 加工建议
-- 冷链告警
-- 完整批次报告
-
----
-
-## 7. 常见问题
-
-### 7.1 `/health` 正常，但 `/batches` 返回 500
-
-优先检查数据库账号环境变量：
-
-```bat
-echo %DB_USER%
-```
-
-应只输出数据库用户名，例如：
-
-```text
-root
-```
-
-如果将两条 `set` 命令写在同一行，可能导致用户名被错误设置。
-
-### 7.2 `demo.sql` 中文乱码
-
-确保 SQL 文件使用 UTF-8 编码，并使用：
-
-```bat
-mysql --default-character-set=utf8mb4 ...
-```
-
-导入。
-
-### 7.3 `py scripts\smoke_batch.py` 无法执行
-
-如果 `python --version` 正常，直接使用：
-
-```bat
-python scripts\smoke_batch.py
-```
-
----
-
-## 8. 安全说明
-
-- 不要把真实数据库密码提交到 Git
-- `.env` 不应提交到仓库
-- 本地开发可以临时使用 root，后续共享测试环境建议创建专用数据库用户
-- 公网部署时必须重新设置数据库密码和服务配置
+该结论仅代表工程链路可用于当前 Demo 联调，不是食品安全、模型性能或生产部署认证。

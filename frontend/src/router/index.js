@@ -12,7 +12,7 @@ export const routes = [
       { path: 'processing', name: 'processing', component: () => import('../pages/processing/Processing.vue'), meta: { title: '加工品控', section: 'processing' } },
       { path: 'coldchain', name: 'coldchain', component: () => import('../pages/coldchain/ColdChain.vue'), meta: { title: '冷链监测', section: 'coldchain' } },
       { path: 'traceability', name: 'traceability', component: () => import('../pages/trace/Traceability.vue'), meta: { title: '溯源与报告', section: 'traceability' } },
-      { path: 'batches/:id(\\d+)/report', name: 'batch-report', component: () => import('../pages/report/BatchReport.vue'), meta: { title: '批次记录预览', section: 'traceability' } },
+      { path: 'batches/:id(\\d+)/report', name: 'batch-report', component: () => import('../pages/report/BatchReport.vue'), meta: { title: '批次综合记录', section: 'traceability' } },
       { path: ':pathMatch(.*)*', name: 'not-found', component: () => import('../pages/NotFound.vue'), meta: { title: '页面不存在' } },
     ],
   },

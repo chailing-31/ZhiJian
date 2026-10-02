@@ -104,15 +104,67 @@ public class BatchController {
         List<Map<String, Object>> found = jdbc.query("SELECT * FROM batches WHERE batch_code = ?", BatchController::batch, batchCode);
         if (found.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Batch not found");
         var batch = found.get(0);
+
         List<Map<String, Object>> events = jdbc.query(
             "SELECT event_type,event_time,summary,source FROM batch_events WHERE batch_id = ? AND visibility = 'public' ORDER BY event_time,id",
             EVENT_MAPPER, batch.get("batch_id"));
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("batch_code", batch.get("batch_code"));
         result.put("product", batch.get("product"));
         result.put("variety", batch.get("variety"));
         result.put("origin", batch.get("origin"));
+        result.put("public_summary", summarizePublicEvents(events));
         result.put("events", events);
         return result;
+    }
+
+    /**
+     * Summaries are derived only from already-public batch_events.
+     * They mean "public records exist", never "this stage is complete/safe/passed".
+     */
+    private static Map<String, Object> summarizePublicEvents(List<Map<String, Object>> events) {
+        Map<String, StageCounter> counters = new LinkedHashMap<>();
+        counters.put("inspection", new StageCounter());
+        counters.put("processing", new StageCounter());
+        counters.put("coldchain", new StageCounter());
+        counters.put("logistics", new StageCounter());
+
+        for (Map<String, Object> event : events) {
+            String type = String.valueOf(event.getOrDefault("event_type", ""));
+            String stage = publicStage(type);
+            if (stage == null) continue;
+
+            StageCounter counter = counters.get(stage);
+            counter.recordCount++;
+            Object eventTime = event.get("event_time");
+            counter.latestEventTime = eventTime == null ? null : String.valueOf(eventTime);
+        }
+
+        Map<String, Object> summary = new LinkedHashMap<>();
+        counters.forEach((key, counter) -> summary.put(key, counter.asMap()));
+        return summary;
+    }
+
+    private static String publicStage(String eventType) {
+        if (eventType.contains("质检") || eventType.contains("复核")) return "inspection";
+        if (eventType.contains("加工")) return "processing";
+        if (eventType.contains("冷链") || eventType.contains("仓储")) return "coldchain";
+        if (eventType.contains("包装") || eventType.contains("出厂")
+            || (eventType.contains("运输") && !eventType.contains("冷链"))) return "logistics";
+        return null;
+    }
+
+    private static final class StageCounter {
+        private int recordCount;
+        private String latestEventTime;
+
+        private Map<String, Object> asMap() {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("record_count", recordCount);
+            item.put("latest_event_time", latestEventTime);
+            item.put("state", recordCount > 0 ? "recorded" : "no_public_record");
+            return item;
+        }
     }
 }
