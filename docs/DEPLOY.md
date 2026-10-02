@@ -257,3 +257,40 @@ http://192.168.x.x:5173
 - 无框不等于正常；
 - 单张图复核不等于整批合格；
 - public 页面只展示明确公开事件。
+
+## 10. I4 全量只读冒烟
+
+MySQL、AI 8001、Spring Boot 8080 和 Vue 5173 全部启动后：
+
+```bat
+cd /d D:\Projects\ZhiJian
+```
+
+```bat
+python scripts\smoke_full_demo.py
+```
+
+脚本为只读验收，不执行 POST/PATCH，不会创建或修改业务数据。
+
+当前验收内容：
+
+```text
+AI /health
+AI /ready
+Backend /health
+Backend /inspection-service/ready
+批次列表与数据库链路
+批次详情
+A3 质检历史接口
+I1 内部综合记录
+I2 公开溯源与隐私边界
+Frontend 5173
+```
+
+全部必需检查通过时输出：
+
+```text
+FULL DEMO READY (for the checks above)
+```
+
+该结论仅代表工程链路可用于当前 Demo 联调，不是食品安全、模型性能或生产部署认证。

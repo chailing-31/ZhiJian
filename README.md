@@ -177,3 +177,37 @@ npm run build:safe
 - 管理端登录、权限与审计
 - 正式部署与公网安全加固
 - 模型独立 test 与正式类别语义
+
+## I4 全量只读冒烟验收
+
+完整服务启动后，在仓库根目录执行：
+
+```bat
+python scripts\smoke_full_demo.py
+```
+
+该脚本只发 GET 请求，不创建批次、不上传图片、不修改数据库，也不改变人工复核或公开状态。
+
+当前检查：
+
+```text
+AI 8001 /health
+AI 8001 /ready
+Backend 8080 /health
+Backend /inspection-service/ready
+GET /batches
+GET /batches/{id}
+GET /batches/{id}/inspections
+GET /batches/{id}/report
+GET /trace/{batch_code}
+公开响应隐私字段检查
+Frontend 5173
+```
+
+全部必需项通过时输出：
+
+```text
+FULL DEMO READY
+```
+
+这只表示当前工程链路冒烟通过，不代表模型准确率、食品安全或整批质量认证。
