@@ -1,0 +1,461 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ZhiJian Internal Inspection API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "summary": "Ready",
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ai/inspection/predict": {
+      "post": {
+        "summary": "Predict",
+        "operationId": "predict_ai_inspection_predict_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_predict_ai_inspection_predict_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/artifacts/{prediction_id}/{variant}": {
+      "get": {
+        "summary": "Artifact",
+        "operationId": "artifact_internal_artifacts__prediction_id___variant__get",
+        "parameters": [
+          {
+            "name": "prediction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Prediction Id"
+            }
+          },
+          {
+            "name": "variant",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "source",
+                "input",
+                "result",
+                "record"
+              ],
+              "type": "string",
+              "title": "Variant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ArtifactLinks": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "input": {
+            "type": "string",
+            "title": "Input"
+          },
+          "result": {
+            "type": "string",
+            "title": "Result"
+          },
+          "record": {
+            "type": "string",
+            "title": "Record"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "input",
+          "result",
+          "record"
+        ],
+        "title": "ArtifactLinks"
+      },
+      "Body_predict_ai_inspection_predict_post": {
+        "properties": {
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "title": "Image",
+            "description": "JPEG, PNG or WebP; one non-animated image, <=10 MiB"
+          },
+          "batch_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Batch Id",
+            "description": "Actual numeric ID assigned by Spring Boot/MySQL"
+          },
+          "batch_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9-]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image",
+          "batch_id"
+        ],
+        "title": "Body_predict_ai_inspection_predict_post"
+      },
+      "Detection": {
+        "properties": {
+          "class_id": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Class Id"
+          },
+          "class_name": {
+            "type": "string",
+            "title": "Class Name"
+          },
+          "class_label": {
+            "type": "string",
+            "title": "Class Label"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "bbox_xyxy": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Bbox Xyxy"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "class_id",
+          "class_name",
+          "class_label",
+          "confidence",
+          "bbox_xyxy"
+        ],
+        "title": "Detection"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ImageMetadata": {
+        "properties": {
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "normalized_pixels_sha256": {
+            "type": "string",
+            "title": "Normalized Pixels Sha256"
+          },
+          "coordinate_system": {
+            "type": "string",
+            "const": "exif_transposed_pixels_xyxy",
+            "title": "Coordinate System",
+            "default": "exif_transposed_pixels_xyxy"
+          }
+        },
+        "type": "object",
+        "required": [
+          "width",
+          "height",
+          "source_sha256",
+          "normalized_pixels_sha256"
+        ],
+        "title": "ImageMetadata"
+      },
+      "PredictionResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "zhijian.ai.inspection.v0.1",
+            "title": "Schema Version",
+            "default": "zhijian.ai.inspection.v0.1"
+          },
+          "prediction_id": {
+            "type": "string",
+            "title": "Prediction Id"
+          },
+          "batch_id": {
+            "type": "integer",
+            "title": "Batch Id"
+          },
+          "batch_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Code"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "weights_sha256": {
+            "type": "string",
+            "title": "Weights Sha256"
+          },
+          "evaluation_status": {
+            "type": "string",
+            "enum": [
+              "not_evaluated",
+              "evaluated"
+            ],
+            "title": "Evaluation Status"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "inference_ms": {
+            "type": "number",
+            "title": "Inference Ms"
+          },
+          "confidence_threshold": {
+            "type": "number",
+            "title": "Confidence Threshold"
+          },
+          "iou_threshold": {
+            "type": "number",
+            "title": "Iou Threshold"
+          },
+          "image": {
+            "$ref": "#/components/schemas/ImageMetadata"
+          },
+          "detections": {
+            "items": {
+              "$ref": "#/components/schemas/Detection"
+            },
+            "type": "array",
+            "title": "Detections"
+          },
+          "observation": {
+            "type": "string",
+            "enum": [
+              "target_defect_detected",
+              "no_target_defect_detected"
+            ],
+            "title": "Observation"
+          },
+          "suggested_grade": {
+            "type": "null",
+            "title": "Suggested Grade"
+          },
+          "grade_status": {
+            "type": "string",
+            "const": "grading_rule_not_configured",
+            "title": "Grade Status",
+            "default": "grading_rule_not_configured"
+          },
+          "requires_human_review": {
+            "type": "boolean",
+            "const": true,
+            "title": "Requires Human Review",
+            "default": true
+          },
+          "artifacts": {
+            "$ref": "#/components/schemas/ArtifactLinks"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prediction_id",
+          "batch_id",
+          "model_version",
+          "weights_sha256",
+          "evaluation_status",
+          "executed_at",
+          "inference_ms",
+          "confidence_threshold",
+          "iou_threshold",
+          "image",
+          "detections",
+          "observation",
+          "artifacts",
+          "warnings"
+        ],
+        "title": "PredictionResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

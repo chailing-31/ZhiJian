@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { request, ApiError } from '../src/api/http.js'
 import { getBatch, listBatches, createBatch } from '../src/api/batch.js'
 import { getPublicTrace } from '../src/api/trace.js'
-import { predictInspection, reviewInspection } from '../src/api/inspection.js'
 import { requestAdvice, saveAdoptedValues } from '../src/api/processing.js'
 import { importReadings, resolveAlert } from '../src/api/coldchain.js'
 import { getFormalReport } from '../src/api/report.js'
@@ -38,5 +37,5 @@ test('cancellation is propagated to fetch', () => withFetch(async (_url, options
   assert.equal(options.signal.aborted, true); throw new DOMException('aborted', 'AbortError')
 }, async () => { const c = new AbortController(); c.abort(); await assert.rejects(request('/batches', { signal: c.signal }), e => e.name === 'AbortError') }))
 test('all pending capabilities fail explicitly without network calls', () => withFetch(() => { throw new Error('unconnected APIs must never fetch') }, async () => {
-  for (const fn of [predictInspection, reviewInspection, requestAdvice, saveAdoptedValues, importReadings, resolveAlert, getFormalReport]) await assert.rejects(fn(), FeatureNotReadyError)
+  for (const fn of [requestAdvice, saveAdoptedValues, importReadings, resolveAlert, getFormalReport]) await assert.rejects(fn(), FeatureNotReadyError)
 }))
