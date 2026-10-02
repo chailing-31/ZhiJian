@@ -23,3 +23,13 @@ run-service.cmd
 `setup-service.cmd` 只安装轻量服务依赖到 D 盘项目 `.venv`，不会安装 PyTorch 或 Ultralytics。缓存与临时目录默认放 D 盘。服务端口仅监听本机 8001，不改 8080/5173。
 
 开发时以 `feature-ai` 为分支。新增接口字段是内部 A1 实现契约，需要和 C 确认；原有对外接口仍以 `docs/API.md` 为准。
+
+
+## 当前 Demo 冻结状态（2026-10-02）
+
+A1 上述内容保留为初始服务阶段记录。当前本地 Demo 已接入真实苹果检测权重，模型文件仍位于项目外，不提交到 Git。
+最终运行参数为 `confidence_threshold=0.25`、`iou_threshold=0.50`、`image_size=640`，类别保持中性
+`ssda_class_0/1`，`evaluation_status=not_evaluated`。
+
+当前已配置开发机优先使用 `run-cpu-local.cmd` 启动真实 CPU 推理服务；完整冻结证据、运行边界与交付要求见
+`../docs/AI_MODEL_FREEZE.md`。

@@ -22,6 +22,8 @@
 
 先执行 `database/migrations/20261001_A3_inspection_integration.sql`，以 `inspection` profile 启动 Spring Boot。完整输入输出、复核规则、错误、安全和存储说明见 [AI_INTEGRATION_A3.md](AI_INTEGRATION_A3.md)。
 
+当前本地 Demo 的 AI 运行配置冻结为 `confidence_threshold=0.25`、`iou_threshold=0.50`、`image_size=640`；该配置属于模型运行参数而不是业务 API 字段约束。冻结依据和限制见 [AI_MODEL_FREEZE.md](AI_MODEL_FREEZE.md)。
+
 | 方法与路径 | 返回 |
 | --- | --- |
 | `GET /inspection-service/ready` | `ready`、`database_ready`、`model_ready` 与说明；HTTP 200 不等于 ready=true |

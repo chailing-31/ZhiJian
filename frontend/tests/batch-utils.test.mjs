@@ -8,8 +8,8 @@ test('six module entries have unique keys and routes', () => {
   assert.equal(new Set(modules.map(x => x.path)).size, 6)
   assert.equal(new Set(modules.map(x => x.key)).size, 6)
 })
-test('business modules remain pending; inspection is explicitly internal integration', () => {
-  assert.equal(modules.find(m => m.key === 'inspection').status, '内部联调')
+test('business modules remain pending; inspection is explicitly connected', () => {
+  assert.equal(modules.find(m => m.key === 'inspection').status, '已接入')
   for (const key of ['processing', 'coldchain']) assert.equal(modules.find(m => m.key === key).tone, 'pending')
 })
 test('validId accepts a positive, safe database ID', () => { assert.equal(validId(1), '1'); assert.equal(validId('26'), '26') })

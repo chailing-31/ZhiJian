@@ -189,3 +189,20 @@ run-service.cmd
 - https://fastapi.tiangolo.com/tutorial/testing/
 - https://docs.ultralytics.com/modes/predict/
 - https://docs.python.org/3/library/venv.html
+
+
+## 10. 当前 Demo 冻结状态（2026-10-02）
+
+本文前面的 A1 内容保留为服务初始阶段记录。当前本地 Demo 已完成真实模型加载、Spring Boot 业务接入、MySQL 持久化、
+人工复核和历史查询。当前冻结的模型运行配置为：
+
+```text
+confidence_threshold = 0.25
+iou_threshold = 0.50
+image_size = 640
+classes = ssda_class_0 / ssda_class_1
+evaluation_status = not_evaluated
+```
+
+权重文件不进入 Git；真实模型版本、权重 SHA、A5/A6 参数选择、A7 冻结以及最终 A4 回归证据见
+[AI_MODEL_FREEZE.md](AI_MODEL_FREEZE.md)。这里的冻结仅表示 Demo 开发配置稳定，不代表独立测试、生产认证或食品安全结论。

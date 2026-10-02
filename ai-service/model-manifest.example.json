@@ -1,22 +1,22 @@
 {
   "task": "apple_surface_defect_detection",
   "model_version": "REPLACE_WITH_TRAINED_MODEL_VERSION",
-  "weights": "D:/ZhiJianData/models/apple_defects/best.pt",
+  "weights": "best.pt",
   "weights_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "classes": [
     {
       "id": 0,
-      "name": "disease_spot",
-      "label": "病斑"
+      "name": "ssda_class_0",
+      "label": "SSDA 缺陷 0（含义待确认）"
     },
     {
       "id": 1,
-      "name": "mechanical_damage",
-      "label": "机械损伤"
+      "name": "ssda_class_1",
+      "label": "SSDA 缺陷 1（含义待确认）"
     }
   ],
   "confidence_threshold": 0.25,
-  "iou_threshold": 0.7,
+  "iou_threshold": 0.5,
   "image_size": 640,
   "training_data_source": "REPLACE_WITH_DATASET_AND_LICENSE_REFERENCE",
   "evaluation_status": "not_evaluated",
