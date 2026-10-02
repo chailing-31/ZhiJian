@@ -14,7 +14,7 @@
 | `POST /batches/{id}/processing-advice` | 工艺输入 | `advice_type=rule`、规则依据与建议；后续实现 |
 | `POST /batches/{id}/sensor-readings` | 时间戳和温湿度 | 写入与告警结果；后续实现 |
 | `POST /alerts/{id}/resolve` | 处置人、说明 | 处置结果；后续实现 |
-| `GET /batches/{id}/report` | 内部 ID | 批次汇总；后续实现 |
+| `GET /batches/{id}/report` | 内部 ID | I1 已实现；只读聚合已保存的质检/复核、加工、冷链、告警与事件，不推导整批合格结论 |
 
 固定验收样例：`GET /batches` 返回包含 `{"batch_id": 1, "batch_code": "APPLE-2026-001", "product": "苹果", "status": "created"}` 的数组；实际 `batch_id` 以数据库生成值为准。初始种子中 `GET /trace/APPLE-2026-001` 只显示 `入厂` 演示事件；其他阶段未发生则显示“暂无记录”。新建批次不会自动伪造后续事件。A 与 B 接入前各提交独立服务的请求/响应 JSON 示例。
 

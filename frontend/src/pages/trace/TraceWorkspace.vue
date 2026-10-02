@@ -24,10 +24,10 @@ async function copyLink() {
 }
 </script>
 <template>
-  <div class="notice subtle">公开时间线读取现有接口。包装、运输、出厂事件录入和完整报告接口仍待接入；这里不会自动创建这些事件。</div>
+  <div class="notice subtle">公开时间线读取现有接口。包装、运输、出厂事件录入仍待接入；批次综合记录已接入只读聚合接口，这里不会自动创建这些事件。</div>
   <div class="trace-grid">
     <section class="card"><div class="section-row"><h2>公开事件时间线</h2><button class="btn small secondary" :disabled="loading" @click="reload">刷新</button></div><StateNotice :loading="loading" :error="error" @retry="reload" /><template v-if="data"><p class="muted">只读取公开溯源接口返回的事件，不把管理端全部事件直接发布。</p><EventTimeline :events="data.events || []" /></template></section>
     <section class="card qr-card"><h2>手机扫码入口</h2><img v-if="qr" :src="qr" :alt="`${batch.batch_code} 的公开溯源二维码`" class="qr-image" /><p v-if="qrError" class="notice danger">{{ qrError }}</p><label>手机可访问的前端地址<input v-model.trim="origin" placeholder="http://电脑局域网IP:5173" /></label><p v-if="localOnly" class="notice warning">当前地址是本机地址，手机不能通过它访问你的电脑。请改为电脑的局域网 IP 和前端端口。</p><p class="footnote">手机与电脑在同一可信网络，并启动 npm run dev:lan；本地二维码生成不依赖外部扫码服务。</p><label>公开链接<input :value="link" readonly aria-label="公开溯源链接" /></label><div class="button-row"><button class="btn secondary" :disabled="!link" @click="copyLink">复制链接</button><a v-if="qr" class="btn secondary" :href="qr" :download="`${batch.batch_code}-qr.png`">保存二维码</a></div><p v-if="copied" class="footnote" role="status">{{ copied }}</p><RouterLink class="btn full-width" :to="{ name: 'public-trace', params: { batchCode: batch.batch_code } }" target="_blank" rel="noopener">打开当前站点的公开页</RouterLink></section>
   </div>
-  <section class="card"><div class="section-row"><div><h2>批次记录预览</h2><p class="muted">从现有批次详情与事件生成管理端预览，支持浏览器打印；不是正式质检报告。</p></div><RouterLink class="btn secondary" :to="`/batches/${batch.batch_id}/report`">查看记录预览 →</RouterLink></div><p class="footnote">后续完整报告将汇总质检原始结果、人工复核、加工采用值、告警处置与证据文件。本次不调用尚未实现的 /report 接口。</p></section>
+  <section class="card"><div class="section-row"><div><h2>批次综合记录</h2><p class="muted">从数据库只读聚合已保存的质检/复核、加工、冷链、告警和事件，支持浏览器打印；不是食品安全或正式质检证明。</p></div><RouterLink class="btn secondary" :to="`/batches/${batch.batch_id}/report`">查看综合记录 →</RouterLink></div><p class="footnote">当前综合记录只聚合已经保存的数据；未发生或尚未接入的环节保持为空，不自动补造结果。</p></section>
 </template>
