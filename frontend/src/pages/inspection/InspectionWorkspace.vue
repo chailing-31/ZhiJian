@@ -98,7 +98,7 @@ onBeforeUnmount(() => { disposed = true; controller.abort(); if (preview.value) 
 </script>
 
 <template>
-  <section class="notice info"><strong>内部联调模型。</strong>类别含义与独立评测尚未确认；没有检出框不等于正常，人工复核也不构成整批合格认证。切换批次会清空未提交表单。</section>
+  <section class="notice info"><strong>内部联调模型。</strong>类别语义已完成 A9 数据审计：class 0 为表面擦伤，class 1 为虫害损伤；独立测试与自动等级仍未完成。没有检出框不等于正常，人工复核也不构成整批合格认证。切换批次会清空未提交表单。</section>
   <div class="section-row"><span :class="['badge', ready?.ready ? 'ready' : 'pending']">{{ ready?.ready ? '后端 / 数据库 / 模型可用' : '连接状态待确认' }}</span><button class="btn secondary" :disabled="busy || refreshing" @click="refresh">刷新状态与历史</button></div>
   <p v-if="ready && !ready.ready" class="notice warning">{{ ready.message }}</p>
   <p v-if="error" class="notice danger" role="alert">{{ error }}</p>
