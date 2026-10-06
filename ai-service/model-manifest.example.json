@@ -7,12 +7,12 @@
     {
       "id": 0,
       "name": "ssda_class_0",
-      "label": "SSDA 缺陷 0（含义待确认）"
+      "label": "表面擦伤（Scratch）"
     },
     {
       "id": 1,
       "name": "ssda_class_1",
-      "label": "SSDA 缺陷 1（含义待确认）"
+      "label": "虫害损伤（Pest damage）"
     }
   ],
   "confidence_threshold": 0.25,

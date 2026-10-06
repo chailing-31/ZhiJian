@@ -9,6 +9,8 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 from .config import Settings
 from .engine import YoloEngine, validate_detections
+from .burden import calculate_defect_burden
+from .grading import GRADE_BASIS, RULE_VERSION as GRADE_RULE_VERSION, suggest_grade
 from .media import FORMATS, InvalidImage, annotate, decode_image, image_metadata, store_prediction
 from .schemas import ArtifactLinks, PredictionResponse
 
@@ -106,6 +108,8 @@ def create_app(settings=None, engine=None):
             raise HTTPException(503, detail={'code': 'INFERENCE_FAILED',
                 'message': 'Inference failed; no result was saved.'}) from None
         elapsed_ms = (time.perf_counter() - start) * 1000
+        burden = calculate_defect_burden(detections, normalized.width, normalized.height)
+        suggested_grade, grade_status = suggest_grade(burden)
         prediction_id = str(uuid4())
         prefix = '/internal/artifacts/' + prediction_id
         record = PredictionResponse(
@@ -117,10 +121,15 @@ def create_app(settings=None, engine=None):
             confidence_threshold=engine.manifest.confidence_threshold,
             iou_threshold=engine.manifest.iou_threshold,
             image=image_metadata(data, normalized), detections=detections,
+            defect_burden=burden,
             observation='target_defect_detected' if detections else 'no_target_defect_detected',
+            suggested_grade=suggested_grade, grade_status=grade_status,
+            grade_rule_version=GRADE_RULE_VERSION, grade_basis=GRADE_BASIS,
             artifacts=ArtifactLinks(**{k: prefix + '/' + k for k in ('source', 'input', 'result', 'record')}),
             warnings=['仅为当前图像、当前模型类别与阈值下的观察，不代表食品安全或整批合格结论。',
-                      '未检出目标缺陷不等于正常；等级规则未配置，需人工复核。']
+                      'A11 缺陷负担以候选框相对整张图像面积计算，不是真实苹果表面损伤率或质量等级。',
+                      'A12 建议等级仅为开发规则：low/moderate/high 分别映射 B/C/D；未检出目标候选时不自动判 A。',
+                      '未检出目标缺陷不等于正常；建议等级不替代人工最终等级，需人工复核。']
         )
         if engine.manifest.evaluation_status == 'not_evaluated':
             record.warnings.append('该模型清单标记为尚未独立评测。')

@@ -8,7 +8,7 @@ if not exist "%AI_PYTHON%" (
 )
 "%AI_PYTHON%" --version
 if errorlevel 1 exit /b 1
-if not defined AI_MODEL_MANIFEST set "AI_MODEL_MANIFEST=D:\ZhiJianData\models\ssda-yolov8n-dev-v1\model-manifest.json"
+if not defined AI_MODEL_MANIFEST set "AI_MODEL_MANIFEST=D:\ZhiJianData\models\a15_multidomain_ft\model-manifest.json"
 if not exist "%AI_MODEL_MANIFEST%" (
   echo Model manifest not found. Set AI_MODEL_MANIFEST first.
   exit /b 1

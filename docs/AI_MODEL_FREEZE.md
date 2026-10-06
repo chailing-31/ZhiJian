@@ -15,17 +15,21 @@ image_size = 640
 evaluation_status = not_evaluated
 ```
 
-类别保持中性命名：
+A9 标签审计已确认类别语义。权重内部技术类名保持不变，用户可见标签正式化为：
 
 ```text
-0 -> ssda_class_0 -> SSDA 缺陷 0（含义待确认）
-1 -> ssda_class_1 -> SSDA 缺陷 1（含义待确认）
+0 -> ssda_class_0 -> scratch     -> 表面擦伤
+1 -> ssda_class_1 -> pest damage -> 虫害损伤
 ```
 
-没有把中性类别改写为未经确认的病害名、机械损伤名或质量等级。
+A9 的两份本地数据副本均统计为 train 568 图 / 1216 框（500/716）和 val 142 图 / 296 框（124/172），无空标签与格式异常；两份副本计数一致。详细记录见 `AI_DATA_AUDIT_A9.md`。
 
 权重文件和真实 `model-manifest.json` 保存在项目外数据目录，不提交到 Git。仓库中的
 `ai-service/model-manifest.example.json` 仅作为结构示例。
+
+## 1.1 A9 类别语义元数据修订
+
+A9 只修订类别语义元数据，不重新训练权重。正式本地 manifest 应继续保留技术 `name=ssda_class_0/1`，只更新 `label`；由于后端校验和 `inspections.model_version VARCHAR(50)` 的长度约束，A9 使用不超过 50 字符的新版本号 `ssda-yolov8n-20261001-8c45a0602dad-n050-sem1` 区分语义正式化后的新记录。权重 SHA、confidence=0.25、NMS IoU=0.50、imgsz=640 不变，`evaluation_status` 继续为 `not_evaluated`。
 
 ## 2. 参数选择证据
 
@@ -101,7 +105,7 @@ Vue 5173
 - 原数据只有 train/val，没有独立 test；
 - 同一果实是否跨 train/val 尚未验证，数据泄漏风险仍是审查项；
 - 没有经确认的 normal-only 独立评测集合；
-- `ssda_class_0/1` 的正式业务语义尚未确认；
+- 类别语义已通过 A9 标签计数审计确认，但仍未完成独立测试与 normal-only 评测；
 - 当前固定 IoU 匹配统计不是 mAP，也不是食品安全指标；
 - 没有登录鉴权、生产级访问控制、正式文件保留策略和公网部署加固；
 - “未检出目标”不等于正常苹果，也不等于整批合格。
