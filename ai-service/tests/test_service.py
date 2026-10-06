@@ -12,6 +12,7 @@ from PIL import Image
 from inspection_service.config import Settings
 from inspection_service.engine import YoloEngine, validate_detections
 from inspection_service.main import create_app
+from inspection_service.burden import calculate_defect_burden
 from inspection_service.media import decode_image, InvalidImage
 from inspection_service.schemas import Detection, ModelManifest
 
@@ -85,6 +86,14 @@ def test_contract_and_internal_artifacts(cfg):
         assert item['requires_human_review'] is True
         assert item['observation'] == 'target_defect_detected'
         assert item['detections'][0]['bbox_xyxy'] == [1, 2, 14, 18]
+        burden = item['defect_burden']
+        assert burden['rule_version'] == 'a11-dev-burden-v1'
+        assert burden['burden_level'] == 'high'
+        assert burden['detection_count'] == 1
+        assert burden['union_bbox_area_ratio_image'] == pytest.approx((13 * 16) / (40 * 30))
+        assert burden['max_bbox_area_ratio_image'] == pytest.approx((13 * 16) / (40 * 30))
+        assert burden['denominator'] == 'full_image_area'
+        assert burden['class_summary'][0]['count'] == 1
         assert item['image']['width'] == 40 and item['image']['height'] == 30
         assert item['image']['source_sha256'] == hashlib.sha256(image_bytes()).hexdigest()
         assert 'CONTRACT-TEST-ONLY' == item['model_version']
@@ -109,6 +118,55 @@ def test_empty_result_is_not_normal_or_grade_a(cfg):
         assert item['requires_human_review'] is True
         assert item['suggested_grade'] is None
         assert item['detections'] == []
+        assert item['defect_burden'] == {
+            'rule_version': 'a11-dev-burden-v1',
+            'burden_level': 'none_observed',
+            'detection_count': 0,
+            'union_bbox_area_ratio_image': 0.0,
+            'max_bbox_area_ratio_image': 0.0,
+            'escalation_flags': [],
+            'denominator': 'full_image_area',
+            'class_summary': [],
+        }
+
+
+
+
+def _a11_detection(class_id, class_name, box):
+    return Detection(class_id=class_id, class_name=class_name, class_label=class_name,
+                     confidence=0.9, bbox_xyxy=box)
+
+
+def test_a11_burden_thresholds_and_escalation():
+    low = calculate_defect_burden([_a11_detection(9, 'other', (0, 0, 50, 100))], 1000, 1000)
+    assert low.burden_level == 'low'
+
+    moderate = calculate_defect_burden([_a11_detection(9, 'other', (0, 0, 60, 100))], 1000, 1000)
+    assert moderate.burden_level == 'moderate'
+
+    high = calculate_defect_burden([_a11_detection(9, 'other', (0, 0, 300, 100))], 1000, 1000)
+    assert high.burden_level == 'high'
+
+    four = calculate_defect_burden([
+        _a11_detection(9, 'other', (0, 0, 20, 20)),
+        _a11_detection(9, 'other', (30, 0, 50, 20)),
+        _a11_detection(9, 'other', (60, 0, 80, 20)),
+        _a11_detection(9, 'other', (90, 0, 110, 20)),
+    ], 1000, 1000)
+    assert four.burden_level == 'moderate'
+    assert four.escalation_flags == ['detection_count_ge_4']
+
+    scratch = calculate_defect_burden(
+        [_a11_detection(0, 'ssda_class_0', (0, 0, 250, 100))], 1000, 1000
+    )
+    assert scratch.burden_level == 'high'
+    assert scratch.escalation_flags == ['scratch_large_box_ge_0_025']
+
+    pest = calculate_defect_burden(
+        [_a11_detection(1, 'ssda_class_1', (0, 0, 45, 100))], 1000, 1000
+    )
+    assert pest.burden_level == 'moderate'
+    assert pest.escalation_flags == ['pest_damage_large_box_ge_0_0045']
 
 
 @pytest.mark.parametrize('batch_id', ['0', '-1', 'APPLE-2026-001', '1.5'])

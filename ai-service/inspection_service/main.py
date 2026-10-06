@@ -9,6 +9,7 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 from .config import Settings
 from .engine import YoloEngine, validate_detections
+from .burden import calculate_defect_burden
 from .media import FORMATS, InvalidImage, annotate, decode_image, image_metadata, store_prediction
 from .schemas import ArtifactLinks, PredictionResponse
 
@@ -117,9 +118,11 @@ def create_app(settings=None, engine=None):
             confidence_threshold=engine.manifest.confidence_threshold,
             iou_threshold=engine.manifest.iou_threshold,
             image=image_metadata(data, normalized), detections=detections,
+            defect_burden=calculate_defect_burden(detections, normalized.width, normalized.height),
             observation='target_defect_detected' if detections else 'no_target_defect_detected',
             artifacts=ArtifactLinks(**{k: prefix + '/' + k for k in ('source', 'input', 'result', 'record')}),
             warnings=['仅为当前图像、当前模型类别与阈值下的观察，不代表食品安全或整批合格结论。',
+                      'A11 缺陷负担以候选框相对整张图像面积计算，不是真实苹果表面损伤率或质量等级。',
                       '未检出目标缺陷不等于正常；等级规则未配置，需人工复核。']
         )
         if engine.manifest.evaluation_status == 'not_evaluated':

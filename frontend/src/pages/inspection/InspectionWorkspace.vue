@@ -13,12 +13,20 @@ const busy = ref(false), refreshing = ref(false), selectedCandidate = ref(null),
 const form = reactive({ reviewer: '', remark: '', final_grade: '', conclusion: 'needs_recheck', publish_summary: false, candidates: [] })
 const decisions = { confirmed: '确认目标', false_positive: '疑似误检', duplicate: '重复框', uncertain: '不确定' }
 const conclusions = { target_confirmed: '已人工确认图中存在目标', no_target_confirmed: '本次未确认目标（不等于合格）', needs_recheck: '需要进一步复核' }
+const burdenLevels = { none_observed: '未观察到目标候选', low: '低', moderate: '中等', high: '高' }
+const burdenFlags = {
+  detection_count_ge_4: '候选总数达到 4 个',
+  scratch_large_box_ge_0_025: '存在较大的表面擦伤候选框',
+  pest_damage_large_box_ge_0_0045: '存在较大的虫害损伤候选框',
+}
 const prediction = computed(() => record.value?.prediction)
 const detections = computed(() => prediction.value?.detections || [])
+const burden = computed(() => prediction.value?.defect_burden || null)
 const viewBox = computed(() => prediction.value ? `0 0 ${prediction.value.image.width} ${prediction.value.image.height}` : '0 0 1 1')
 const confirmedCandidates = computed(() => form.candidates.filter(c => c.decision === 'confirmed'))
 function time(v) { return v ? new Date(v).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '—' }
 function percent(v) { return `${(Number(v) * 100).toFixed(2)}%` }
+function areaPercent(v) { return `${(Number(v) * 100).toFixed(2)}%` }
 function bbox(d) { return d.bbox_xyxy.map(v => Number(v).toFixed(1)).join(', ') }
 function showError(e) { if (!disposed && e.name !== 'AbortError') error.value = e.message }
 function setRecord(value) {
@@ -98,7 +106,7 @@ onBeforeUnmount(() => { disposed = true; controller.abort(); if (preview.value) 
 </script>
 
 <template>
-  <section class="notice info"><strong>内部联调模型。</strong>类别语义已完成 A9 数据审计：class 0 为表面擦伤，class 1 为虫害损伤；独立测试与自动等级仍未完成。没有检出框不等于正常，人工复核也不构成整批合格认证。切换批次会清空未提交表单。</section>
+  <section class="notice info"><strong>内部联调模型。</strong>类别语义已完成 A9 数据审计；A11 增加基于候选框/整图面积的开发版缺陷负担证据。该负担不是果面损伤率或质量等级，独立测试与自动等级仍未完成。没有检出框不等于正常，人工复核也不构成整批合格认证。切换批次会清空未提交表单。</section>
   <div class="section-row"><span :class="['badge', ready?.ready ? 'ready' : 'pending']">{{ ready?.ready ? '后端 / 数据库 / 模型可用' : '连接状态待确认' }}</span><button class="btn secondary" :disabled="busy || refreshing" @click="refresh">刷新状态与历史</button></div>
   <p v-if="ready && !ready.ready" class="notice warning">{{ ready.message }}</p>
   <p v-if="error" class="notice danger" role="alert">{{ error }}</p>
@@ -127,6 +135,17 @@ onBeforeUnmount(() => { disposed = true; controller.abort(); if (preview.value) 
       <p v-if="imageError" class="notice danger">图片文件加载失败，请检查后端证据目录。</p>
       <template v-if="record">
         <div class="result-summary"><div><span>记录 ID</span><strong>{{ record.inspection_id }}</strong></div><div><span>模型调用耗时</span><strong>{{ Number(prediction.inference_ms).toFixed(1) }} ms</strong></div><div><span>人工复核版本</span><strong>{{ record.review_revision }}</strong></div></div>
+        <div v-if="burden" class="a11-burden">
+          <div class="section-row"><strong>A11 缺陷负担证据</strong><span class="badge neutral">{{ burdenLevels[burden.burden_level] || burden.burden_level }}</span></div>
+          <div class="result-summary">
+            <div><span>候选总数</span><strong>{{ burden.detection_count }}</strong></div>
+            <div><span>候选联合覆盖 / 整图</span><strong>{{ areaPercent(burden.union_bbox_area_ratio_image) }}</strong></div>
+            <div><span>最大单处候选 / 整图</span><strong>{{ areaPercent(burden.max_bbox_area_ratio_image) }}</strong></div>
+          </div>
+          <p v-if="burden.escalation_flags?.length" class="footnote">升级依据：{{ burden.escalation_flags.map(f => burdenFlags[f] || f).join('；') }}</p>
+          <p class="footnote">规则 {{ burden.rule_version }}；分母为整张图像面积。该值不是苹果表面真实损伤率，不是质量等级，也不代表食品安全或整批合格。</p>
+        </div>
+        <p v-else class="footnote">该历史记录生成于 A11 之前，未保存缺陷负担字段。</p>
         <p class="footnote break-word">模型：{{ prediction.model_version }}<br />时间：{{ time(prediction.executed_at) }}<br />置信度阈值：{{ prediction.confidence_threshold }} · 去重阈值：{{ prediction.iou_threshold }} · 独立评测状态：{{ prediction.evaluation_status }}</p>
         <div class="a3-links"><a :href="record.artifact_urls.input" target="_blank" rel="noopener">放大输入图</a><a :href="record.artifact_urls.result" target="_blank" rel="noopener">查看 AI 服务保存的原始标注图</a></div>
         <p class="footnote">图上数字为候选序号，不是类别编号。复核不会隐藏或删除原始候选。耗时不含完整上传、下载与落库。</p>
@@ -172,5 +191,6 @@ onBeforeUnmount(() => { disposed = true; controller.abort(); if (preview.value) 
 .a3-checkbox input { width: auto; margin-top: 4px; }
 .a3-review { border-top: 1px solid #dce8df; padding: 14px 0; }
 .a3-review p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.a11-burden { margin-top: 14px; padding: 14px; border: 1px solid #dce8df; border-radius: 10px; background: #f8fbf9; }
 details { margin-top: 20px; }
 </style>
