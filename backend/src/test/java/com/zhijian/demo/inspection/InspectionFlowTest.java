@@ -56,7 +56,9 @@ class InspectionFlowTest {
         var burden=p.putObject("defect_burden"); burden.put("rule_version","a11-dev-burden-v1"); burden.put("burden_level","none_observed");
         burden.put("detection_count",0); burden.put("union_bbox_area_ratio_image",0.0); burden.put("max_bbox_area_ratio_image",0.0);
         burden.putArray("escalation_flags"); burden.put("denominator","full_image_area"); burden.putArray("class_summary");
-        p.put("observation","no_target_defect_detected"); p.putNull("suggested_grade"); p.put("grade_status","grading_rule_not_configured"); p.put("requires_human_review",true); p.putArray("warnings").add("Test substitute, no actual model."); return p;
+        p.put("observation","no_target_defect_detected"); p.putNull("suggested_grade"); p.put("grade_status","withheld_no_target_observed");
+        p.put("grade_rule_version","a12-dev-grade-v1"); p.put("grade_basis","defect_burden_level");
+        p.put("requires_human_review",true); p.putArray("warnings").add("Test substitute, no actual model."); return p;
     }
     private String upload(String key) throws Exception { return mvc.perform(multipart("/batches/1/inspections").file(file()).header("Idempotency-Key",key)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString(); }
     @Test void savesOnceAndPreservesModel() throws Exception {
@@ -98,6 +100,16 @@ class InspectionFlowTest {
     @Test void inconsistentA11BurdenIsRejected() throws Exception {
         ObjectNode p=prediction(1,"APPLE-2026-001",IMAGE);
         ((ObjectNode)p.path("defect_burden")).put("detection_count",1);
+        doReturn(p).when(ai).predict(anyLong(),anyString(),any(),anyString());
+        mvc.perform(multipart("/batches/1/inspections").file(file())
+            .header("Idempotency-Key",UUID.randomUUID())).andExpect(status().isBadGateway());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM inspections",Integer.class));
+    }
+
+    @Test void inconsistentA12GradeIsRejected() throws Exception {
+        ObjectNode p=prediction(1,"APPLE-2026-001",IMAGE);
+        p.put("suggested_grade","A");
+        p.put("grade_status","development_rule_applied");
         doReturn(p).when(ai).predict(anyLong(),anyString(),any(),anyString());
         mvc.perform(multipart("/batches/1/inspections").file(file())
             .header("Idempotency-Key",UUID.randomUUID())).andExpect(status().isBadGateway());

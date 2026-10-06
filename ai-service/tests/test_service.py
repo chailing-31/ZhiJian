@@ -13,6 +13,7 @@ from inspection_service.config import Settings
 from inspection_service.engine import YoloEngine, validate_detections
 from inspection_service.main import create_app
 from inspection_service.burden import calculate_defect_burden
+from inspection_service.grading import suggest_grade
 from inspection_service.media import decode_image, InvalidImage
 from inspection_service.schemas import Detection, ModelManifest
 
@@ -82,7 +83,10 @@ def test_contract_and_internal_artifacts(cfg):
         item = response.json()
         assert item['batch_id'] == 1
         assert item['batch_code'] == 'APPLE-2026-001'
-        assert item['suggested_grade'] is None
+        assert item['suggested_grade'] == 'D'
+        assert item['grade_status'] == 'development_rule_applied'
+        assert item['grade_rule_version'] == 'a12-dev-grade-v1'
+        assert item['grade_basis'] == 'defect_burden_level'
         assert item['requires_human_review'] is True
         assert item['observation'] == 'target_defect_detected'
         assert item['detections'][0]['bbox_xyxy'] == [1, 2, 14, 18]
@@ -114,7 +118,9 @@ def test_empty_result_is_not_normal_or_grade_a(cfg):
     with TestClient(create_app(cfg, FakeEngine())) as c:
         item = post(c).json()
         assert item['observation'] == 'no_target_defect_detected'
-        assert item['grade_status'] == 'grading_rule_not_configured'
+        assert item['grade_status'] == 'withheld_no_target_observed'
+        assert item['grade_rule_version'] == 'a12-dev-grade-v1'
+        assert item['grade_basis'] == 'defect_burden_level'
         assert item['requires_human_review'] is True
         assert item['suggested_grade'] is None
         assert item['detections'] == []
@@ -167,6 +173,22 @@ def test_a11_burden_thresholds_and_escalation():
     )
     assert pest.burden_level == 'moderate'
     assert pest.escalation_flags == ['pest_damage_large_box_ge_0_0045']
+
+
+
+
+def test_a12_grade_mapping_and_a_withheld():
+    empty = calculate_defect_burden([], 1000, 1000)
+    assert suggest_grade(empty) == (None, 'withheld_no_target_observed')
+
+    low = calculate_defect_burden([_a11_detection(9, 'other', (0, 0, 50, 100))], 1000, 1000)
+    assert suggest_grade(low) == ('B', 'development_rule_applied')
+
+    moderate = calculate_defect_burden([_a11_detection(9, 'other', (0, 0, 60, 100))], 1000, 1000)
+    assert suggest_grade(moderate) == ('C', 'development_rule_applied')
+
+    high = calculate_defect_burden([_a11_detection(9, 'other', (0, 0, 300, 100))], 1000, 1000)
+    assert suggest_grade(high) == ('D', 'development_rule_applied')
 
 
 @pytest.mark.parametrize('batch_id', ['0', '-1', 'APPLE-2026-001', '1.5'])

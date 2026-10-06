@@ -22,6 +22,8 @@ const burdenFlags = {
 const prediction = computed(() => record.value?.prediction)
 const detections = computed(() => prediction.value?.detections || [])
 const burden = computed(() => prediction.value?.defect_burden || null)
+const suggestedGrade = computed(() => prediction.value?.suggested_grade ?? null)
+const gradeStatus = computed(() => prediction.value?.grade_status || null)
 const viewBox = computed(() => prediction.value ? `0 0 ${prediction.value.image.width} ${prediction.value.image.height}` : '0 0 1 1')
 const confirmedCandidates = computed(() => form.candidates.filter(c => c.decision === 'confirmed'))
 function time(v) { return v ? new Date(v).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '—' }
@@ -106,7 +108,7 @@ onBeforeUnmount(() => { disposed = true; controller.abort(); if (preview.value) 
 </script>
 
 <template>
-  <section class="notice info"><strong>内部联调模型。</strong>类别语义已完成 A9 数据审计；A11 增加基于候选框/整图面积的开发版缺陷负担证据。该负担不是果面损伤率或质量等级，独立测试与自动等级仍未完成。没有检出框不等于正常，人工复核也不构成整批合格认证。切换批次会清空未提交表单。</section>
+  <section class="notice info"><strong>内部联调模型。</strong>类别语义已完成 A9 数据审计；A11 提供开发版缺陷负担证据，A12 仅将已观察到的负担映射为 B/C/D 建议等级。未检出目标候选时不会自动判 A。建议等级不是正式质量标准，最终等级仍需人工复核，且不构成食品安全或整批合格认证。</section>
   <div class="section-row"><span :class="['badge', ready?.ready ? 'ready' : 'pending']">{{ ready?.ready ? '后端 / 数据库 / 模型可用' : '连接状态待确认' }}</span><button class="btn secondary" :disabled="busy || refreshing" @click="refresh">刷新状态与历史</button></div>
   <p v-if="ready && !ready.ready" class="notice warning">{{ ready.message }}</p>
   <p v-if="error" class="notice danger" role="alert">{{ error }}</p>
@@ -146,6 +148,17 @@ onBeforeUnmount(() => { disposed = true; controller.abort(); if (preview.value) 
           <p class="footnote">规则 {{ burden.rule_version }}；分母为整张图像面积。该值不是苹果表面真实损伤率，不是质量等级，也不代表食品安全或整批合格。</p>
         </div>
         <p v-else class="footnote">该历史记录生成于 A11 之前，未保存缺陷负担字段。</p>
+        <div v-if="prediction.grade_rule_version" class="a12-grade">
+          <div class="section-row">
+            <strong>A12 开发建议等级</strong>
+            <span v-if="suggestedGrade" class="badge neutral">{{ suggestedGrade }}</span>
+            <span v-else class="badge pending">暂不自动建议</span>
+          </div>
+          <p v-if="suggestedGrade" class="footnote">依据 A11 缺陷负担“{{ burdenLevels[burden?.burden_level] || burden?.burden_level }}”映射为 {{ suggestedGrade }}。规则 {{ prediction.grade_rule_version }}；该建议不会自动写入人工最终等级。</p>
+          <p v-else-if="gradeStatus === 'withheld_no_target_observed'" class="footnote">当前未观察到目标候选，因此不自动建议 A。没有检测框不等于正常、A级、整批合格或食品安全。</p>
+          <p class="footnote">规则依据：{{ prediction.grade_basis }}。当前模型自动建议范围仅 B/C/D；A 级保留给人工或未来经独立验证的更完整质量模型。</p>
+        </div>
+        <p v-else class="footnote">该历史记录生成于 A12 之前，未保存开发建议等级规则字段。</p>
         <p class="footnote break-word">模型：{{ prediction.model_version }}<br />时间：{{ time(prediction.executed_at) }}<br />置信度阈值：{{ prediction.confidence_threshold }} · 去重阈值：{{ prediction.iou_threshold }} · 独立评测状态：{{ prediction.evaluation_status }}</p>
         <div class="a3-links"><a :href="record.artifact_urls.input" target="_blank" rel="noopener">放大输入图</a><a :href="record.artifact_urls.result" target="_blank" rel="noopener">查看 AI 服务保存的原始标注图</a></div>
         <p class="footnote">图上数字为候选序号，不是类别编号。复核不会隐藏或删除原始候选。耗时不含完整上传、下载与落库。</p>
@@ -171,7 +184,7 @@ onBeforeUnmount(() => { disposed = true; controller.abort(); if (preview.value) 
       <label class="full a3-checkbox"><input v-model="form.publish_summary" type="checkbox" :disabled="busy" />将“已保存一次人工复核”这一通用摘要公开到溯源页（不公开备注、等级、原图或候选详情；历史公开事件保留）</label>
       <button class="btn" type="submit" :disabled="busy">{{ busy ? '正在保存…' : `保存第 ${record.review_revision + 1} 版复核` }}</button>
     </form>
-    <p class="footnote">复核人目前为手工录入，尚无登录身份校验；仅用于受控本地联调。模型建议等级未配置，不自动分级、不自动将批次设为合格。</p>
+    <p class="footnote">复核人目前为手工录入，尚无登录身份校验；仅用于受控本地联调。A12 开发建议等级不会自动复制到人工等级，也不会自动将批次设为合格。</p>
     <details v-if="record.reviews.length"><summary>已保存的复核历史（{{ record.reviews.length }} 版）</summary><article v-for="r in record.reviews" :key="r.revision" class="a3-review"><strong>第 {{ r.revision }} 版 · {{ r.reviewer }} · {{ conclusions[r.conclusion] }}</strong><p>{{ time(r.created_at) }} · 人工等级：{{ r.final_grade || '未填写' }}</p><p>{{ r.remark }}</p><p v-for="c in r.candidate_reviews" :key="c.candidate_index" class="footnote">候选 {{ c.candidate_index }}：{{ decisions[c.decision] }}<span v-if="c.duplicate_of"> → {{ c.duplicate_of }}</span> {{ c.note }}</p></article></details>
   </section>
   <section class="card"><div class="section-row"><h2>04 当前批次质检历史</h2><span class="badge neutral">最近 100 条 A3 记录</span></div><p v-if="!history.length">{{ error ? '历史读取失败，不能据此认定无记录。' : '暂无已保存记录。' }}</p><button v-for="r in history" :key="r.inspection_id" class="row" :disabled="busy" @click="openRecord(r.inspection_id)"><strong>#{{ r.inspection_id }} · {{ r.review_revision ? `复核 ${r.review_revision} 版` : '待人工复核' }}</strong><span>{{ time(r.created_at) }} · {{ r.model_version }}</span></button></section>
@@ -192,5 +205,6 @@ onBeforeUnmount(() => { disposed = true; controller.abort(); if (preview.value) 
 .a3-review { border-top: 1px solid #dce8df; padding: 14px 0; }
 .a3-review p { white-space: pre-wrap; overflow-wrap: anywhere; }
 .a11-burden { margin-top: 14px; padding: 14px; border: 1px solid #dce8df; border-radius: 10px; background: #f8fbf9; }
+.a12-grade { margin-top: 12px; padding: 14px; border: 1px solid #dce8df; border-radius: 10px; background: #fbfcf8; }
 details { margin-top: 20px; }
 </style>

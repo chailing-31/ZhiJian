@@ -34,16 +34,38 @@ final class PredictionValidator {
                 if (b.get(0).asDouble() >= b.get(2).asDouble() || b.get(1).asDouble() >= b.get(3).asDouble()) fail();
             }
             validateBurden(p.path("defect_burden"), detections, w, h);
+            validateGrade(p, p.path("defect_burden"));
             String expected = detections.isEmpty() ? "no_target_defect_detected" : "target_defect_detected";
-            if (!expected.equals(p.path("observation").asText()) || !p.path("requires_human_review").asBoolean()
-                || !p.has("suggested_grade") || !p.get("suggested_grade").isNull()
-                || !"grading_rule_not_configured".equals(p.path("grade_status").asText())) fail();
+            if (!expected.equals(p.path("observation").asText()) || !p.path("requires_human_review").asBoolean()) fail();
             if (!p.path("warnings").isArray()) fail();
             return id;
         } catch (RuntimeException e) {
             throw new InspectionFault(502, "AI_CONTRACT_INVALID", "AI 响应与当前批次、图片或接口约定不符；未保存业务记录。");
         }
     }
+    private static void validateGrade(JsonNode p, JsonNode burden) {
+        if (!"a12-dev-grade-v1".equals(p.path("grade_rule_version").asText())
+            || !"defect_burden_level".equals(p.path("grade_basis").asText())
+            || !p.has("suggested_grade")) fail();
+
+        String level = burden.path("burden_level").asText();
+        if ("none_observed".equals(level)) {
+            if (!p.get("suggested_grade").isNull()
+                || !"withheld_no_target_observed".equals(p.path("grade_status").asText())) fail();
+            return;
+        }
+
+        String expectedGrade = switch (level) {
+            case "low" -> "B";
+            case "moderate" -> "C";
+            case "high" -> "D";
+            default -> throw new IllegalArgumentException("Invalid burden level");
+        };
+        if (!p.get("suggested_grade").isTextual()
+            || !expectedGrade.equals(p.get("suggested_grade").asText())
+            || !"development_rule_applied".equals(p.path("grade_status").asText())) fail();
+    }
+
     private static void validateBurden(JsonNode burden, JsonNode detections, int w, int h) {
         if (!burden.isObject() || !"a11-dev-burden-v1".equals(burden.path("rule_version").asText())
             || !"full_image_area".equals(burden.path("denominator").asText())) fail();

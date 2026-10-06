@@ -114,8 +114,22 @@ class PredictionResponse(BaseModel):
     detections: list[Detection]
     defect_burden: DefectBurden
     observation: Literal['target_defect_detected', 'no_target_defect_detected']
-    suggested_grade: None = None
-    grade_status: Literal['grading_rule_not_configured'] = 'grading_rule_not_configured'
+    suggested_grade: Literal['B', 'C', 'D'] | None = None
+    grade_status: Literal['development_rule_applied', 'withheld_no_target_observed']
+    grade_rule_version: Literal['a12-dev-grade-v1'] = 'a12-dev-grade-v1'
+    grade_basis: Literal['defect_burden_level'] = 'defect_burden_level'
     requires_human_review: Literal[True] = True
+
+    @model_validator(mode='after')
+    def validate_grade_suggestion(self):
+        expected = {'low': 'B', 'moderate': 'C', 'high': 'D'}
+        if self.defect_burden.burden_level == 'none_observed':
+            if self.suggested_grade is not None or self.grade_status != 'withheld_no_target_observed':
+                raise ValueError('No-target observations must withhold automatic grade suggestion.')
+        else:
+            if (self.suggested_grade != expected[self.defect_burden.burden_level]
+                or self.grade_status != 'development_rule_applied'):
+                raise ValueError('Suggested grade must match the A12 development rule.')
+        return self
     artifacts: ArtifactLinks
     warnings: list[str]
