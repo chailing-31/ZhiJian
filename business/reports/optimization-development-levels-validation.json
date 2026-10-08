@@ -1,0 +1,2362 @@
+{
+  "hybrid_distance": {
+    "point_comparison_scope": "Only points with a complete model feature window; both methods use identical points.",
+    "coverage": {
+      "total_points": 4290,
+      "scored_points": 4155,
+      "unscored_points": 135,
+      "unscored_positive_points": 0
+    },
+    "overall": {
+      "rule": {
+        "evaluated_points": 4155,
+        "tp": 105,
+        "fp": 0,
+        "tn": 3555,
+        "fn": 495,
+        "precision": 1.0,
+        "recall": 0.175,
+        "f1": 0.2978723404255319,
+        "false_positive_rate": 0.0
+      },
+      "model": {
+        "evaluated_points": 4155,
+        "tp": 588,
+        "fp": 139,
+        "tn": 3416,
+        "fn": 12,
+        "precision": 0.8088033012379643,
+        "recall": 0.98,
+        "f1": 0.8862094951017332,
+        "false_positive_rate": 0.03909985935302391
+      }
+    },
+    "by_scenario": {
+      "normal": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 525,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 525,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0
+        }
+      },
+      "normal_door": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 525,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 10,
+          "tn": 515,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.01904761904761905
+        }
+      },
+      "overheat": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 105,
+          "fp": 0,
+          "tn": 405,
+          "fn": 15,
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 120,
+          "fp": 18,
+          "tn": 387,
+          "fn": 0,
+          "precision": 0.8695652173913043,
+          "recall": 1.0,
+          "f1": 0.9302325581395349,
+          "false_positive_rate": 0.044444444444444446
+        }
+      },
+      "slow_drift": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 405,
+          "fn": 120,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 108,
+          "fp": 28,
+          "tn": 377,
+          "fn": 12,
+          "precision": 0.7941176470588235,
+          "recall": 0.9,
+          "f1": 0.84375,
+          "false_positive_rate": 0.0691358024691358
+        }
+      },
+      "oscillation": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 405,
+          "fn": 120,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 120,
+          "fp": 26,
+          "tn": 379,
+          "fn": 0,
+          "precision": 0.821917808219178,
+          "recall": 1.0,
+          "f1": 0.9022556390977443,
+          "false_positive_rate": 0.06419753086419754
+        }
+      },
+      "humidity_drop": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 405,
+          "fn": 120,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 120,
+          "fp": 26,
+          "tn": 379,
+          "fn": 0,
+          "precision": 0.821917808219178,
+          "recall": 1.0,
+          "f1": 0.9022556390977443,
+          "false_positive_rate": 0.06419753086419754
+        }
+      },
+      "current_spike": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 405,
+          "fn": 120,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 120,
+          "fp": 18,
+          "tn": 387,
+          "fn": 0,
+          "precision": 0.8695652173913043,
+          "recall": 1.0,
+          "f1": 0.9302325581395349,
+          "false_positive_rate": 0.044444444444444446
+        }
+      },
+      "data_gap": {
+        "rule": {
+          "evaluated_points": 480,
+          "tp": 0,
+          "fp": 0,
+          "tn": 480,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 480,
+          "tp": 0,
+          "fp": 13,
+          "tn": 467,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.027083333333333334
+        }
+      }
+    },
+    "event_detection": {
+      "rule": {
+        "labelled_events": 15,
+        "detected_events": 3,
+        "missed_events": 12,
+        "event_recall": 0.2,
+        "median_delay_minutes_on_detected_events": 5.0,
+        "max_delay_minutes_on_detected_events": 5.0
+      },
+      "model": {
+        "labelled_events": 15,
+        "detected_events": 15,
+        "missed_events": 0,
+        "event_recall": 1.0,
+        "median_delay_minutes_on_detected_events": 0.0,
+        "max_delay_minutes_on_detected_events": 4.0
+      }
+    },
+    "event_cases": [
+      {
+        "sequence_id": "validation-overheat-00",
+        "scenario": "overheat",
+        "started_at": "2026-01-23T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": true,
+          "delay_minutes": 5.0
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-overheat-01",
+        "scenario": "overheat",
+        "started_at": "2026-01-24T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": true,
+          "delay_minutes": 5.0
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-overheat-02",
+        "scenario": "overheat",
+        "started_at": "2026-01-25T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": true,
+          "delay_minutes": 5.0
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-00",
+        "scenario": "slow_drift",
+        "started_at": "2026-01-26T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 4.0
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-01",
+        "scenario": "slow_drift",
+        "started_at": "2026-01-27T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 4.0
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-02",
+        "scenario": "slow_drift",
+        "started_at": "2026-01-28T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 3.0
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-00",
+        "scenario": "oscillation",
+        "started_at": "2026-01-29T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-01",
+        "scenario": "oscillation",
+        "started_at": "2026-01-30T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-02",
+        "scenario": "oscillation",
+        "started_at": "2026-01-31T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-00",
+        "scenario": "humidity_drop",
+        "started_at": "2026-02-01T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-01",
+        "scenario": "humidity_drop",
+        "started_at": "2026-02-02T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-02",
+        "scenario": "humidity_drop",
+        "started_at": "2026-02-03T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-00",
+        "scenario": "current_spike",
+        "started_at": "2026-02-04T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-01",
+        "scenario": "current_spike",
+        "started_at": "2026-02-05T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-02",
+        "scenario": "current_spike",
+        "started_at": "2026-02-06T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 0.0
+        }
+      }
+    ],
+    "by_sequence": [
+      {
+        "sequence_id": "validation-normal-00",
+        "scenario": "normal",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-normal-01",
+        "scenario": "normal",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-normal-02",
+        "scenario": "normal",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-normal_door-00",
+        "scenario": "normal_door",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 3,
+          "tn": 172,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.017142857142857144,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-normal_door-01",
+        "scenario": "normal_door",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 1,
+          "tn": 174,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.005714285714285714,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-normal_door-02",
+        "scenario": "normal_door",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 6,
+          "tn": 169,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.03428571428571429,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-overheat-00",
+        "scenario": "overheat",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 35,
+          "fp": 0,
+          "tn": 135,
+          "fn": 5,
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 1
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 7,
+          "tn": 128,
+          "fn": 0,
+          "precision": 0.851063829787234,
+          "recall": 1.0,
+          "f1": 0.9195402298850575,
+          "false_positive_rate": 0.05185185185185185,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-overheat-01",
+        "scenario": "overheat",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 35,
+          "fp": 0,
+          "tn": 135,
+          "fn": 5,
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 1
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 5,
+          "tn": 130,
+          "fn": 0,
+          "precision": 0.8888888888888888,
+          "recall": 1.0,
+          "f1": 0.9411764705882353,
+          "false_positive_rate": 0.037037037037037035,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-overheat-02",
+        "scenario": "overheat",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 35,
+          "fp": 0,
+          "tn": 135,
+          "fn": 5,
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 1
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 6,
+          "tn": 129,
+          "fn": 0,
+          "precision": 0.8695652173913043,
+          "recall": 1.0,
+          "f1": 0.9302325581395349,
+          "false_positive_rate": 0.044444444444444446,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-00",
+        "scenario": "slow_drift",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 36,
+          "fp": 8,
+          "tn": 127,
+          "fn": 4,
+          "precision": 0.8181818181818182,
+          "recall": 0.9,
+          "f1": 0.8571428571428571,
+          "false_positive_rate": 0.05925925925925926,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-01",
+        "scenario": "slow_drift",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 35,
+          "fp": 10,
+          "tn": 125,
+          "fn": 5,
+          "precision": 0.7777777777777778,
+          "recall": 0.875,
+          "f1": 0.8235294117647058,
+          "false_positive_rate": 0.07407407407407407,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-02",
+        "scenario": "slow_drift",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 37,
+          "fp": 10,
+          "tn": 125,
+          "fn": 3,
+          "precision": 0.7872340425531915,
+          "recall": 0.925,
+          "f1": 0.8505747126436781,
+          "false_positive_rate": 0.07407407407407407,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-00",
+        "scenario": "oscillation",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 9,
+          "tn": 126,
+          "fn": 0,
+          "precision": 0.8163265306122449,
+          "recall": 1.0,
+          "f1": 0.898876404494382,
+          "false_positive_rate": 0.06666666666666667,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-01",
+        "scenario": "oscillation",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 10,
+          "tn": 125,
+          "fn": 0,
+          "precision": 0.8,
+          "recall": 1.0,
+          "f1": 0.8888888888888888,
+          "false_positive_rate": 0.07407407407407407,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-02",
+        "scenario": "oscillation",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 7,
+          "tn": 128,
+          "fn": 0,
+          "precision": 0.851063829787234,
+          "recall": 1.0,
+          "f1": 0.9195402298850575,
+          "false_positive_rate": 0.05185185185185185,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-00",
+        "scenario": "humidity_drop",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 7,
+          "tn": 128,
+          "fn": 0,
+          "precision": 0.851063829787234,
+          "recall": 1.0,
+          "f1": 0.9195402298850575,
+          "false_positive_rate": 0.05185185185185185,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-01",
+        "scenario": "humidity_drop",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 7,
+          "tn": 128,
+          "fn": 0,
+          "precision": 0.851063829787234,
+          "recall": 1.0,
+          "f1": 0.9195402298850575,
+          "false_positive_rate": 0.05185185185185185,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-02",
+        "scenario": "humidity_drop",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 12,
+          "tn": 123,
+          "fn": 0,
+          "precision": 0.7692307692307693,
+          "recall": 1.0,
+          "f1": 0.8695652173913043,
+          "false_positive_rate": 0.08888888888888889,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-00",
+        "scenario": "current_spike",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 6,
+          "tn": 129,
+          "fn": 0,
+          "precision": 0.8695652173913043,
+          "recall": 1.0,
+          "f1": 0.9302325581395349,
+          "false_positive_rate": 0.044444444444444446,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-01",
+        "scenario": "current_spike",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 7,
+          "tn": 128,
+          "fn": 0,
+          "precision": 0.851063829787234,
+          "recall": 1.0,
+          "f1": 0.9195402298850575,
+          "false_positive_rate": 0.05185185185185185,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-02",
+        "scenario": "current_spike",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 40,
+          "fp": 5,
+          "tn": 130,
+          "fn": 0,
+          "precision": 0.8888888888888888,
+          "recall": 1.0,
+          "f1": 0.9411764705882353,
+          "false_positive_rate": 0.037037037037037035,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-data_gap-00",
+        "scenario": "data_gap",
+        "rule": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 0,
+          "tn": 160,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 3,
+          "tn": 157,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.01875,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-data_gap-01",
+        "scenario": "data_gap",
+        "rule": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 0,
+          "tn": 160,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 4,
+          "tn": 156,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.025,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-data_gap-02",
+        "scenario": "data_gap",
+        "rule": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 0,
+          "tn": 160,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 6,
+          "tn": 154,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.0375,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      }
+    ],
+    "error_case_count": 634
+  },
+  "hybrid_persistent": {
+    "point_comparison_scope": "Only points with a complete model feature window; both methods use identical points.",
+    "coverage": {
+      "total_points": 4290,
+      "scored_points": 4155,
+      "unscored_points": 135,
+      "unscored_positive_points": 0
+    },
+    "overall": {
+      "rule": {
+        "evaluated_points": 4155,
+        "tp": 105,
+        "fp": 0,
+        "tn": 3555,
+        "fn": 495,
+        "precision": 1.0,
+        "recall": 0.175,
+        "f1": 0.2978723404255319,
+        "false_positive_rate": 0.0
+      },
+      "model": {
+        "evaluated_points": 4155,
+        "tp": 573,
+        "fp": 135,
+        "tn": 3420,
+        "fn": 27,
+        "precision": 0.809322033898305,
+        "recall": 0.955,
+        "f1": 0.8761467889908257,
+        "false_positive_rate": 0.0379746835443038
+      }
+    },
+    "by_scenario": {
+      "normal": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 525,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 525,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0
+        }
+      },
+      "normal_door": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 525,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 4,
+          "tn": 521,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.007619047619047619
+        }
+      },
+      "overheat": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 105,
+          "fp": 0,
+          "tn": 405,
+          "fn": 15,
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 117,
+          "fp": 23,
+          "tn": 382,
+          "fn": 3,
+          "precision": 0.8357142857142857,
+          "recall": 0.975,
+          "f1": 0.9,
+          "false_positive_rate": 0.056790123456790124
+        }
+      },
+      "slow_drift": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 405,
+          "fn": 120,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 105,
+          "fp": 27,
+          "tn": 378,
+          "fn": 15,
+          "precision": 0.7954545454545454,
+          "recall": 0.875,
+          "f1": 0.8333333333333334,
+          "false_positive_rate": 0.06666666666666667
+        }
+      },
+      "oscillation": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 405,
+          "fn": 120,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 117,
+          "fp": 27,
+          "tn": 378,
+          "fn": 3,
+          "precision": 0.8125,
+          "recall": 0.975,
+          "f1": 0.8863636363636364,
+          "false_positive_rate": 0.06666666666666667
+        }
+      },
+      "humidity_drop": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 405,
+          "fn": 120,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 117,
+          "fp": 25,
+          "tn": 380,
+          "fn": 3,
+          "precision": 0.823943661971831,
+          "recall": 0.975,
+          "f1": 0.8931297709923665,
+          "false_positive_rate": 0.06172839506172839
+        }
+      },
+      "current_spike": {
+        "rule": {
+          "evaluated_points": 525,
+          "tp": 0,
+          "fp": 0,
+          "tn": 405,
+          "fn": 120,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 525,
+          "tp": 117,
+          "fp": 18,
+          "tn": 387,
+          "fn": 3,
+          "precision": 0.8666666666666667,
+          "recall": 0.975,
+          "f1": 0.9176470588235294,
+          "false_positive_rate": 0.044444444444444446
+        }
+      },
+      "data_gap": {
+        "rule": {
+          "evaluated_points": 480,
+          "tp": 0,
+          "fp": 0,
+          "tn": 480,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 480,
+          "tp": 0,
+          "fp": 11,
+          "tn": 469,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.022916666666666665
+        }
+      }
+    },
+    "event_detection": {
+      "rule": {
+        "labelled_events": 15,
+        "detected_events": 3,
+        "missed_events": 12,
+        "event_recall": 0.2,
+        "median_delay_minutes_on_detected_events": 5.0,
+        "max_delay_minutes_on_detected_events": 5.0
+      },
+      "model": {
+        "labelled_events": 15,
+        "detected_events": 15,
+        "missed_events": 0,
+        "event_recall": 1.0,
+        "median_delay_minutes_on_detected_events": 1.0,
+        "max_delay_minutes_on_detected_events": 6.0
+      }
+    },
+    "event_cases": [
+      {
+        "sequence_id": "validation-overheat-00",
+        "scenario": "overheat",
+        "started_at": "2026-01-23T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": true,
+          "delay_minutes": 5.0
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-overheat-01",
+        "scenario": "overheat",
+        "started_at": "2026-01-24T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": true,
+          "delay_minutes": 5.0
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-overheat-02",
+        "scenario": "overheat",
+        "started_at": "2026-01-25T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": true,
+          "delay_minutes": 5.0
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-00",
+        "scenario": "slow_drift",
+        "started_at": "2026-01-26T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 5.0
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-01",
+        "scenario": "slow_drift",
+        "started_at": "2026-01-27T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 6.0
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-02",
+        "scenario": "slow_drift",
+        "started_at": "2026-01-28T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 4.0
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-00",
+        "scenario": "oscillation",
+        "started_at": "2026-01-29T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-01",
+        "scenario": "oscillation",
+        "started_at": "2026-01-30T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-02",
+        "scenario": "oscillation",
+        "started_at": "2026-01-31T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-00",
+        "scenario": "humidity_drop",
+        "started_at": "2026-02-01T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-01",
+        "scenario": "humidity_drop",
+        "started_at": "2026-02-02T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-02",
+        "scenario": "humidity_drop",
+        "started_at": "2026-02-03T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-00",
+        "scenario": "current_spike",
+        "started_at": "2026-02-04T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-01",
+        "scenario": "current_spike",
+        "started_at": "2026-02-05T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-02",
+        "scenario": "current_spike",
+        "started_at": "2026-02-06T01:10:00+08:00",
+        "points": 40,
+        "rule": {
+          "detected": false,
+          "delay_minutes": null
+        },
+        "model": {
+          "detected": true,
+          "delay_minutes": 1.0
+        }
+      }
+    ],
+    "by_sequence": [
+      {
+        "sequence_id": "validation-normal-00",
+        "scenario": "normal",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-normal-01",
+        "scenario": "normal",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-normal-02",
+        "scenario": "normal",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-normal_door-00",
+        "scenario": "normal_door",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 2,
+          "tn": 173,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.011428571428571429,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-normal_door-01",
+        "scenario": "normal_door",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-normal_door-02",
+        "scenario": "normal_door",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 175,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 2,
+          "tn": 173,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.011428571428571429,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-overheat-00",
+        "scenario": "overheat",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 35,
+          "fp": 0,
+          "tn": 135,
+          "fn": 5,
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 1
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 8,
+          "tn": 127,
+          "fn": 1,
+          "precision": 0.8297872340425532,
+          "recall": 0.975,
+          "f1": 0.896551724137931,
+          "false_positive_rate": 0.05925925925925926,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-overheat-01",
+        "scenario": "overheat",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 35,
+          "fp": 0,
+          "tn": 135,
+          "fn": 5,
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 1
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 6,
+          "tn": 129,
+          "fn": 1,
+          "precision": 0.8666666666666667,
+          "recall": 0.975,
+          "f1": 0.9176470588235294,
+          "false_positive_rate": 0.044444444444444446,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-overheat-02",
+        "scenario": "overheat",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 35,
+          "fp": 0,
+          "tn": 135,
+          "fn": 5,
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 1
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 9,
+          "tn": 126,
+          "fn": 1,
+          "precision": 0.8125,
+          "recall": 0.975,
+          "f1": 0.8863636363636364,
+          "false_positive_rate": 0.06666666666666667,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-00",
+        "scenario": "slow_drift",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 35,
+          "fp": 7,
+          "tn": 128,
+          "fn": 5,
+          "precision": 0.8333333333333334,
+          "recall": 0.875,
+          "f1": 0.8536585365853658,
+          "false_positive_rate": 0.05185185185185185,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-01",
+        "scenario": "slow_drift",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 34,
+          "fp": 10,
+          "tn": 125,
+          "fn": 6,
+          "precision": 0.7727272727272727,
+          "recall": 0.85,
+          "f1": 0.8095238095238095,
+          "false_positive_rate": 0.07407407407407407,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-slow_drift-02",
+        "scenario": "slow_drift",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 36,
+          "fp": 10,
+          "tn": 125,
+          "fn": 4,
+          "precision": 0.782608695652174,
+          "recall": 0.9,
+          "f1": 0.8372093023255814,
+          "false_positive_rate": 0.07407407407407407,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-00",
+        "scenario": "oscillation",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 10,
+          "tn": 125,
+          "fn": 1,
+          "precision": 0.7959183673469388,
+          "recall": 0.975,
+          "f1": 0.8764044943820225,
+          "false_positive_rate": 0.07407407407407407,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-01",
+        "scenario": "oscillation",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 9,
+          "tn": 126,
+          "fn": 1,
+          "precision": 0.8125,
+          "recall": 0.975,
+          "f1": 0.8863636363636364,
+          "false_positive_rate": 0.06666666666666667,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-oscillation-02",
+        "scenario": "oscillation",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 8,
+          "tn": 127,
+          "fn": 1,
+          "precision": 0.8297872340425532,
+          "recall": 0.975,
+          "f1": 0.896551724137931,
+          "false_positive_rate": 0.05925925925925926,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-00",
+        "scenario": "humidity_drop",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 9,
+          "tn": 126,
+          "fn": 1,
+          "precision": 0.8125,
+          "recall": 0.975,
+          "f1": 0.8863636363636364,
+          "false_positive_rate": 0.06666666666666667,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-01",
+        "scenario": "humidity_drop",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 8,
+          "tn": 127,
+          "fn": 1,
+          "precision": 0.8297872340425532,
+          "recall": 0.975,
+          "f1": 0.896551724137931,
+          "false_positive_rate": 0.05925925925925926,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-humidity_drop-02",
+        "scenario": "humidity_drop",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 8,
+          "tn": 127,
+          "fn": 1,
+          "precision": 0.8297872340425532,
+          "recall": 0.975,
+          "f1": 0.896551724137931,
+          "false_positive_rate": 0.05925925925925926,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-00",
+        "scenario": "current_spike",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 6,
+          "tn": 129,
+          "fn": 1,
+          "precision": 0.8666666666666667,
+          "recall": 0.975,
+          "f1": 0.9176470588235294,
+          "false_positive_rate": 0.044444444444444446,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-01",
+        "scenario": "current_spike",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 6,
+          "tn": 129,
+          "fn": 1,
+          "precision": 0.8666666666666667,
+          "recall": 0.975,
+          "f1": 0.9176470588235294,
+          "false_positive_rate": 0.044444444444444446,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-current_spike-02",
+        "scenario": "current_spike",
+        "rule": {
+          "evaluated_points": 175,
+          "tp": 0,
+          "fp": 0,
+          "tn": 135,
+          "fn": 40,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_positive_rate": 0.0,
+          "labelled_events": 1,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 175,
+          "tp": 39,
+          "fp": 6,
+          "tn": 129,
+          "fn": 1,
+          "precision": 0.8666666666666667,
+          "recall": 0.975,
+          "f1": 0.9176470588235294,
+          "false_positive_rate": 0.044444444444444446,
+          "labelled_events": 1,
+          "detected_events": 1
+        }
+      },
+      {
+        "sequence_id": "validation-data_gap-00",
+        "scenario": "data_gap",
+        "rule": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 0,
+          "tn": 160,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 2,
+          "tn": 158,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.0125,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-data_gap-01",
+        "scenario": "data_gap",
+        "rule": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 0,
+          "tn": 160,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 3,
+          "tn": 157,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.01875,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      },
+      {
+        "sequence_id": "validation-data_gap-02",
+        "scenario": "data_gap",
+        "rule": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 0,
+          "tn": 160,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null,
+          "false_positive_rate": 0.0,
+          "labelled_events": 0,
+          "detected_events": 0
+        },
+        "model": {
+          "evaluated_points": 160,
+          "tp": 0,
+          "fp": 6,
+          "tn": 154,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0,
+          "false_positive_rate": 0.0375,
+          "labelled_events": 0,
+          "detected_events": 0
+        }
+      }
+    ],
+    "error_case_count": 630
+  }
+}

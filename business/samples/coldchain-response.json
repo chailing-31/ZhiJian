@@ -1,0 +1,28 @@
+{
+  "batch_id": 1,
+  "source": "simulation",
+  "alert": true,
+  "level": "HIGH",
+  "status": "active",
+  "reason": "观测到温度高于 8℃ 持续至少 5 分钟（演示规则）",
+  "episodes": [
+    {
+      "started_at": "2026-10-03T10:00:00+08:00",
+      "triggered_at": "2026-10-03T10:05:00+08:00",
+      "trigger_value": 12.0,
+      "last_observed_at": "2026-10-03T10:05:00+08:00",
+      "recovered_at": null,
+      "end_reason": "ongoing",
+      "observed_minutes": 5.0,
+      "peak_temperature": 12.0
+    }
+  ],
+  "data_gap_count": 0,
+  "rule_version": "demo-coldchain-v2",
+  "demo_only": true,
+  "config": {
+    "temperature_upper": 8.0,
+    "duration_minutes": 5.0,
+    "max_gap_minutes": 2.0
+  }
+}

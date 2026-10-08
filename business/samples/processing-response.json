@@ -1,0 +1,13 @@
+{
+  "batch_id": 1,
+  "advice_type": "rule",
+  "advice": {
+    "pre_cooling_time": null,
+    "washing_pressure": null,
+    "action": "人工复核外观缺陷与分选结果，再按已批准的作业规程执行"
+  },
+  "reason": "根据人工确认等级 B 给出演示流程提示；温湿度仅作为输入记录，尚未建立经核定的工艺参数映射，预冷时长和清洗水压不提供数值建议",
+  "rule_version": "demo-process-v2",
+  "requires_confirmation": true,
+  "demo_only": true
+}

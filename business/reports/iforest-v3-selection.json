@@ -1,0 +1,740 @@
+{
+  "requested_strategy": "auto_validation",
+  "selected_strategy": "grouped_levels",
+  "selection_rule": "Prefer validation FPR <= 5%, then largest validation F1; ties preserve joint-first order. No test metrics used.",
+  "validation_target_met": true,
+  "validation": {
+    "joint": {
+      "point_comparison_scope": "Only points with a complete model feature window; both methods use identical points.",
+      "coverage": {
+        "total_points": 4290,
+        "scored_points": 4155,
+        "unscored_points": 135,
+        "unscored_positive_points": 0
+      },
+      "overall": {
+        "rule": {
+          "evaluated_points": 4155,
+          "tp": 105,
+          "fp": 0,
+          "tn": 3555,
+          "fn": 495,
+          "precision": 1.0,
+          "recall": 0.175,
+          "f1": 0.2978723404255319,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 4155,
+          "tp": 166,
+          "fp": 81,
+          "tn": 3474,
+          "fn": 434,
+          "precision": 0.6720647773279352,
+          "recall": 0.27666666666666667,
+          "f1": 0.3919716646989374,
+          "false_positive_rate": 0.02278481012658228
+        }
+      },
+      "by_scenario": {
+        "normal": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 525,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 525,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "false_positive_rate": 0.0
+          }
+        },
+        "normal_door": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 525,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 9,
+            "tn": 516,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "false_positive_rate": 0.017142857142857144
+          }
+        },
+        "overheat": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 105,
+            "fp": 0,
+            "tn": 405,
+            "fn": 15,
+            "precision": 1.0,
+            "recall": 0.875,
+            "f1": 0.9333333333333333,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 21,
+            "fp": 16,
+            "tn": 389,
+            "fn": 99,
+            "precision": 0.5675675675675675,
+            "recall": 0.175,
+            "f1": 0.267515923566879,
+            "false_positive_rate": 0.03950617283950617
+          }
+        },
+        "slow_drift": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 15,
+            "fp": 18,
+            "tn": 387,
+            "fn": 105,
+            "precision": 0.45454545454545453,
+            "recall": 0.125,
+            "f1": 0.19607843137254902,
+            "false_positive_rate": 0.044444444444444446
+          }
+        },
+        "oscillation": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 120,
+            "fp": 19,
+            "tn": 386,
+            "fn": 0,
+            "precision": 0.8633093525179856,
+            "recall": 1.0,
+            "f1": 0.9266409266409267,
+            "false_positive_rate": 0.04691358024691358
+          }
+        },
+        "humidity_drop": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 4,
+            "fp": 7,
+            "tn": 398,
+            "fn": 116,
+            "precision": 0.36363636363636365,
+            "recall": 0.03333333333333333,
+            "f1": 0.061068702290076333,
+            "false_positive_rate": 0.01728395061728395
+          }
+        },
+        "current_spike": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 6,
+            "fp": 3,
+            "tn": 402,
+            "fn": 114,
+            "precision": 0.6666666666666666,
+            "recall": 0.05,
+            "f1": 0.09302325581395349,
+            "false_positive_rate": 0.007407407407407408
+          }
+        },
+        "data_gap": {
+          "rule": {
+            "evaluated_points": 480,
+            "tp": 0,
+            "fp": 0,
+            "tn": 480,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 480,
+            "tp": 0,
+            "fp": 9,
+            "tn": 471,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "false_positive_rate": 0.01875
+          }
+        }
+      },
+      "event_detection": {
+        "rule": {
+          "labelled_events": 15,
+          "detected_events": 3,
+          "missed_events": 12,
+          "median_delay_minutes_on_detected_events": 5.0,
+          "max_delay_minutes_on_detected_events": 5.0
+        },
+        "model": {
+          "labelled_events": 15,
+          "detected_events": 14,
+          "missed_events": 1,
+          "median_delay_minutes_on_detected_events": 15.0,
+          "max_delay_minutes_on_detected_events": 20.0
+        }
+      },
+      "error_case_count": 673
+    },
+    "grouped": {
+      "point_comparison_scope": "Only points with a complete model feature window; both methods use identical points.",
+      "coverage": {
+        "total_points": 4290,
+        "scored_points": 4155,
+        "unscored_points": 135,
+        "unscored_positive_points": 0
+      },
+      "overall": {
+        "rule": {
+          "evaluated_points": 4155,
+          "tp": 105,
+          "fp": 0,
+          "tn": 3555,
+          "fn": 495,
+          "precision": 1.0,
+          "recall": 0.175,
+          "f1": 0.2978723404255319,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 4155,
+          "tp": 186,
+          "fp": 94,
+          "tn": 3461,
+          "fn": 414,
+          "precision": 0.6642857142857143,
+          "recall": 0.31,
+          "f1": 0.42272727272727273,
+          "false_positive_rate": 0.026441631504922646
+        }
+      },
+      "by_scenario": {
+        "normal": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 525,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 5,
+            "tn": 520,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "false_positive_rate": 0.009523809523809525
+          }
+        },
+        "normal_door": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 525,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 9,
+            "tn": 516,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "false_positive_rate": 0.017142857142857144
+          }
+        },
+        "overheat": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 105,
+            "fp": 0,
+            "tn": 405,
+            "fn": 15,
+            "precision": 1.0,
+            "recall": 0.875,
+            "f1": 0.9333333333333333,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 17,
+            "fp": 10,
+            "tn": 395,
+            "fn": 103,
+            "precision": 0.6296296296296297,
+            "recall": 0.14166666666666666,
+            "f1": 0.23129251700680273,
+            "false_positive_rate": 0.024691358024691357
+          }
+        },
+        "slow_drift": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 11,
+            "fp": 17,
+            "tn": 388,
+            "fn": 109,
+            "precision": 0.39285714285714285,
+            "recall": 0.09166666666666666,
+            "f1": 0.14864864864864866,
+            "false_positive_rate": 0.04197530864197531
+          }
+        },
+        "oscillation": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 120,
+            "fp": 9,
+            "tn": 396,
+            "fn": 0,
+            "precision": 0.9302325581395349,
+            "recall": 1.0,
+            "f1": 0.963855421686747,
+            "false_positive_rate": 0.022222222222222223
+          }
+        },
+        "humidity_drop": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 31,
+            "fp": 26,
+            "tn": 379,
+            "fn": 89,
+            "precision": 0.543859649122807,
+            "recall": 0.25833333333333336,
+            "f1": 0.3502824858757062,
+            "false_positive_rate": 0.06419753086419754
+          }
+        },
+        "current_spike": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 7,
+            "fp": 8,
+            "tn": 397,
+            "fn": 113,
+            "precision": 0.4666666666666667,
+            "recall": 0.058333333333333334,
+            "f1": 0.1037037037037037,
+            "false_positive_rate": 0.019753086419753086
+          }
+        },
+        "data_gap": {
+          "rule": {
+            "evaluated_points": 480,
+            "tp": 0,
+            "fp": 0,
+            "tn": 480,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 480,
+            "tp": 0,
+            "fp": 10,
+            "tn": 470,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "false_positive_rate": 0.020833333333333332
+          }
+        }
+      },
+      "event_detection": {
+        "rule": {
+          "labelled_events": 15,
+          "detected_events": 3,
+          "missed_events": 12,
+          "median_delay_minutes_on_detected_events": 5.0,
+          "max_delay_minutes_on_detected_events": 5.0
+        },
+        "model": {
+          "labelled_events": 15,
+          "detected_events": 15,
+          "missed_events": 0,
+          "median_delay_minutes_on_detected_events": 0.0,
+          "max_delay_minutes_on_detected_events": 15.0
+        }
+      },
+      "error_case_count": 692
+    },
+    "grouped_levels": {
+      "point_comparison_scope": "Only points with a complete model feature window; both methods use identical points.",
+      "coverage": {
+        "total_points": 4290,
+        "scored_points": 4155,
+        "unscored_points": 135,
+        "unscored_positive_points": 0
+      },
+      "overall": {
+        "rule": {
+          "evaluated_points": 4155,
+          "tp": 105,
+          "fp": 0,
+          "tn": 3555,
+          "fn": 495,
+          "precision": 1.0,
+          "recall": 0.175,
+          "f1": 0.2978723404255319,
+          "false_positive_rate": 0.0
+        },
+        "model": {
+          "evaluated_points": 4155,
+          "tp": 240,
+          "fp": 68,
+          "tn": 3487,
+          "fn": 360,
+          "precision": 0.7792207792207793,
+          "recall": 0.4,
+          "f1": 0.5286343612334802,
+          "false_positive_rate": 0.01912798874824191
+        }
+      },
+      "by_scenario": {
+        "normal": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 525,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 5,
+            "tn": 520,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "false_positive_rate": 0.009523809523809525
+          }
+        },
+        "normal_door": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 525,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 6,
+            "tn": 519,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "false_positive_rate": 0.011428571428571429
+          }
+        },
+        "overheat": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 105,
+            "fp": 0,
+            "tn": 405,
+            "fn": 15,
+            "precision": 1.0,
+            "recall": 0.875,
+            "f1": 0.9333333333333333,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 6,
+            "tn": 399,
+            "fn": 120,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.014814814814814815
+          }
+        },
+        "slow_drift": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 14,
+            "tn": 391,
+            "fn": 120,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0345679012345679
+          }
+        },
+        "oscillation": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 3,
+            "tn": 402,
+            "fn": 120,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.007407407407407408
+          }
+        },
+        "humidity_drop": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 120,
+            "fp": 13,
+            "tn": 392,
+            "fn": 0,
+            "precision": 0.9022556390977443,
+            "recall": 1.0,
+            "f1": 0.9486166007905138,
+            "false_positive_rate": 0.03209876543209877
+          }
+        },
+        "current_spike": {
+          "rule": {
+            "evaluated_points": 525,
+            "tp": 0,
+            "fp": 0,
+            "tn": 405,
+            "fn": 120,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 525,
+            "tp": 120,
+            "fp": 19,
+            "tn": 386,
+            "fn": 0,
+            "precision": 0.8633093525179856,
+            "recall": 1.0,
+            "f1": 0.9266409266409267,
+            "false_positive_rate": 0.04691358024691358
+          }
+        },
+        "data_gap": {
+          "rule": {
+            "evaluated_points": 480,
+            "tp": 0,
+            "fp": 0,
+            "tn": 480,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "false_positive_rate": 0.0
+          },
+          "model": {
+            "evaluated_points": 480,
+            "tp": 0,
+            "fp": 2,
+            "tn": 478,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "false_positive_rate": 0.004166666666666667
+          }
+        }
+      },
+      "event_detection": {
+        "rule": {
+          "labelled_events": 15,
+          "detected_events": 3,
+          "missed_events": 12,
+          "median_delay_minutes_on_detected_events": 5.0,
+          "max_delay_minutes_on_detected_events": 5.0
+        },
+        "model": {
+          "labelled_events": 15,
+          "detected_events": 6,
+          "missed_events": 9,
+          "median_delay_minutes_on_detected_events": 0.0,
+          "max_delay_minutes_on_detected_events": 0.0
+        }
+      },
+      "error_case_count": 668
+    }
+  }
+}

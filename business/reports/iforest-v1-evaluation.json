@@ -1,0 +1,430 @@
+{
+  "point_comparison_scope": "Only points with a complete model feature window; both methods use identical points.",
+  "coverage": {
+    "total_points": 4290,
+    "scored_points": 4155,
+    "unscored_points": 135,
+    "unscored_positive_points": 0
+  },
+  "overall": {
+    "rule": {
+      "evaluated_points": 4155,
+      "tp": 105,
+      "fp": 0,
+      "tn": 3555,
+      "fn": 495,
+      "precision": 1.0,
+      "recall": 0.175,
+      "f1": 0.2978723404255319,
+      "false_positive_rate": 0.0
+    },
+    "model": {
+      "evaluated_points": 4155,
+      "tp": 182,
+      "fp": 98,
+      "tn": 3457,
+      "fn": 418,
+      "precision": 0.65,
+      "recall": 0.30333333333333334,
+      "f1": 0.41363636363636364,
+      "false_positive_rate": 0.027566807313642756
+    }
+  },
+  "by_scenario": {
+    "normal": {
+      "rule": {
+        "evaluated_points": 525,
+        "tp": 0,
+        "fp": 0,
+        "tn": 525,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "false_positive_rate": 0.0
+      },
+      "model": {
+        "evaluated_points": 525,
+        "tp": 0,
+        "fp": 0,
+        "tn": 525,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "false_positive_rate": 0.0
+      }
+    },
+    "normal_door": {
+      "rule": {
+        "evaluated_points": 525,
+        "tp": 0,
+        "fp": 0,
+        "tn": 525,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "false_positive_rate": 0.0
+      },
+      "model": {
+        "evaluated_points": 525,
+        "tp": 0,
+        "fp": 15,
+        "tn": 510,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "false_positive_rate": 0.02857142857142857
+      }
+    },
+    "overheat": {
+      "rule": {
+        "evaluated_points": 525,
+        "tp": 105,
+        "fp": 0,
+        "tn": 405,
+        "fn": 15,
+        "precision": 1.0,
+        "recall": 0.875,
+        "f1": 0.9333333333333333,
+        "false_positive_rate": 0.0
+      },
+      "model": {
+        "evaluated_points": 525,
+        "tp": 29,
+        "fp": 16,
+        "tn": 389,
+        "fn": 91,
+        "precision": 0.6444444444444445,
+        "recall": 0.24166666666666667,
+        "f1": 0.3515151515151515,
+        "false_positive_rate": 0.03950617283950617
+      }
+    },
+    "slow_drift": {
+      "rule": {
+        "evaluated_points": 525,
+        "tp": 0,
+        "fp": 0,
+        "tn": 405,
+        "fn": 120,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "model": {
+        "evaluated_points": 525,
+        "tp": 17,
+        "fp": 18,
+        "tn": 387,
+        "fn": 103,
+        "precision": 0.4857142857142857,
+        "recall": 0.14166666666666666,
+        "f1": 0.21935483870967742,
+        "false_positive_rate": 0.044444444444444446
+      }
+    },
+    "oscillation": {
+      "rule": {
+        "evaluated_points": 525,
+        "tp": 0,
+        "fp": 0,
+        "tn": 405,
+        "fn": 120,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "model": {
+        "evaluated_points": 525,
+        "tp": 120,
+        "fp": 14,
+        "tn": 391,
+        "fn": 0,
+        "precision": 0.8955223880597015,
+        "recall": 1.0,
+        "f1": 0.9448818897637795,
+        "false_positive_rate": 0.0345679012345679
+      }
+    },
+    "humidity_drop": {
+      "rule": {
+        "evaluated_points": 525,
+        "tp": 0,
+        "fp": 0,
+        "tn": 405,
+        "fn": 120,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "model": {
+        "evaluated_points": 525,
+        "tp": 8,
+        "fp": 8,
+        "tn": 397,
+        "fn": 112,
+        "precision": 0.5,
+        "recall": 0.06666666666666667,
+        "f1": 0.11764705882352941,
+        "false_positive_rate": 0.019753086419753086
+      }
+    },
+    "current_spike": {
+      "rule": {
+        "evaluated_points": 525,
+        "tp": 0,
+        "fp": 0,
+        "tn": 405,
+        "fn": 120,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "model": {
+        "evaluated_points": 525,
+        "tp": 8,
+        "fp": 13,
+        "tn": 392,
+        "fn": 112,
+        "precision": 0.38095238095238093,
+        "recall": 0.06666666666666667,
+        "f1": 0.11347517730496454,
+        "false_positive_rate": 0.03209876543209877
+      }
+    },
+    "data_gap": {
+      "rule": {
+        "evaluated_points": 480,
+        "tp": 0,
+        "fp": 0,
+        "tn": 480,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "false_positive_rate": 0.0
+      },
+      "model": {
+        "evaluated_points": 480,
+        "tp": 0,
+        "fp": 14,
+        "tn": 466,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "false_positive_rate": 0.029166666666666667
+      }
+    }
+  },
+  "event_detection": {
+    "rule": {
+      "labelled_events": 15,
+      "detected_events": 3,
+      "missed_events": 12,
+      "median_delay_minutes_on_detected_events": 5.0,
+      "max_delay_minutes_on_detected_events": 5.0
+    },
+    "model": {
+      "labelled_events": 15,
+      "detected_events": 15,
+      "missed_events": 0,
+      "median_delay_minutes_on_detected_events": 15.0,
+      "max_delay_minutes_on_detected_events": 19.0
+    }
+  },
+  "error_case_count": 682,
+  "model": {
+    "feature_version": "coldchain-causal-v1",
+    "feature_config": {
+      "profile": "device",
+      "window_minutes": 5,
+      "max_gap_minutes": 2,
+      "min_points": 3
+    },
+    "feature_names": [
+      "temperature",
+      "humidity",
+      "temperature_rate_per_minute",
+      "humidity_rate_per_minute",
+      "temperature_std",
+      "temperature_range",
+      "humidity_std",
+      "temperature_trend_per_minute",
+      "door_open_fraction",
+      "current_mean",
+      "current_std",
+      "current_rate_per_minute"
+    ],
+    "seed": 42,
+    "training_source": "simulation",
+    "training_windows": 2100,
+    "calibration_windows": 700,
+    "training_batches": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "calibration_batches": [
+      13,
+      14,
+      15,
+      16
+    ],
+    "training_fingerprints": [
+      "06ae5004aaf713a3f97e31146269b0afe5a01fd7606b4c45a8502aa8b03f3078",
+      "162c85449ac0c54de3501049727d1391e40f87aa6335bd0237ef5af38c308559",
+      "3b393b84dced83ddaa78edb6a09f7f6354a3b8c13f43f233c211b32c1f06ac27",
+      "408849e85e27f0c65c7d22118ed1acad2cb06f3502a76725f5df6ef60a059c2f",
+      "5c46ff8dc603372c453c1e1bf2654494a8d632bdd9303e06d4f6d9034f351768",
+      "5cbe3939c7bd6174b1e6ccb57fe01ccc8fdb24f18a5c28b2367faa5c16b2bf45",
+      "5d59a4c6150b6e0a81c004a69d23674b8705a56b7f3747bc665ea8543cd341be",
+      "6097574e3b3e7a7741e838d3cc3fffeba08c12129699f7cda225f53dee9ebd3f",
+      "9c7406d0e26935acf790b1e40c40945c6f5a2115debe2336e8c6b9d532c7725a",
+      "9ef9086e651a6e8880b4ff2c8e73c5f1e7a9c04cf1361cc840d60a2b5db2bc53",
+      "a2c74509e868361449eae64cc8f28d27b3cdd87c0979632b0a43692395885b19",
+      "a48f460e0a4d4126338bcaf40e08cd1277cb7a4314c745dd545200105d5b500e"
+    ],
+    "calibration_fingerprints": [
+      "629f31e764a37dd065bfec61b88fa4a8157096d987e68338ac0bb34985a98e88",
+      "8f6d10c9833d9beb6801086f630da15fb00793180f0859e5037e562e1e8900b5",
+      "b49737ddde614d07660cd24b432b56f2f9ac51ebe5bbb6986083db0f801829b4",
+      "bb442adb8154f5776fd46c887d24bada587c369cd8d2f68f7f4bd4facef01952"
+    ],
+    "target_false_positive_rate": 0.02,
+    "calibration_observed_false_positive_rate": 0.018571428571428572,
+    "threshold": 0.6014439710365083,
+    "threshold_method": "independent_normal_calibration_quantile",
+    "sklearn_version": "1.9.1",
+    "demo_only": true,
+    "model_id": "iforest-791afc9f05c34dc1"
+  },
+  "dataset_manifest_sha256": "b756e7ea95f44c54d3b07595e916209e67aedb161cee62a1d93d55181e044704",
+  "test_fingerprints": [
+    {
+      "id": "test-normal-00",
+      "sha256": "97b2e6946f5a4eb2c63b9990c5b6c281dda83d305203d79deacedb55ca76d586"
+    },
+    {
+      "id": "test-normal-01",
+      "sha256": "8ef4ef79a3a55d7b5fdbbe61afd94e75c1f5b380198f00549380353777c302bd"
+    },
+    {
+      "id": "test-normal-02",
+      "sha256": "5e49f075f95ea104a90e3a9b1c9d2872eaab010df8a7261cb2a24ab9ffbe53d3"
+    },
+    {
+      "id": "test-normal_door-00",
+      "sha256": "4601435241e71bacb4d6772103ec0d8d43216f4bd9a91d4b102c37ddb507a93c"
+    },
+    {
+      "id": "test-normal_door-01",
+      "sha256": "6a1f975e08dbbac6b9a2a555c45b62c45863bf6b6c337de6feefe5f45117413e"
+    },
+    {
+      "id": "test-normal_door-02",
+      "sha256": "bfb9dff5e35ec1a6f0e90a1364cfc5b77b06b9fa4cb8ed7254db8efc9c67ecf7"
+    },
+    {
+      "id": "test-overheat-00",
+      "sha256": "d00547560259b03c5ac5c312b95e02fe754836d4a52edeb5b3de16f1defe7981"
+    },
+    {
+      "id": "test-overheat-01",
+      "sha256": "1ccc7b98671497c76944318a60dfc774e6c60aa1e86ff09b75a62869baa846f9"
+    },
+    {
+      "id": "test-overheat-02",
+      "sha256": "5ec22f122d9c90f7c12a0d4880e28a7171366c182f149fb80050bb7e1c635683"
+    },
+    {
+      "id": "test-slow_drift-00",
+      "sha256": "d27a1468f33903146c2dfa138235f385a41566d4155b367955a72d929cc186a4"
+    },
+    {
+      "id": "test-slow_drift-01",
+      "sha256": "37c9ad198c77778844e230c41c9ac94e4073ed0f80b699059062a01cefaafa33"
+    },
+    {
+      "id": "test-slow_drift-02",
+      "sha256": "e59a8d18510c5a54fbc089953f9e4dab868cf4a8f28590d8c6b41c947562c89b"
+    },
+    {
+      "id": "test-oscillation-00",
+      "sha256": "1710a9740656cfb78d41963589d29f42b6d06e274a52be45dcc56ca5c0d97b37"
+    },
+    {
+      "id": "test-oscillation-01",
+      "sha256": "2dc83aa278089c2609fabff771811343cddfb0855a81aea8be25cd27a28f5b13"
+    },
+    {
+      "id": "test-oscillation-02",
+      "sha256": "f740481d9ec1bcc3635ebe3e02b45242145800da35b28075a66a20f2cdb950db"
+    },
+    {
+      "id": "test-humidity_drop-00",
+      "sha256": "0a6d977e9dc12a057ddfcdfbf8512adcaec97616b4ab721969b216c6db65c920"
+    },
+    {
+      "id": "test-humidity_drop-01",
+      "sha256": "1cfa4c031bdc00c0bce88a2a4ff1e99f5bcf6e0b461513c1541e4561ef1231cb"
+    },
+    {
+      "id": "test-humidity_drop-02",
+      "sha256": "0878da890c226b804b076fce7028d52b5ffaa602b961ba2e2d75988167df6be4"
+    },
+    {
+      "id": "test-current_spike-00",
+      "sha256": "c15f82a1972b6959dac026a6c7c265b8815e8256a271d2ca53c95719ba946919"
+    },
+    {
+      "id": "test-current_spike-01",
+      "sha256": "0e4c11dbd015887bea3aa80b91f4750f9ea2cb1489a6cb38ebc6d7b0d1679839"
+    },
+    {
+      "id": "test-current_spike-02",
+      "sha256": "a320ca36835b84fc48f752f97f4e57d74d15636b2fd067641eb501c8f0780673"
+    },
+    {
+      "id": "test-data_gap-00",
+      "sha256": "ca4c84f8e88a9c8cc6f0b0a7937e287e3c5d1ba044a439ddb0f0de7b2c71f37d"
+    },
+    {
+      "id": "test-data_gap-01",
+      "sha256": "929033b0a4fad40f86aec8fbee6e4cb13a8d2fc13b2243c9336e058809090761"
+    },
+    {
+      "id": "test-data_gap-02",
+      "sha256": "06b9edab7053a3473703eed79b474316143774ac97abd3e9241760ac322625b6"
+    }
+  ],
+  "dataset_source": "simulation",
+  "rule_config": {
+    "temperature_upper": 8,
+    "duration_minutes": 5,
+    "max_gap_minutes": 2
+  },
+  "limitations": [
+    "Synthetic injection labels are not validated equipment-fault or food-quality labels.",
+    "Test results are not used to select model parameters or the calibration threshold.",
+    "Overlapping windows are correlated; point metrics are not independent trials.",
+    "The baseline checks sustained high temperature only; model features cover additional variables.",
+    "No field deployment or Spring Boot/MySQL/Vue integration was evaluated."
+  ]
+}
