@@ -40,9 +40,13 @@ def coldchain_check(request: ColdchainRequest):
     return check_coldchain(request)
 
 
-@app.post("/business/process-advice", response_model=ProcessResponse)
+@app.post("/business/process-advice", response_model=ProcessResponse,
+          responses={503: {"description": "加工规则配置不可用；不返回备用参数"}})
 def advice(request: ProcessRequest):
-    return process_advice(request)
+    try:
+        return process_advice(request)
+    except (OSError, ValueError) as error:
+        raise HTTPException(status_code=503, detail="加工规则配置不可用，请检查配置文件并重启服务") from error
 
 
 @lru_cache(maxsize=1)
@@ -57,7 +61,8 @@ def get_anomaly_detector():
         raise HTTPException(status_code=503, detail="异常检测模型未就绪，请检查依赖、模型清单和版本") from error
 
 
-@app.post("/coldchain/analyze", response_model=CombinedResult)
+@app.post("/coldchain/analyze", response_model=CombinedResult,
+          responses={503: {"description": "异常检测模型未配置或不可用；规则接口仍可独立调用"}})
 def analyze(request: ColdchainRequest):
     detector = get_anomaly_detector()
     try:

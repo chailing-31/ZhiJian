@@ -1,5 +1,7 @@
 # Business：加工规则与冷链分析
 
+**B 独立交付入口（2026-10-10）：[接口文档](API.md) · [OpenAPI](openapi.json) · [交付验收](DELIVERY.md)。** 加工建议、连续冷链规则、独立回放与 HTTP 核验均可在本目录完成，不需要 Java、页面或数据库。系统集成由 C 负责；本轮参数及模型仍按演示成果交付。
+
 B 的独立 Python 模块，版本 0.5.0。规则基线根据工作区 `Fast/app/__pycache__` 中保留的 Python 3.12 字节码重建；现已提供 Isolation Forest 与正常邻域距离混合检测、训练、校准、模型选择、测试及推理流程。原始 Fast 文件保留；本目录不依赖它或旧虚拟环境。迁移背景见 [MIGRATION.md](MIGRATION.md)。
 
 ## 当前交付
@@ -9,7 +11,7 @@ B 的独立 Python 模块，版本 0.5.0。规则基线根据工作区 `Fast/app
 - FastAPI 内部接口、离线 CSV 分析、正常/超温/恢复三组模拟样本、请求响应 JSON 和自动测试。
 - 算法：保留联合/分组 Isolation Forest，增加窗口/当前水平的正常邻域距离与混合检测；8/12/14项因果特征，独立正常校准、验证选型、多组留出测试、模型持久化和解释证据。最新 [优化对比](reports/OPTIMIZATION_V4.md) 在同一批全新模拟数据上比较新旧模型；运行见 [ANOMALY.md](ANOMALY.md)。模拟表现不等于真实效果或整套 B 任务已完成。
 
-本模块无状态，不连接MySQL。连续冷链规则已通过Java接入数据库与页面，Java负责历史、去重和人工处置，见 [COLDCHAIN.md](../docs/COLDCHAIN.md)。加工Java代理和采用值保存仍待接入；模型分析接口仍为独立服务能力。
+本模块无状态，不连接 MySQL。C 负责历史、去重、人工处置和实际采用值保存，这些不是运行 B 的前置条件。冷链 Python 接口接收完整历史数组，与 Word 的外部单点请求存在适配边界，详见 [接口交接表](API.md)。
 
 业务讨论入口：[规则与依据一览表](RULES_REVIEW.md)，列明公开参考条件、当前演示参数、等级流程提示、样本含义及待老师确认的事项。
 
@@ -39,13 +41,25 @@ python -m venv .venv
 .venv\Scripts\python.exe -m app.analyze_csv samples/recovery.csv --batch-id 17
 ```
 
+独立逐点演示与加工建议：
+
+```bat
+.venv\Scripts\python.exe -m app.demo processing samples/processing-v1-request.json
+.venv\Scripts\python.exe -m app.demo coldchain samples/overheat.csv --interval 1
+.venv\Scripts\python.exe -m app.demo coldchain samples/recovery.csv
+.venv\Scripts\python.exe -m app.demo coldchain samples/gap.csv
+```
+
+按采样时间累积历史，显示每步状态，不改变 CSV 时间戳或持久化业务记录。可加 `--output artifacts/demo.json` 保存新报告（已有文件不覆盖）；加 `--base-url http://127.0.0.1:8001` 直连 B 服务并核对结果。参数与失败行为见 [API.md](API.md)。
+
 | 样本 | 预期结果 |
 | --- | --- |
 | `normal.csv` | `status=normal`、`alert=false`、`episodes=[]` |
 | `overheat.csv` | 10:01 开始超温，10:06 触发，`status=active`、`alert=true` |
 | `recovery.csv` | 10:05 触发，10:06 恢复；最终 `alert=false`，但保留一段 `end_reason=recovered` 的历史异常 |
+| `gap.csv` | 10:05触发，10:09遇到4分钟缺口；旧段data_gap结束，新段历史不足，断点计数1 |
 
-三组数据均为人工构造，采样间隔 1 分钟，`source=simulation`。门状态与电流只是输入记录，不用于推断异常原因。
+样例均为人工构造，`source=simulation`；前三组采样间隔1分钟，gap样例故意设置4分钟缺口。门状态与电流只是输入记录，不用于推断异常原因。
 
 ## 启动内部服务
 
@@ -73,11 +87,11 @@ curl.exe -X POST http://127.0.0.1:8001/business/process-advice -H "Content-Type:
 
 ## 给 C 的接入交接
 
-完整字段与边界见 [BUSINESS_API.md](../docs/BUSINESS_API.md)。2026-10-10状态：
+完整字段与边界见本目录 [API.md](API.md)，无需未提交的系统文档。交接职责：
 
-1. Java已提供Word单点冷链入口，验证批次后查询完整历史再调用Python，后者仍无状态。
-2. 冷链读数、区段告警、快照与内部事件已事务保存并去重，超过10000点明确拒绝；长期续算尚待设计。
-3. 观测恢复与人工处置已分开，冷链页面可查询、导入、回放和保存处置。
-4. 加工Java代理、输入/建议/采用值保存及页面仍待接入；冷链事件默认内部可见，不自动公开。
+1. C 将 Word 单点请求转换为经过隔离和校验的完整历史数组；B 不验证数据库批次，不积累跨请求历史。
+2. B 返回实际规则配置、版本及历史区段；C 负责事务保存、幂等和历史容量管理，不能任意截断后声称连续性完整。
+3. B 的观测恢复与 C 的人工处置分开；不把断点当恢复，不把模型分数当作告警风险等级。
+4. B 返回加工建议及依据，C 保存实际采用值并接页面；这项系统职责不影响 B 独立服务交付。
 
-B 后续：核定演示加工参数的实际业务适用性，配合 C 完成接入；完善真实数据验证。有合适连续工艺数据后再实现并评估 LSTM，此项不属于 Word API v1.0 的本轮 Demo 必补功能。完整项目缺口见 FULL_SCOPE.md，演示参数不等于工艺优化验证完成。
+B 后续：核定参数依据、准备真实数据并针对已有模型误报/漏检做验证；配合 C 解释接口，不承担系统开发。LSTM 待连续工艺数据和质量目标具备后再做，不属于本轮规则 Demo 必补功能。完整项目缺口见 FULL_SCOPE.md。

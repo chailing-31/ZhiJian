@@ -1,2 +1,12 @@
 artifacts/
 datasets/generated/
+.venv/
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.log
+.env
+.env.*
+!.env.example

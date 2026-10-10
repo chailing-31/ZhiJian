@@ -23,13 +23,13 @@ A/B 建议适用范围为环境温度 [0,30]℃、相对湿度 [40,95]%RH；可�
 
 [config/processing-rules.json](config/processing-rules.json) 保存版本、依据、输入区间及四个等级的规则。加载时校验范围顺序、湿度有效范围、四级完整性、规则标识唯一性、拒收暂停和状态/参数一致性；错误配置不会静默返回旧参数。
 
-配置在进程内缓存；修改时同步更新 version、basis、样例和预期测试，再重启服务。当前没有在线规则管理后台。后续有业务依据时再修改映射；demo_only 始终为 true，不会因编辑配置就宣称生产验证通过。
+配置在进程内缓存；修改时同步更新 version、basis、样例和预期测试，再重启服务。配置缺失或校验失败时加工接口返回503，不返回备用参数；冷链规则接口仍可用。当前没有在线规则管理后台。后续有业务依据时再修改映射；demo_only 始终为 true，不会因编辑配置就宣称生产验证通过。
 
 ## 调用和输出
 
 接口为 POST /business/process-advice。兼容 Word 字符串批次号和原有正整数 ID，原类型原值返回，不查询或转换数据库标识。字符串限 1—64 位 ASCII 字母、数字、连字符；字符串 "1" 不是整数 1，Java 应按类型解析并检查批次存在。
 
-返回 type=rule，同时保留 advice_type=rule；新增 status、rule_id、rule_basis，保留 rule_version、demo_only=true、requires_confirmation=true。详细约定见 [内部接口](../docs/BUSINESS_API.md)。冷链的数值 ID 和历史数组协议未变。
+返回 type=rule，同时保留 advice_type=rule；新增 status、rule_id、rule_basis，保留 rule_version、demo_only=true、requires_confirmation=true。详细约定见本目录 [接口文档](API.md)。冷链的数值 ID 和历史数组协议未变。
 
 在 business 目录启动服务，另开终端从同一目录调用：
 
