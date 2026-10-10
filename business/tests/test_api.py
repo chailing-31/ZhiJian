@@ -246,10 +246,16 @@ def test_process_advice_is_explicitly_unverified(grade):
     assert response.status_code == 200
     result = response.json()
     assert result["advice_type"] == "rule"
-    assert "type" not in result
+    assert result["type"] == "rule"
     assert result["demo_only"] and result["requires_confirmation"]
-    assert result["advice"]["pre_cooling_time"] is None
-    assert result["advice"]["washing_pressure"] is None
+    if grade in {"A", "B"}:
+        assert result["status"] == "suggested"
+        assert result["advice"]["pre_cooling_time"] == {"A": "4h", "B": "6h"}[grade]
+        assert result["advice"]["washing_pressure"] == "normal"
+    else:
+        assert result["status"] == ("blocked" if grade == "REJECT" else "manual_review")
+        assert result["advice"]["pre_cooling_time"] is None
+        assert result["advice"]["washing_pressure"] is None
     assert result["advice"]["action"]
 
 

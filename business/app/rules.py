@@ -1,13 +1,10 @@
 """Reconstructed from Fast's Python 3.12 bytecode; contract updated for ZhiJian."""
 
-from .models import (
-    Advice, ColdchainRequest, ColdchainResponse, Episode, ProcessRequest,
-    ProcessResponse, Reading,
-)
+from .models import ColdchainRequest, ColdchainResponse, Episode, Reading
+from .processing import process_advice  # Preserve the existing Python import path.
 
 
 COLDCHAIN_VERSION = "demo-coldchain-v2"
-PROCESS_VERSION = "demo-process-v2"
 
 
 def check_coldchain(request: ColdchainRequest) -> ColdchainResponse:
@@ -77,22 +74,4 @@ def check_coldchain(request: ColdchainRequest) -> ColdchainResponse:
         alert=active, level="HIGH" if active else "NONE", status=status,
         reason=reason, episodes=episodes, data_gap_count=gap_count,
         rule_version=COLDCHAIN_VERSION, config=config,
-    )
-
-
-def process_advice(request: ProcessRequest) -> ProcessResponse:
-    actions = {
-        "A": "按已批准的作业规程执行，并记录采用参数",
-        "B": "人工复核外观缺陷与分选结果，再按已批准的作业规程执行",
-        "C": "交由负责人复核用途与加工适用性，确认后再执行",
-        "REJECT": "暂停本批次加工流转，交由负责人复核处置",
-    }
-    return ProcessResponse(
-        batch_id=request.batch_id,
-        advice=Advice(action=actions[request.grade]),
-        reason=(
-            f"根据人工确认等级 {request.grade} 给出演示流程提示；温湿度仅作为输入记录，"
-            "尚未建立经核定的工艺参数映射，预冷时长和清洗水压不提供数值建议"
-        ),
-        rule_version=PROCESS_VERSION,
     )

@@ -1,13 +1,17 @@
 {
   "batch_id": 1,
+  "type": "rule",
   "advice_type": "rule",
+  "status": "suggested",
+  "rule_id": "PROCESS-B",
+  "rule_basis": "工程演示配置，未经生产验证；B级6h/normal沿用API规范v1.0样例，A级4h和输入适用区间为人为演示设定，不是工艺标准或安全判据。normal仅为设备档位标签，实际工序、时长和压力须人工确认。",
   "advice": {
-    "pre_cooling_time": null,
-    "washing_pressure": null,
-    "action": "人工复核外观缺陷与分选结果，再按已批准的作业规程执行"
+    "pre_cooling_time": "6h",
+    "washing_pressure": "normal",
+    "action": "人工复核外观缺陷与分选结果，核对工序和设备档位后确认采用参数"
   },
-  "reason": "根据人工确认等级 B 给出演示流程提示；温湿度仅作为输入记录，尚未建立经核定的工艺参数映射，预冷时长和清洗水压不提供数值建议",
-  "rule_version": "demo-process-v2",
+  "reason": "人工确认等级B；环境温度20℃；环境湿度80%RH；原料温度5℃；命中演示规则，建议预冷6h、清洗压力档位normal；温湿度仅用于适用性判断，不用于计算最优时长。仅供演示，实际参数须人工确认。",
+  "rule_version": "demo-process-v3",
   "requires_confirmation": true,
   "demo_only": true
 }

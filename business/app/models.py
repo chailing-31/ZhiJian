@@ -6,6 +6,9 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, field_valida
 
 SHANGHAI = timezone(timedelta(hours=8))
 BatchId = Annotated[int, Field(strict=True, gt=0, le=9223372036854775807)]
+BatchCode = Annotated[str, Field(strict=True, min_length=1, max_length=64,
+                                 pattern=r"^[A-Za-z0-9-]+$")]
+ProcessBatchId = BatchId | BatchCode
 Source = Literal["simulation", "sensor"]
 
 
@@ -100,7 +103,7 @@ class ColdchainResponse(Model):
 
 
 class ProcessRequest(Model):
-    batch_id: BatchId
+    batch_id: ProcessBatchId
     grade: Literal["A", "B", "C", "REJECT"]
     temperature: InputNumber  # Environment temperature, Celsius.
     humidity: InputNumber = Field(ge=0, le=100)
@@ -114,8 +117,12 @@ class Advice(Model):
 
 
 class ProcessResponse(Model):
-    batch_id: BatchId
+    batch_id: ProcessBatchId
+    type: Literal["rule"] = "rule"
     advice_type: Literal["rule"] = "rule"
+    status: Literal["suggested", "manual_review", "blocked"]
+    rule_id: str
+    rule_basis: str
     advice: Advice
     reason: str
     rule_version: str

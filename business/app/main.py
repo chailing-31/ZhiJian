@@ -14,7 +14,7 @@ from .rules import check_coldchain, process_advice
 
 
 app = FastAPI(
-    title="智检鲜达 B 模块", version="0.4.0",
+    title="智检鲜达 B 模块", version="0.5.0",
     description="规则与冷链异常模型分别输出；Spring Boot 负责历史、落库和处置。当前模型仅经模拟验证。",
 )
 
@@ -32,7 +32,7 @@ async def validation_error(request: Request, error: RequestValidationError):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "service": "business-rules", "version": "0.4.0"}
+    return {"status": "ok", "service": "business-rules", "version": "0.5.0"}
 
 
 @app.post("/coldchain/check", response_model=ColdchainResponse)
