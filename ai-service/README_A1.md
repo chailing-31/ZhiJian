@@ -1,5 +1,11 @@
 # AI 视觉质检：A1 内部服务
 
+<!-- A15-HANDOFF-CURRENT:BEGIN -->
+## A15 当前启动指引（2026-10-12）
+
+本文件下方A1/A7说明保留为历史。现在使用仓库内固定A15资产，本目录执行 `run-a15.cmd`；安装和校验见 [AI_HANDOFF_A15](../docs/AI_HANDOFF_A15.md)。本次未改网络结构或训练参数，也不把有限诊断升级为生产性能认证。
+<!-- A15-HANDOFF-CURRENT:END -->
+
 完整说明见 `../docs/AI_SERVICE_A1.md`。本包新增内部 FastAPI 服务，不更改原 README，也不更改 Spring Boot、数据库和前端状态。
 
 首次本机启动（Windows CMD，每条单独执行）：

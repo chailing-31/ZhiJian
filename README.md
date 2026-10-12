@@ -1,5 +1,15 @@
 # 智检鲜达 Demo（ZhiJian）
 
+<!-- A15-HANDOFF-CURRENT:BEGIN -->
+## A15 模型资产与 C 交接（2026-10-12）
+
+本次修复“Git只同步了路径、队友拿不到真实权重”的交付缺口。A15固定资产位置是 `ai-service/models/a15/best.pt` 与同目录的 `model-manifest.json`。**是否拿全，以 `python ai-service/tools/verify_a15.py --require-tracked` 通过为准**；缺少文件不能宣称当前checkout模型已就绪。
+
+在 `ai-service` 执行 `run-a15.cmd` 使用仓库相对路径启动，需预先安装推理依赖。见 [C启动与验收](docs/AI_HANDOFF_A15.md)、[A15模型卡](docs/AI_MODEL_A15.md)、[交付进度](docs/AI_DELIVERY_STATUS.md)。A本机训练与联调已记录，C环境真实模型验收仍应单独执行；不是生产或食品安全认证。
+
+下方未同步章节保留为先前阶段记录，B/C最新进展以其已合并PR为准，本次不覆盖其集成代码。
+<!-- A15-HANDOFF-CURRENT:END -->
+
 面向果蔬批次的 AI 视觉质检、加工品控、冷链监测与公开溯源 Demo。
 
 当前主要演示批次：
