@@ -1,4 +1,4 @@
-# 部署与启动说明 v1.3
+# 部署与启动说明 v1.4
 
 当前完整 Demo 已跑通：
 
@@ -14,21 +14,26 @@ Spring Boot 8080
 AI Service 8001
   ↓
 YOLO
+
+Spring Boot 8080
+  ↓
+B Rule Service 8002
 ```
 
 并已验证：AI 上传 → 持久化 → 人工复核 → 综合记录 → 公开溯源。
 
-加工和冷链业务写入仍待 B 接入。
+加工建议/人工采用历史与冷链读数/episode/告警/处置已经通过真实本机 MySQL 联调。AI 权重和正式 manifest 不在仓库内，未提供时 `model_ready=false` 是真实状态。
 
 ## 1. 当前推荐方式
 
-Windows 本机开发推荐直接运行 MySQL + AI service + Spring Boot + Vue。
+Windows 本机开发推荐直接运行 MySQL + B service + Spring Boot + Vue；需要视觉质检时再增加 AI service。
 
-现有 `docker-compose.yml` 仍是早期基础版：
+本目录的 `docker-compose.yml` 可启动 MySQL、backend 和 frontend，B 规则服务由成员 B 独立提供，但：
 
 - 没有 AI service；
-- 不会自动执行 A3 增量迁移；
-- backend 也没有按完整 inspection profile 配置。
+- 会在新数据卷执行基础、A3 与 C 迁移；已有数据卷仍需手动迁移；
+- 未包含 AI service，backend 也没有按 inspection profile 配置；
+- backend 通过 `BUSINESS_SERVICE_DOCKER_URL` 连接 B 服务，默认 `http://host.docker.internal:8002`。宿主机运行 B 服务时，需监听容器可访问的地址（例如可信开发环境中的 `0.0.0.0:8002`），不能只监听 `127.0.0.1`。
 
 因此当前不要把 Docker Compose 当作完整 AI Demo 一键部署。
 
@@ -41,7 +46,7 @@ smart_fresh_demo
 基础初始化：
 
 ```bat
-cd /d D:\Projects\ZhiJian
+cd /d ^<项目目录^>\ZhiJian-feature-integration
 ```
 
 ```bat
@@ -58,10 +63,30 @@ A3 迁移：
 mysql --default-character-set=utf8mb4 -u root -p smart_fresh_demo < database\migrations\20261001_A3_inspection_integration.sql
 ```
 
-## 3. AI 服务 8001
+C 迁移：
 
 ```bat
-cd /d D:\Projects\ZhiJian\ai-service
+mysql --default-character-set=utf8mb4 -u root -p smart_fresh_demo < database\migrations\20261012_C_business_integration.sql
+```
+
+不要把密码写入仓库。推荐为应用创建仅拥有 `smart_fresh_demo` 数据读写权限的账号。
+
+## 3. B 规则服务 8002
+
+```bat
+cd /d E:\code\ZhiJian-main\ZhiJian-develop\business
+C:\Users\asus\.local\bin\python3.14.exe -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.venv\Scripts\python.exe -m pytest -q
+.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8002
+```
+
+验证：`curl.exe http://127.0.0.1:8002/health`。Python 3.12 是交付基线；本机亦已用 3.14.3 验证 183 项测试。
+
+## 4. AI 服务 8001（可选，需权重）
+
+```bat
+cd /d ^<项目目录^>\ZhiJian-feature-integration\ai-service
 ```
 
 如默认 Python 环境可用：
@@ -96,23 +121,26 @@ curl.exe --noproxy "*" http://127.0.0.1:8001/ready
 
 需确认 `model_ready=true`。
 
-## 4. Spring Boot 8080
+## 5. Spring Boot 8080
 
 ```bat
-cd /d D:\Projects\ZhiJian\backend
+cd /d ^<项目目录^>\ZhiJian-feature-integration\backend
 ```
 
 ```bat
-set "DB_USER=root"
+set "DB_USER=<项目数据库账号>"
 ```
 
 ```bat
-set "DB_PASSWORD=<本机MySQL密码>"
+set "DB_PASSWORD=<项目数据库密码>"
+set "BUSINESS_SERVICE_BASE_URL=http://127.0.0.1:8002"
 ```
 
 ```bat
-run-inspection.cmd
+call mvnw.cmd spring-boot:run
 ```
+
+视觉质检联调时再使用 `run-inspection.cmd` 并设置 AI/存储参数。`mvnw.cmd` 会使用项目固定的 Maven 3.9.15，其他电脑无需先全局安装 Maven。
 
 验证：
 
@@ -128,6 +156,12 @@ curl.exe --noproxy "*" http://127.0.0.1:8080/inspection-service/ready
 curl.exe --noproxy "*" http://127.0.0.1:8080/batches
 ```
 
+```bat
+curl.exe --noproxy "*" http://127.0.0.1:8080/business-service/ready
+```
+
+最后一项须同时显示 `database_ready=true`、`business_ready=true` 和 `ready=true`。
+
 如 8080 被占用：
 
 ```bat
@@ -136,10 +170,10 @@ netstat -ano | findstr :8080
 
 确认旧 Java 进程后再停止，不要同时启动两个后端。
 
-## 5. Vue 5173
+## 6. Vue 5173
 
 ```bat
-cd /d D:\Projects\ZhiJian\frontend
+cd /d ^<项目目录^>\ZhiJian-feature-integration\frontend
 ```
 
 首次：
@@ -166,22 +200,22 @@ http://127.0.0.1:5173/trace/APPLE-2026-001
 
 5173 已占用时，优先直接访问已有 Vite，不要重复启动。
 
-## 6. 测试和构建
+## 7. 测试和构建
 
 后端：
 
 ```bat
-cd /d D:\Projects\ZhiJian\backend
+cd /d ^<项目目录^>\ZhiJian-feature-integration\backend
 ```
 
 ```bat
-mvn test
+mvnw.cmd test
 ```
 
 前端：
 
 ```bat
-cd /d D:\Projects\ZhiJian\frontend
+cd /d ^<项目目录^>\ZhiJian-feature-integration\frontend
 ```
 
 ```bat
@@ -202,7 +236,16 @@ npm run build:safe
 
 `build:safe` 等价于 `vite build --minify=false`。它仍完成模块转换、chunk 生成与 dist 写入，仅不压缩 JS。
 
-## 7. 当前验收
+C 加工/冷链只读复验：
+
+```bat
+cd /d E:\code\ZhiJian-main\ZhiJian-feature-integration
+python3.14 scripts\smoke_c_integration.py
+```
+
+成功时输出 `C INTEGRATION READY (read-only checks)`；该脚本不创建或修改业务记录。
+
+## 8. 当前验收
 
 AI：
 
@@ -263,7 +306,7 @@ http://192.168.x.x:5173
 MySQL、AI 8001、Spring Boot 8080 和 Vue 5173 全部启动后：
 
 ```bat
-cd /d D:\Projects\ZhiJian
+cd /d ^<项目目录^>\ZhiJian-feature-integration
 ```
 
 ```bat

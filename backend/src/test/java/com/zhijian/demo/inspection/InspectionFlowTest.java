@@ -52,7 +52,13 @@ class InspectionFlowTest {
         p.put("model_version","test-only-model"); p.put("weights_sha256","a".repeat(64)); p.put("evaluation_status","not_evaluated");
         p.put("executed_at","2026-10-01T20:00:00+08:00"); p.put("inference_ms",1.0); p.put("confidence_threshold",0.25); p.put("iou_threshold",0.7);
         var im=p.putObject("image"); im.put("width",100); im.put("height",100); im.put("source_sha256",HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(image))); im.put("normalized_pixels_sha256","b".repeat(64)); im.put("coordinate_system","exif_transposed_pixels_xyxy");
-        p.putArray("detections"); p.put("observation","no_target_defect_detected"); p.putNull("suggested_grade"); p.put("grade_status","grading_rule_not_configured"); p.put("requires_human_review",true); p.putArray("warnings").add("Test substitute, no actual model."); return p;
+        p.putArray("detections");
+        var burden=p.putObject("defect_burden"); burden.put("rule_version","a11-dev-burden-v1"); burden.put("burden_level","none_observed");
+        burden.put("detection_count",0); burden.put("union_bbox_area_ratio_image",0.0); burden.put("max_bbox_area_ratio_image",0.0);
+        burden.putArray("escalation_flags"); burden.put("denominator","full_image_area"); burden.putArray("class_summary");
+        p.put("observation","no_target_defect_detected"); p.putNull("suggested_grade"); p.put("grade_status","withheld_no_target_observed");
+        p.put("grade_rule_version","a12-dev-grade-v1"); p.put("grade_basis","defect_burden_level");
+        p.put("requires_human_review",true); p.putArray("warnings").add("Test substitute, no actual model."); return p;
     }
     private String upload(String key) throws Exception { return mvc.perform(multipart("/batches/1/inspections").file(file()).header("Idempotency-Key",key)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString(); }
     @Test void savesOnceAndPreservesModel() throws Exception {
@@ -91,6 +97,25 @@ class InspectionFlowTest {
         mvc.perform(multipart("/batches/1/inspections").file(file()).header("Idempotency-Key",UUID.randomUUID())).andExpect(status().isBadGateway());
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM inspections",Integer.class));
     }
+    @Test void inconsistentA11BurdenIsRejected() throws Exception {
+        ObjectNode p=prediction(1,"APPLE-2026-001",IMAGE);
+        ((ObjectNode)p.path("defect_burden")).put("detection_count",1);
+        doReturn(p).when(ai).predict(anyLong(),anyString(),any(),anyString());
+        mvc.perform(multipart("/batches/1/inspections").file(file())
+            .header("Idempotency-Key",UUID.randomUUID())).andExpect(status().isBadGateway());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM inspections",Integer.class));
+    }
+
+    @Test void inconsistentA12GradeIsRejected() throws Exception {
+        ObjectNode p=prediction(1,"APPLE-2026-001",IMAGE);
+        p.put("suggested_grade","A");
+        p.put("grade_status","development_rule_applied");
+        doReturn(p).when(ai).predict(anyLong(),anyString(),any(),anyString());
+        mvc.perform(multipart("/batches/1/inspections").file(file())
+            .header("Idempotency-Key",UUID.randomUUID())).andExpect(status().isBadGateway());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM inspections",Integer.class));
+    }
+
     @Test void failedArtifactDoesNotWriteDatabase() throws Exception {
         doThrow(new InspectionFault(502,"ARTIFACT_FETCH_FAILED","test")).when(ai).download(any(),anyString(),any());
         mvc.perform(multipart("/batches/1/inspections").file(file()).header("Idempotency-Key",UUID.randomUUID())).andExpect(status().isBadGateway());

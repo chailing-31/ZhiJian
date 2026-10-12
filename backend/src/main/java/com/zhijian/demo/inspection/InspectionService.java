@@ -92,9 +92,10 @@ public class InspectionService {
                 id = transaction.execute(status -> {
                     long inspection = insert("""
                         INSERT INTO inspections(batch_id,image_path,result_image_path,model_version,detections_json,suggested_grade)
-                        VALUES(?,?,?,?,?,NULL)
+                        VALUES(?,?,?,?,?,?)
                         """, batchId, predictionId + "/input.png", predictionId + "/result.png",
-                        prediction.path("model_version").asText(), encode(prediction.path("detections")));
+                        prediction.path("model_version").asText(), encode(prediction.path("detections")),
+                        prediction.path("suggested_grade").isNull() ? null : prediction.path("suggested_grade").asText());
                     jdbc.update("INSERT INTO inspection_payloads(inspection_id,request_id,image_sha256,prediction_id,response_json) VALUES(?,?,?,?,?)",
                         inspection, key, hash, predictionId.toString(), encode(prediction));
                     jdbc.update("""

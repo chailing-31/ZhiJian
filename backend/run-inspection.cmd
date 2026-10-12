@@ -10,10 +10,14 @@ if not defined DB_PASSWORD (
   exit /b 1
 )
 if not defined AI_SERVICE_BASE_URL set "AI_SERVICE_BASE_URL=http://127.0.0.1:8001"
-if not defined INSPECTION_STORAGE_ROOT set "INSPECTION_STORAGE_ROOT=D:\ZhiJianData\backend\inspection-artifacts"
+if not defined INSPECTION_STORAGE_ROOT set "INSPECTION_STORAGE_ROOT=%LOCALAPPDATA%\ZhiJian\backend\inspection-artifacts"
 if not exist "%INSPECTION_STORAGE_ROOT%" mkdir "%INSPECTION_STORAGE_ROOT%"
 if not exist "%INSPECTION_STORAGE_ROOT%" exit /b 1
 echo Starting local backend profile: inspection
 echo Keep the ready AI service on port 8001 running.
-call mvn spring-boot:run -Dspring-boot.run.profiles=inspection
+if exist "%CD%\mvnw.cmd" (
+  call "%CD%\mvnw.cmd" spring-boot:run -Dspring-boot.run.profiles=inspection
+) else (
+  call mvn spring-boot:run -Dspring-boot.run.profiles=inspection
+)
 exit /b %errorlevel%

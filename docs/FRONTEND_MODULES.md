@@ -7,8 +7,8 @@
 | 首页 | `/` | 真实批次列表与模块入口 | 统计项继续随业务扩展 |
 | 批次管理 | `/batches` | 创建、搜索、列表、详情 | 更完整状态机 |
 | AI 质检 | `/inspection?batch_id=...` | 真实上传、推理、持久化、人工复核、历史 | 权限、生产并发、正式评测 |
-| 加工品控 | `/processing?batch_id=...` | 页面骨架 | B 的规则建议、保存与历史 |
-| 冷链监测 | `/coldchain?batch_id=...` | 页面骨架 | B 的读数、曲线、告警与处置 |
+| 加工品控 | `/processing?batch_id=...` | 规则建议、人工修改采用值、保存与历史读取 | 正式规则参数与权限 |
+| 冷链监测 | `/coldchain?batch_id=...` | CSV 导入、读数摘要、episode/告警和人工处置 | 实时设备接入与正式阈值 |
 | 溯源与报告 | `/traceability?batch_id=...` | 公开时间线、二维码、综合记录入口 | 包装/运输/出厂录入 |
 | 内部综合记录 | `/batches/:id/report` | I1：只读聚合质检/复核、加工、冷链、告警、事件 | 正式报告模板、权限、分页 |
 | 公开溯源 | `/trace/:batchCode` | I2：公开时间线 + public_summary | 更多 public 事件需后续真实写入 |
@@ -29,16 +29,20 @@ PATCH /api/inspections/{id}/review
 GET   /api/inspections/{id}/artifacts/input
 GET   /api/inspections/{id}/artifacts/result
 
+POST /api/batches/{id}/processing-advice
+GET  /api/batches/{id}/processing-records
+POST /api/processing-records/{id}/adopt
+POST /api/batches/{id}/sensor-readings
+GET  /api/batches/{id}/coldchain
+POST /api/alerts/{id}/resolve
+
 GET /api/batches/{id}/report
 GET /api/trace/{batch_code}
 ```
 
-## 仍待 B/C
+## 仍待完成
 
 ```text
-加工建议 / 采用值 / 历史
-冷链读数写入
-告警列表 / resolve
 包装 / 运输 / 出厂录入
 ```
 
@@ -90,7 +94,7 @@ private event
 - A：AI 已完成并冻结，后续主要提供服务支持和前端协助
 - B：加工与冷链
 - C：后端总集成、数据库公共逻辑、报告、溯源、部署
-- I1/I2 是 C 尚未开始对应实现时的前置铺路
+- C 的加工/冷链适配、I1 报告与 I2 公开溯源已实现；生产鉴权和部署加固仍未完成
 
 ## 本地前端
 

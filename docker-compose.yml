@@ -12,6 +12,8 @@ services:
       - mysql_data:/var/lib/mysql
       - ./database/tables.sql:/docker-entrypoint-initdb.d/01_tables.sql:ro
       - ./database/demo.sql:/docker-entrypoint-initdb.d/02_demo.sql:ro
+      - ./database/migrations/20261001_A3_inspection_integration.sql:/docker-entrypoint-initdb.d/03_a3_inspection.sql:ro
+      - ./database/migrations/20261012_C_business_integration.sql:/docker-entrypoint-initdb.d/04_c_business.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
       interval: 10s
@@ -25,6 +27,7 @@ services:
       DB_NAME: smart_fresh_demo
       DB_USER: ${MYSQL_USER:-demo}
       DB_PASSWORD: ${MYSQL_PASSWORD:-local_demo_password}
+      BUSINESS_SERVICE_BASE_URL: ${BUSINESS_SERVICE_DOCKER_URL:-http://host.docker.internal:8002}
     ports:
       - "8080:8080"
     depends_on:

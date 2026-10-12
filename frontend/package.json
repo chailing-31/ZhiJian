@@ -9,7 +9,7 @@
     "build": "vite build",
     "build:safe": "vite build --minify=false",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node --test tests/api.test.mjs tests/batch-utils.test.mjs",
+    "test": "node --test tests/api.test.mjs tests/batch-utils.test.mjs tests/coldchain-csv.test.mjs",
     "check:vue": "node tools/check-vue.mjs"
   },
   "dependencies": {
