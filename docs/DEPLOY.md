@@ -20,9 +20,9 @@ Spring Boot 8080
 B Rule Service 8002
 ```
 
-并已验证：AI 上传 → 持久化 → 人工复核 → 综合记录 → 公开溯源。
+历史记录曾验证 AI 上传 → 持久化 → 人工复核 → 综合记录 → 公开溯源；本分支补入 A15 后，仍需在当前 C 环境重新执行真实图片验收。
 
-加工建议/人工采用历史与冷链读数/episode/告警/处置已经通过真实本机 MySQL 联调。AI 权重和正式 manifest 不在仓库内，未提供时 `model_ready=false` 是真实状态。
+加工建议/人工采用历史与冷链读数/episode/告警/处置已经通过真实本机 MySQL 联调。A15 权重和 manifest 已纳入仓库，但 C 环境仍需按 `docs/AI_HANDOFF_A15.md` 完成真实模型加载、图片上传、落库、复核和公开摘要验收。
 
 ## 1. 当前推荐方式
 
@@ -119,7 +119,7 @@ run-cpu-local.cmd
 curl.exe --noproxy "*" http://127.0.0.1:8001/ready
 ```
 
-需确认 `model_ready=true`。
+需确认 `model_ready=true` 且版本为 `ssda-y8n-a15-multidomain-20261006-05c5329e`。这只证明模型已加载，不等于真实图片全链路或准确率认证。
 
 ## 5. Spring Boot 8080
 

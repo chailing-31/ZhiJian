@@ -39,6 +39,52 @@ class Detection(BaseModel):
     confidence: float = Field(ge=0, le=1, allow_inf_nan=False)
     bbox_xyxy: tuple[float, float, float, float]
 
+BurdenLevel = Literal['none_observed', 'low', 'moderate', 'high']
+BurdenEscalationFlag = Literal[
+    'detection_count_ge_4',
+    'scratch_large_box_ge_0_025',
+    'pest_damage_large_box_ge_0_0045',
+]
+
+class DefectClassSummary(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    class_id: int = Field(ge=0)
+    class_name: str = Field(min_length=1, max_length=100)
+    class_label: str = Field(min_length=1, max_length=100)
+    count: int = Field(ge=1, le=300)
+    max_bbox_area_ratio_image: float = Field(ge=0, le=1, allow_inf_nan=False)
+
+class DefectBurden(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    rule_version: Literal['a11-dev-burden-v1'] = 'a11-dev-burden-v1'
+    burden_level: BurdenLevel
+    detection_count: int = Field(ge=0, le=300)
+    union_bbox_area_ratio_image: float = Field(ge=0, le=1, allow_inf_nan=False)
+    max_bbox_area_ratio_image: float = Field(ge=0, le=1, allow_inf_nan=False)
+    escalation_flags: list[BurdenEscalationFlag] = Field(default_factory=list, max_length=3)
+    denominator: Literal['full_image_area'] = 'full_image_area'
+    class_summary: list[DefectClassSummary] = Field(default_factory=list, max_length=100)
+
+    @model_validator(mode='after')
+    def validate_burden(self):
+        if len(set(self.escalation_flags)) != len(self.escalation_flags):
+            raise ValueError('Escalation flags must be unique.')
+        if len({c.class_id for c in self.class_summary}) != len(self.class_summary):
+            raise ValueError('Burden class IDs must be unique.')
+        if sum(c.count for c in self.class_summary) != self.detection_count:
+            raise ValueError('Burden class counts must equal detection_count.')
+        if self.max_bbox_area_ratio_image > self.union_bbox_area_ratio_image + 1e-9:
+            raise ValueError('Max bbox ratio cannot exceed union bbox ratio.')
+        if self.detection_count == 0:
+            if (self.burden_level != 'none_observed'
+                or self.union_bbox_area_ratio_image != 0
+                or self.max_bbox_area_ratio_image != 0
+                or self.escalation_flags or self.class_summary):
+                raise ValueError('Empty detections require an empty none_observed burden.')
+        elif self.burden_level == 'none_observed':
+            raise ValueError('Positive detections cannot use none_observed burden.')
+        return self
+
 class ImageMetadata(BaseModel):
     width: int
     height: int
@@ -66,9 +112,24 @@ class PredictionResponse(BaseModel):
     iou_threshold: float
     image: ImageMetadata
     detections: list[Detection]
+    defect_burden: DefectBurden
     observation: Literal['target_defect_detected', 'no_target_defect_detected']
-    suggested_grade: None = None
-    grade_status: Literal['grading_rule_not_configured'] = 'grading_rule_not_configured'
+    suggested_grade: Literal['B', 'C', 'D'] | None = None
+    grade_status: Literal['development_rule_applied', 'withheld_no_target_observed']
+    grade_rule_version: Literal['a12-dev-grade-v1'] = 'a12-dev-grade-v1'
+    grade_basis: Literal['defect_burden_level'] = 'defect_burden_level'
     requires_human_review: Literal[True] = True
+
+    @model_validator(mode='after')
+    def validate_grade_suggestion(self):
+        expected = {'low': 'B', 'moderate': 'C', 'high': 'D'}
+        if self.defect_burden.burden_level == 'none_observed':
+            if self.suggested_grade is not None or self.grade_status != 'withheld_no_target_observed':
+                raise ValueError('No-target observations must withhold automatic grade suggestion.')
+        else:
+            if (self.suggested_grade != expected[self.defect_burden.burden_level]
+                or self.grade_status != 'development_rule_applied'):
+                raise ValueError('Suggested grade must match the A12 development rule.')
+        return self
     artifacts: ArtifactLinks
     warnings: list[str]
