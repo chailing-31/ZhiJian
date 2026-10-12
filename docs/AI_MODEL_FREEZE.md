@@ -1,5 +1,13 @@
 # AI 模型冻结与 Demo 交付记录
 
+<!-- A15-HANDOFF-CURRENT:BEGIN -->
+## 当前生效：A15（2026-10-12交付补齐）
+
+现用版本、权重SHA、0.25/0.50/640运行参数、A14诊断和A16 Micro限制统一见 [AI_MODEL_A15.md](AI_MODEL_A15.md)。启动入口与C验收见 [AI_HANDOFF_A15.md](AI_HANDOFF_A15.md)。
+
+固定资产随本次补齐PR纳入 `ai-service/models/a15/`，以校验工具与实际Git文件为准。A12当前会产生B/C/D/null开发建议，不再是所有图片固定null。A7/A9旧版本、参数比较以及下方“权重不提交”等原文仅作历史证据，不作为本次A15交付的当前指引。
+<!-- A15-HANDOFF-CURRENT:END -->
+
 更新时间：2026-10-02
 
 ## 1. 冻结对象

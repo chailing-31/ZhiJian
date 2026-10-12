@@ -1,5 +1,13 @@
 # A1：苹果视觉质检内部服务与接入约定 v0.1
 
+<!-- A15-HANDOFF-CURRENT:BEGIN -->
+## 当前状态补充：A15 + A11/A12（2026-10-12）
+
+本文原A1章节保留为初始阶段记录。现在已实现真实检测、缺陷负担和开发建议等级；`suggested_grade` 为B/C/D/null，未观察到目标时null且禁止自动判A。当前契约以 `ai-service/inspection_service/schemas.py` 与运行服务 `/openapi.json` 为准；旧OpenAPI快照不应被误作最新A12契约。
+
+A15固定模型资产交接、安装和真实请求验收见 [AI_HANDOFF_A15.md](AI_HANDOFF_A15.md)，身份和性能限制见 [AI_MODEL_A15.md](AI_MODEL_A15.md)。本次不改HTTP字段、B/C接口或模型参数。
+<!-- A15-HANDOFF-CURRENT:END -->
+
 ## 1. 范围与当前状态
 
 本次开始 A 负责的视觉模块，基于核对到的 `develop@66706cf5d80618b770b6a5783a4366f5655ec1c9`。原 `ai-service/` 仅有说明；前端 `api/inspection.js` 仍明确为待接入适配器。
