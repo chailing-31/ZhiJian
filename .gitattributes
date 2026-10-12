@@ -1,0 +1,7 @@
+
+
+# A15 fixed handoff asset: BEGIN
+ai-service/models/a15/best.pt -filter -text -diff -merge
+ai-service/models/a15/model-manifest.json text eol=lf
+ai-service/models/a15/SHA256SUMS text eol=lf
+# A15 fixed handoff asset: END

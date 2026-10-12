@@ -16,3 +16,9 @@ dist/
 .DS_Store
 .idea/
 .vscode/
+
+_backup_c_sync_*/
+
+# A15 fixed handoff asset: BEGIN
+!/ai-service/models/a15/best.pt
+# A15 fixed handoff asset: END

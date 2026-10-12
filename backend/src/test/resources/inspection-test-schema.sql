@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS inspection_reviews;
+DROP TABLE IF EXISTS inspection_payloads;
+DROP TABLE IF EXISTS batch_events;
+DROP TABLE IF EXISTS inspections;
+DROP TABLE IF EXISTS batches;
+CREATE TABLE batches(id BIGINT AUTO_INCREMENT PRIMARY KEY,batch_code VARCHAR(64) UNIQUE,product VARCHAR(50),variety VARCHAR(50),origin VARCHAR(100),supplier VARCHAR(100),created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,status VARCHAR(30));
+CREATE TABLE inspections(id BIGINT AUTO_INCREMENT PRIMARY KEY,batch_id BIGINT,image_path VARCHAR(255),result_image_path VARCHAR(255),model_version VARCHAR(50),detections_json CLOB,suggested_grade VARCHAR(20),final_grade VARCHAR(20),reviewer VARCHAR(50),reviewed_at TIMESTAMP,created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(batch_id) REFERENCES batches(id));
+CREATE TABLE inspection_payloads(inspection_id BIGINT PRIMARY KEY,request_id CHAR(36) UNIQUE NOT NULL,image_sha256 CHAR(64),prediction_id CHAR(36) UNIQUE,response_json CLOB,created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(inspection_id) REFERENCES inspections(id));
+CREATE TABLE inspection_reviews(id BIGINT AUTO_INCREMENT PRIMARY KEY,inspection_id BIGINT,revision INT,conclusion VARCHAR(40),reviewer VARCHAR(50),remark CLOB,final_grade VARCHAR(20),candidate_reviews CLOB,publish_summary BOOLEAN,created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,UNIQUE(inspection_id,revision),FOREIGN KEY(inspection_id) REFERENCES inspections(id));
+CREATE TABLE batch_events(id BIGINT AUTO_INCREMENT PRIMARY KEY,batch_id BIGINT,event_type VARCHAR(50),event_time TIMESTAMP,summary CLOB,source VARCHAR(50),operator VARCHAR(50),evidence_path VARCHAR(255),visibility VARCHAR(20),FOREIGN KEY(batch_id) REFERENCES batches(id));
+INSERT INTO batches(batch_code,product,variety,origin,supplier,status) VALUES('APPLE-2026-001','苹果','红富士','烟台','演示供应商','created');
