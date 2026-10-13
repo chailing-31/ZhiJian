@@ -1,5 +1,13 @@
 # 部署与启动说明 v1.4
 
+<!-- A15-HANDOFF-CURRENT:BEGIN -->
+## A15 模型交付修复（2026-10-12）
+
+新checkout不再要求复制A同学D盘路径。模型资产固定为 `ai-service/models/a15/best.pt` 与同目录manifest；文件校验、独立CPU环境、`run-a15.cmd` 和C真实图片验收见 [AI_HANDOFF_A15.md](AI_HANDOFF_A15.md)。
+
+原部署章节中关于数据库/B/C服务的配置继续保留；本次只修A15交付与模型默认路径，不修改密码、数据库、后端、前端或B的端口。服务代码拉取、模型文件存在、依赖安装、真实推理分别检查。
+<!-- A15-HANDOFF-CURRENT:END -->
+
 当前完整 Demo 已跑通：
 
 ```text
