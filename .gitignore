@@ -40,5 +40,10 @@ _backup_c_sync_*/
 *.sql.gz
 *.db
 *.sqlite*
-ai-service/models/accepted/
 .github-snapshots/
+# Accepted V4 demo model
+!/ai-service/models/accepted/
+!/ai-service/models/accepted/best.pt
+!/ai-service/models/accepted/model-manifest.json
+!/ai-service/models/accepted/SHA256SUMS
+!/ai-service/models/accepted/README.md
