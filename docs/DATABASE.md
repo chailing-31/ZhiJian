@@ -46,6 +46,26 @@ inspection_reviews
 - `alerts`：告警与处置
 - `batch_events`：全链路事件
 
+## C 加工/冷链集成迁移
+
+执行 `database/migrations/20261012_C_business_integration.sql` 创建：
+
+```text
+coldchain_episode_records
+c_integration_metadata
+```
+
+`coldchain_episode_records.episode_key` 对批次、来源、规则版本、区段起点和有效规则配置做幂等约束。`alerts` 保存可人工处置的告警快照，episode 保存规则返回的历史区段，两者不可互相替代。重复传感器点只在内容完全相同时视为重试；同一批次、来源和时刻出现不同内容时 API 返回 409，不覆盖原记录。
+
+初始化顺序：
+
+```text
+database/tables.sql
+database/demo.sql
+database/migrations/20261001_A3_inspection_integration.sql
+database/migrations/20261012_C_business_integration.sql
+```
+
 公开溯源只读取：
 
 ```text

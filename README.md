@@ -1,3 +1,14 @@
+# V4 阶段性集成快照（2026-10-13）
+
+当前入口：[V4 团队交接与启动](docs/V4_GITHUB_HANDOFF.md) · [阶段状态](docs/releases/V4_20261013.md)
+
+本快照将本机已安装 V4 代码与 B 的固定 `business/` 子目录归档到独立分支，不自动合并 develop/main。
+当前视觉基线是旧权重 `8c45a060…`，不是 A15；实际旧权重需另行提供，启动入口为 `scripts/v4_local.py`。
+以下原 README 属于历史基线说明，其中 A15 启动建议与旧测试状态不能覆盖本快照交接文档。
+完整业务写入和浏览器验收仍待完成，健康接口的 ready 不等于批次质量或食品安全认证。
+
+---
+
 # 智检鲜达 Demo（ZhiJian）
 
 <!-- A15-HANDOFF-CURRENT:BEGIN -->
@@ -12,6 +23,8 @@
 
 面向果蔬批次的 AI 视觉质检、加工品控、冷链监测与公开溯源 Demo。
 
+2026-10-12：已同步 C 的后端、前端、数据库及部署联调成果，并补入 A15 固定模型资产、校验工具与启动说明。本目录的加工与冷链连接独立 B 规则服务；C 环境的 A15 真实图片全链路验收仍待执行。同步范围与验证结果见 `docs/C_SYNC.md`。
+
 当前主要演示批次：
 
 ```text
@@ -20,7 +33,7 @@ APPLE-2026-001
 
 ## 当前真实状态
 
-截至 `feature-integration` 的 I2 阶段，已经跑通：
+截至 2026-10-12，C 的代码链路已接入并通过模拟/H2/HTTP 替身测试；真实 A15 图片全链路仍待在本环境验收：
 
 ```text
 批次登记 / 查询
@@ -36,14 +49,17 @@ Spring Boot 持久化
 二维码 / 公开溯源
     ↓
 公开事件摘要
+
+加工输入 → B 规则服务 → MySQL 建议/人工采用历史
+冷链 CSV → Spring Boot 去重 → B 连续规则 → episode/告警/人工处置
 ```
 
 | 模块 | 状态 | 说明 |
 | --- | --- | --- |
 | 首页 / 批次管理 | 已接入 | 真实 MySQL 批次数据 |
-| AI 视觉质检 | 已接入 | FastAPI + YOLO + Spring Boot + MySQL + 人工复核 |
-| 加工品控 | 待 B 接入 | 页面骨架和基础表已存在，业务接口尚未实现 |
-| 冷链监测 | 待 B 接入 | 页面骨架和基础表已存在，读数/告警写入尚未实现 |
+| AI 视觉质检 | 代码与 A15 资产已接入，C 环境待真实验收 | FastAPI + Spring Boot + MySQL + 人工复核；`ai-service/models/a15/` 含固定权重和 manifest，但真实加载、上传、落库、复核、公开摘要仍需在 C 环境复验 |
+| 加工品控 | 已接入 | B 演示规则、建议保存、人工采用值及历史读取 |
+| 冷链监测 | 已接入 | CSV 校验、逐点持久化、连续规则、幂等 episode、告警和人工处置 |
 | 内部综合记录 | 已接入 | `GET /batches/{id}/report` 只读聚合已保存数据 |
 | 公开溯源 | 已接入基础版 | 仅公开 `visibility=public` 事件，并提供公开摘要 |
 | 正式部署 / 权限 | 未完成 | 当前仍是受控开发 Demo |
@@ -65,9 +81,10 @@ Vue 5173
    ↓ /api
 Spring Boot 8080
    ├── MySQL 3306
-   └── AI Service 8001
+   ├── AI Service 8001（需要受信权重）
            ↓
         best.pt
+   └── B Rule Service 8002
 ```
 
 浏览器不直接访问 MySQL 或 8001。
@@ -109,10 +126,18 @@ inspection_payloads
 inspection_reviews
 ```
 
+C 增量表：
+
+```text
+coldchain_episode_records
+c_integration_metadata
+```
+
 迁移：
 
 ```text
 database/migrations/20261001_A3_inspection_integration.sql
+database/migrations/20261012_C_business_integration.sql
 ```
 
 ## 当前主要接口
@@ -128,6 +153,14 @@ GET   /batches/{id}/inspections
 GET   /inspections/{id}
 PATCH /inspections/{id}/review
 
+POST /batches/{id}/processing-advice
+GET  /batches/{id}/processing-records
+POST /processing-records/{id}/adopt
+POST /batches/{id}/sensor-readings
+GET  /batches/{id}/coldchain
+POST /alerts/{id}/resolve
+GET  /business-service/ready
+
 GET /batches/{id}/report
 GET /trace/{batch_code}
 ```
@@ -139,10 +172,11 @@ GET /trace/{batch_code}
 完整 Demo 推荐：
 
 ```text
-1. MySQL
-2. AI service 8001
-3. Spring Boot 8080（inspection profile）
+1. MySQL 3306，并依次执行基础脚本、A3 和 C migration
+2. B rule service 8002
+3. Spring Boot 8080
 4. Vue 5173
+5. 需要演示视觉质检时再启动 AI service 8001；必须先取得受信权重和 manifest
 ```
 
 详细命令见 `docs/DEPLOY.md`。
@@ -150,7 +184,7 @@ GET /trace/{batch_code}
 ## 前端测试与构建
 
 ```bat
-cd /d D:\Projects\ZhiJian\frontend
+cd /d ^<项目目录^>\ZhiJian-feature-integration\frontend
 ```
 
 ```bat
@@ -181,12 +215,30 @@ npm run build:safe
 
 ## 当前未完成
 
-- 加工建议生成、采用值保存与历史查询
-- 冷链读数写入、告警生成与处置
 - 包装 / 运输 / 出厂录入
 - 管理端登录、权限与审计
 - 正式部署与公网安全加固
-- 模型独立 test 与正式类别语义
+- C 环境的 A15 真实图片全链路验收
+- 模型独立 test 与生产性能/类别认证
+
+## 已验证结果（2026-10-12）
+
+```text
+Backend: 20 tests passed
+Business service: 183 tests passed (1 dependency deprecation warning)
+Frontend: 36 tests passed; 24 Vue SFC passed; build:safe passed
+Real local integration: MySQL + B 8002 + Backend 8080 passed
+```
+
+真实联调覆盖加工建议/采用历史、7 条冷链读数、持续超温 episode、恢复、人工处置和综合报告。该结果只证明工程链路，不证明规则为生产标准或食品安全结论。
+
+C 链路只读复验（服务全部启动后）：
+
+```bat
+python3.14 scripts\smoke_c_integration.py
+```
+
+成功输出 `C INTEGRATION READY (read-only checks)`。
 
 ## I4 全量只读冒烟验收
 

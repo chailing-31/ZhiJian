@@ -1,4 +1,5 @@
 <script setup>
+import BatchFlowStatus from '../../components/BatchFlowStatus.vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { getFormalReport } from '../../api/report.js'
@@ -36,6 +37,17 @@ function compactJson(data) {
   <StateNotice :loading="loading" :error="error" @retry="reload" />
 
   <template v-if="report && batch">
+    <section v-if="report.batch_workbench" class="card q4-report-section">
+      <h2>{{ report.batch_workbench.headline }}</h2>
+      <p>{{ report.batch_workbench.evidence_summary }}</p>
+      <p>拟定用途：{{ report.batch_workbench.use_label }}；当前待办：{{ report.batch_workbench.next_action.label }}</p>
+      <p v-if="report.batch_workbench.assessment">评定 #{{ report.batch_workbench.assessment.id }} / 第 {{ report.batch_workbench.assessment.revision }} 版 · {{ report.batch_workbench.assessment.approved_by }}<br />依据：{{ report.batch_workbench.assessment.grade_basis }}</p>
+      <p>实际分选记录：{{ report.batch_workbench.sorting_recorded ? '已保存' : '尚无当前记录' }}；实际加工执行：{{ report.batch_workbench.processing_executed ? '已登记' : '尚无当前记录' }}</p>
+      <p v-if="report.batch_workbench.processing.record_id">工艺记录 #{{ report.batch_workbench.processing.record_id }}，{{ report.batch_workbench.processing.current ? '关联当前批次评定' : '来源已过期或未关联' }}。</p>
+      <p>{{ report.batch_workbench.scope_note }}</p>
+      <RouterLink class="btn secondary no-print" :to="`/batches/${route.params.id}`">返回批次工作台</RouterLink>
+    </section>
+    <BatchFlowStatus :batch-id="route.params.id" />
     <div class="notice warning">{{ report.disclaimer }}</div>
     <div v-if="report.warnings?.length" class="notice danger"><div><strong>数据源提示</strong><div v-for="item in report.warnings" :key="item">{{ item }}</div></div></div>
 

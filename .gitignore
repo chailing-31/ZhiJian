@@ -17,6 +17,33 @@ dist/
 .idea/
 .vscode/
 
+_backup_c_sync_*/
+
 # A15 fixed handoff asset: BEGIN
 !/ai-service/models/a15/best.pt
 # A15 fixed handoff asset: END
+
+# Local runtime and private assets (tracked historical files are unchanged)
+**/node_modules/
+**/.venv/
+**/venv/
+**/__pycache__/
+**/.pytest_cache/
+**/target/
+**/dist/
+**/runtime/
+**/backups/
+**/*.log
+.env
+.env.local
+.env.*.local
+*.sql.gz
+*.db
+*.sqlite*
+.github-snapshots/
+# Accepted V4 demo model
+!/ai-service/models/accepted/
+!/ai-service/models/accepted/best.pt
+!/ai-service/models/accepted/model-manifest.json
+!/ai-service/models/accepted/SHA256SUMS
+!/ai-service/models/accepted/README.md

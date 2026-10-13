@@ -1,0 +1,146 @@
+{
+  "batch_id": 17,
+  "readings": [
+    {
+      "timestamp": "2026-02-16T01:05:00+08:00",
+      "temperature": 4.25669,
+      "humidity": 85.58719,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.37657
+    },
+    {
+      "timestamp": "2026-02-16T01:06:00+08:00",
+      "temperature": 4.26445,
+      "humidity": 85.36419,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.39978
+    },
+    {
+      "timestamp": "2026-02-16T01:07:00+08:00",
+      "temperature": 4.30152,
+      "humidity": 85.18523,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.35752
+    },
+    {
+      "timestamp": "2026-02-16T01:08:00+08:00",
+      "temperature": 4.25499,
+      "humidity": 85.77355,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.38286
+    },
+    {
+      "timestamp": "2026-02-16T01:09:00+08:00",
+      "temperature": 4.10337,
+      "humidity": 85.55883,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.27679
+    },
+    {
+      "timestamp": "2026-02-16T01:10:00+08:00",
+      "temperature": 11.13526,
+      "humidity": 85.28865,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.31169
+    },
+    {
+      "timestamp": "2026-02-16T01:11:00+08:00",
+      "temperature": 11.23275,
+      "humidity": 85.2683,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.34695
+    },
+    {
+      "timestamp": "2026-02-16T01:12:00+08:00",
+      "temperature": 11.20865,
+      "humidity": 85.34978,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.35172
+    },
+    {
+      "timestamp": "2026-02-16T01:13:00+08:00",
+      "temperature": 11.17072,
+      "humidity": 85.26172,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.28826
+    },
+    {
+      "timestamp": "2026-02-16T01:14:00+08:00",
+      "temperature": 11.10943,
+      "humidity": 85.09529,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.23279
+    },
+    {
+      "timestamp": "2026-02-16T01:15:00+08:00",
+      "temperature": 11.06789,
+      "humidity": 85.22008,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.2195
+    },
+    {
+      "timestamp": "2026-02-16T01:16:00+08:00",
+      "temperature": 11.05493,
+      "humidity": 84.7032,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.17316
+    },
+    {
+      "timestamp": "2026-02-16T01:17:00+08:00",
+      "temperature": 11.08159,
+      "humidity": 84.65517,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.14936
+    },
+    {
+      "timestamp": "2026-02-16T01:18:00+08:00",
+      "temperature": 11.01416,
+      "humidity": 84.90222,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.16061
+    },
+    {
+      "timestamp": "2026-02-16T01:19:00+08:00",
+      "temperature": 11.05839,
+      "humidity": 84.57506,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.09254
+    },
+    {
+      "timestamp": "2026-02-16T01:20:00+08:00",
+      "temperature": 11.02416,
+      "humidity": 84.40582,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.14177
+    },
+    {
+      "timestamp": "2026-02-16T01:21:00+08:00",
+      "temperature": 10.92825,
+      "humidity": 84.56849,
+      "source": "simulation",
+      "door_open": false,
+      "equipment_current": 2.16367
+    }
+  ],
+  "config": {
+    "temperature_upper": 8.0,
+    "duration_minutes": 5.0,
+    "max_gap_minutes": 2.0
+  }
+}

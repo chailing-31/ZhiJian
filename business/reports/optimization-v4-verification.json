@@ -1,0 +1,14 @@
+{
+  "actual_model_id": "novelty-bdab3d1c9fda5a51",
+  "http_status": 200,
+  "rule_alert": true,
+  "model_scored_count": 12,
+  "model_anomaly_count": 12,
+  "previous_artifact_predictions_match": true,
+  "warm_testclient_180_point_requests": 10,
+  "median_ms": 50.71355000109179,
+  "p95_ms": 63.29497999540762,
+  "benchmark_false_positives_in_5min_after_labelled_recovery": 225,
+  "other_false_positives": 62,
+  "latency_limit": "Local TestClient only, warm model, includes JSON and rules; not deployment load testing."
+}

@@ -1,0 +1,508 @@
+{
+  "rule_result": {
+    "batch_id": 17,
+    "source": "simulation",
+    "alert": true,
+    "level": "HIGH",
+    "status": "active",
+    "reason": "观测到温度高于 8℃ 持续至少 5 分钟（演示规则）",
+    "episodes": [
+      {
+        "started_at": "2026-01-23T01:10:00+08:00",
+        "triggered_at": "2026-01-23T01:15:00+08:00",
+        "trigger_value": 11.07203,
+        "last_observed_at": "2026-01-23T01:21:00+08:00",
+        "recovered_at": null,
+        "end_reason": "ongoing",
+        "observed_minutes": 11.0,
+        "peak_temperature": 11.17892
+      }
+    ],
+    "data_gap_count": 0,
+    "rule_version": "demo-coldchain-v2",
+    "demo_only": true,
+    "config": {
+      "temperature_upper": 8.0,
+      "duration_minutes": 5.0,
+      "max_gap_minutes": 2.0
+    }
+  },
+  "model_result": {
+    "batch_id": 17,
+    "algorithm": "isolation_forest_knn",
+    "model_id": "novelty-bdab3d1c9fda5a51",
+    "model_strategy": "hybrid_distance",
+    "feature_version": "coldchain-causal-v2",
+    "feature_config": {
+      "profile": "device",
+      "window_minutes": 5.0,
+      "max_gap_minutes": 2.0,
+      "min_points": 3
+    },
+    "training_source": "simulation",
+    "input_source": "simulation",
+    "source_matches_training": true,
+    "demo_only": true,
+    "threshold": 1.2699833902390105,
+    "threshold_method": "independent_normal_calibration_quantile",
+    "confirmation_points": 1,
+    "feature_names": [
+      "temperature",
+      "humidity",
+      "temperature_rate_per_minute",
+      "humidity_rate_per_minute",
+      "temperature_std",
+      "temperature_range",
+      "humidity_std",
+      "temperature_trend_per_minute",
+      "door_open_fraction",
+      "current_mean",
+      "current_std",
+      "current_rate_per_minute",
+      "door_open_current",
+      "equipment_current"
+    ],
+    "scored_count": 12,
+    "anomaly_count": 12,
+    "points": [
+      {
+        "timestamp": "2026-01-23T01:05:00+08:00",
+        "status": "insufficient_history",
+        "score": null,
+        "raw_score": null,
+        "score_components": {},
+        "anomaly": null,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-01-23T01:06:00+08:00",
+        "status": "insufficient_history",
+        "score": null,
+        "raw_score": null,
+        "score_components": {},
+        "anomaly": null,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-01-23T01:07:00+08:00",
+        "status": "insufficient_history",
+        "score": null,
+        "raw_score": null,
+        "score_components": {},
+        "anomaly": null,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-01-23T01:08:00+08:00",
+        "status": "insufficient_history",
+        "score": null,
+        "raw_score": null,
+        "score_components": {},
+        "anomaly": null,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-01-23T01:09:00+08:00",
+        "status": "insufficient_history",
+        "score": null,
+        "raw_score": null,
+        "score_components": {},
+        "anomaly": null,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-01-23T01:10:00+08:00",
+        "status": "scored",
+        "score": 54.775412033120176,
+        "raw_score": 54.775412033120176,
+        "score_components": {
+          "window_distance": 36.63137423185385,
+          "isolation_forest": 0.9961189252490207,
+          "level_distance": 54.775412033120176
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 11.17892,
+            "reference_low": 4.563505999999999,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "equipment_current",
+            "value": 2.29484,
+            "reference_low": 2.0901705,
+            "reference_high": 2.2349435,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:11:00+08:00",
+        "status": "scored",
+        "score": 54.52193012182599,
+        "raw_score": 54.52193012182599,
+        "score_components": {
+          "window_distance": 37.49546720330114,
+          "isolation_forest": 0.9362842531944243,
+          "level_distance": 54.52193012182599
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 11.15164,
+            "reference_low": 4.563505999999999,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "humidity",
+            "value": 85.2075,
+            "reference_low": 84.5358185,
+            "reference_high": 85.1052405,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:12:00+08:00",
+        "status": "scored",
+        "score": 53.86579084567043,
+        "raw_score": 53.86579084567043,
+        "score_components": {
+          "window_distance": 38.93266041055726,
+          "isolation_forest": 0.9650723552193716,
+          "level_distance": 53.86579084567043
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 11.07276,
+            "reference_low": 4.563505999999999,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "equipment_current",
+            "value": 2.25766,
+            "reference_low": 2.0901705,
+            "reference_high": 2.2349435,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:13:00+08:00",
+        "status": "scored",
+        "score": 53.27577362967368,
+        "raw_score": 53.27577362967368,
+        "score_components": {
+          "window_distance": 37.18986063244003,
+          "isolation_forest": 0.9465749576149479,
+          "level_distance": 53.27577362967368
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 11.00236,
+            "reference_low": 4.563505999999999,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "humidity",
+            "value": 85.13925,
+            "reference_low": 84.5358185,
+            "reference_high": 85.1052405,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:14:00+08:00",
+        "status": "scored",
+        "score": 53.78249568458454,
+        "raw_score": 53.78249568458454,
+        "score_components": {
+          "window_distance": 32.475867341876516,
+          "isolation_forest": 0.9311072316154926,
+          "level_distance": 53.78249568458454
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 11.06442,
+            "reference_low": 4.564871,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:15:00+08:00",
+        "status": "scored",
+        "score": 53.84984266451028,
+        "raw_score": 53.84984266451028,
+        "score_components": {
+          "window_distance": 8.378575188303325,
+          "isolation_forest": 0.6865924394984763,
+          "level_distance": 53.84984266451028
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 11.07203,
+            "reference_low": 4.563505999999999,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:16:00+08:00",
+        "status": "scored",
+        "score": 52.72629980905537,
+        "raw_score": 52.72629980905537,
+        "score_components": {
+          "window_distance": 8.247365068566598,
+          "isolation_forest": 0.7278694430537191,
+          "level_distance": 52.72629980905537
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 10.93784,
+            "reference_low": 4.564871,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:17:00+08:00",
+        "status": "scored",
+        "score": 52.218528408910764,
+        "raw_score": 52.218528408910764,
+        "score_components": {
+          "window_distance": 8.156516915475628,
+          "isolation_forest": 0.7180681849032038,
+          "level_distance": 52.218528408910764
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 10.87661,
+            "reference_low": 4.563505999999999,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:18:00+08:00",
+        "status": "scored",
+        "score": 53.21665079473729,
+        "raw_score": 53.21665079473729,
+        "score_components": {
+          "window_distance": 8.269007315239836,
+          "isolation_forest": 0.7284528891603997,
+          "level_distance": 53.21665079473729
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 10.99645,
+            "reference_low": 4.564871,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:19:00+08:00",
+        "status": "scored",
+        "score": 52.98257008862826,
+        "raw_score": 52.98257008862826,
+        "score_components": {
+          "window_distance": 8.256910276709695,
+          "isolation_forest": 0.7301864332044695,
+          "level_distance": 52.98257008862826
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 10.96832,
+            "reference_low": 4.563505,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:20:00+08:00",
+        "status": "scored",
+        "score": 52.458953144599256,
+        "raw_score": 52.458953144599256,
+        "score_components": {
+          "window_distance": 8.20537205395289,
+          "isolation_forest": 0.7532939157200317,
+          "level_distance": 52.458953144599256
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 10.90446,
+            "reference_low": 4.564871,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      },
+      {
+        "timestamp": "2026-01-23T01:21:00+08:00",
+        "status": "scored",
+        "score": 52.91569947612017,
+        "raw_score": 52.91569947612017,
+        "score_components": {
+          "window_distance": 8.262315506747106,
+          "isolation_forest": 0.7341448491049567,
+          "level_distance": 52.91569947612017
+        },
+        "anomaly": true,
+        "evidence": [
+          {
+            "feature": "door_open_current",
+            "value": 0.0,
+            "reference_low": 1.0,
+            "reference_high": 1.0,
+            "interpretation": "below_reference",
+            "reference_type": "normal_neighbors"
+          },
+          {
+            "feature": "temperature",
+            "value": 10.96033,
+            "reference_low": 4.564871,
+            "reference_high": 4.687885,
+            "interpretation": "above_reference",
+            "reference_type": "normal_neighbors"
+          }
+        ]
+      }
+    ],
+    "explanation": "证据仅表示特征偏离训练参考分布，不是模型因果归因或设备故障诊断。"
+  }
+}

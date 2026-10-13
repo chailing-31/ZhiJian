@@ -6,6 +6,7 @@ import java.util.*;
 
 final class PredictionValidator {
     private PredictionValidator() {}
+
     static UUID validate(JsonNode p, long batchId, String code, String uploadHash) {
         try {
             if (!p.isObject() || !"zhijian.ai.inspection.v0.1".equals(p.path("schema_version").asText())
@@ -17,38 +18,79 @@ final class PredictionValidator {
             bounded(p, "evaluation_status", 40);
             OffsetDateTime.parse(p.path("executed_at").asText());
             range(p.path("inference_ms"), 0, 3600000);
-            range(p.path("confidence_threshold"), 0, 1); range(p.path("iou_threshold"), 0, 1);
+            range(p.path("confidence_threshold"), 0, 1);
+            range(p.path("iou_threshold"), 0, 1);
             JsonNode image = p.path("image"), detections = p.path("detections");
             int w = image.path("width").asInt(0), h = image.path("height").asInt(0);
-            if (w < 1 || h < 1 || (long) w * h > 24000000 || !uploadHash.equals(image.path("source_sha256").asText())
+            if (w < 1 || h < 1 || (long) w * h > 24000000
+                || !uploadHash.equals(image.path("source_sha256").asText())
                 || !"exif_transposed_pixels_xyxy".equals(image.path("coordinate_system").asText())) fail();
             sha(image.path("normalized_pixels_sha256").asText());
             if (!detections.isArray() || detections.size() > 300) fail();
             for (JsonNode d : detections) {
                 if (!d.path("class_id").isIntegralNumber() || d.path("class_id").asInt(-1) < 0) fail();
-                bounded(d, "class_name", 100); bounded(d, "class_label", 200);
+                bounded(d, "class_name", 100);
+                bounded(d, "class_label", 200);
                 range(d.path("confidence"), 0, 1);
                 JsonNode b = d.path("bbox_xyxy");
                 if (!b.isArray() || b.size() != 4) fail();
-                range(b.get(0), 0, w); range(b.get(1), 0, h); range(b.get(2), 0, w); range(b.get(3), 0, h);
-                if (b.get(0).asDouble() >= b.get(2).asDouble() || b.get(1).asDouble() >= b.get(3).asDouble()) fail();
+                range(b.get(0), 0, w);
+                range(b.get(1), 0, h);
+                range(b.get(2), 0, w);
+                range(b.get(3), 0, h);
+                if (b.get(0).asDouble() >= b.get(2).asDouble()
+                    || b.get(1).asDouble() >= b.get(3).asDouble()) fail();
             }
             validateBurden(p.path("defect_burden"), detections, w, h);
             validateGrade(p, p.path("defect_burden"));
             String expected = detections.isEmpty() ? "no_target_defect_detected" : "target_defect_detected";
-            if (!expected.equals(p.path("observation").asText()) || !p.path("requires_human_review").asBoolean()) fail();
+            if (!expected.equals(p.path("observation").asText())
+                || !p.path("requires_human_review").asBoolean()) fail();
             if (!p.path("warnings").isArray()) fail();
             return id;
         } catch (RuntimeException e) {
-            throw new InspectionFault(502, "AI_CONTRACT_INVALID", "AI 响应与当前批次、图片或接口约定不符；未保存业务记录。");
+            throw new InspectionFault(
+                502,
+                "AI_CONTRACT_INVALID",
+                "AI 响应与当前批次、图片或接口约定不符；未保存业务记录。"
+            );
         }
     }
+
     private static void validateGrade(JsonNode p, JsonNode burden) {
+        if ("quality-routing-v3".equals(p.path("grade_rule_version").asText())) {
+            if (!"target_defect_burden_screening".equals(p.path("grade_basis").asText())
+                || !p.has("suggested_grade")) fail();
+
+            String level = burden.path("burden_level").asText();
+            String expected = switch (level) {
+                case "low" -> "B";
+                case "moderate" -> "C";
+                case "high", "none_observed" -> null;
+                default -> throw new IllegalArgumentException("Invalid burden");
+            };
+
+            String status = "none_observed".equals(level)
+                ? "withheld_no_target_observed"
+                : "high".equals(level)
+                    ? "withheld_requires_review"
+                    : "development_rule_applied";
+
+            if (!status.equals(p.path("grade_status").asText())
+                || (expected == null
+                    ? !p.get("suggested_grade").isNull()
+                    : !expected.equals(p.get("suggested_grade").asText()))) fail();
+
+            return;
+        }
+
+        // Preserve validation of genuine historic A12 responses; never rewrite historic grades.
         if (!"a12-dev-grade-v1".equals(p.path("grade_rule_version").asText())
             || !"defect_burden_level".equals(p.path("grade_basis").asText())
             || !p.has("suggested_grade")) fail();
 
         String level = burden.path("burden_level").asText();
+
         if ("none_observed".equals(level)) {
             if (!p.get("suggested_grade").isNull()
                 || !"withheld_no_target_observed".equals(p.path("grade_status").asText())) fail();
@@ -61,13 +103,15 @@ final class PredictionValidator {
             case "high" -> "D";
             default -> throw new IllegalArgumentException("Invalid burden level");
         };
+
         if (!p.get("suggested_grade").isTextual()
             || !expectedGrade.equals(p.get("suggested_grade").asText())
             || !"development_rule_applied".equals(p.path("grade_status").asText())) fail();
     }
 
     private static void validateBurden(JsonNode burden, JsonNode detections, int w, int h) {
-        if (!burden.isObject() || !"a11-dev-burden-v1".equals(burden.path("rule_version").asText())
+        if (!burden.isObject()
+            || !"a11-dev-burden-v1".equals(burden.path("rule_version").asText())
             || !"full_image_area".equals(burden.path("denominator").asText())) fail();
 
         JsonNode countNode = burden.path("detection_count");
@@ -191,12 +235,16 @@ final class PredictionValidator {
     }
 
     private static void sha(String s) { if (!s.matches("[0-9a-f]{64}")) fail(); }
+
     private static void bounded(JsonNode p, String key, int max) {
         JsonNode value = p.path(key);
         if (!value.isTextual() || value.asText().isBlank() || value.asText().length() > max) fail();
     }
+
     private static void range(JsonNode v, double low, double high) {
-        if (v == null || !v.isNumber() || !Double.isFinite(v.asDouble()) || v.asDouble() < low || v.asDouble() > high) fail();
+        if (v == null || !v.isNumber() || !Double.isFinite(v.asDouble())
+            || v.asDouble() < low || v.asDouble() > high) fail();
     }
+
     private static void fail() { throw new IllegalArgumentException("Invalid prediction"); }
 }

@@ -1,4 +1,5 @@
 <script setup>
+import PublicQualitySummary from '../../components/PublicQualitySummary.vue'
 import { useRoute } from 'vue-router'
 import { getPublicTrace } from '../../api/trace.js'
 import { useAsyncData } from '../../composables/useAsyncData.js'
@@ -41,6 +42,7 @@ function summary(key) {
       <StateNotice :loading="loading" :error="error" @retry="reload" />
 
       <template v-if="data">
+        <PublicQualitySummary :batch-code="String(route.params.batchCode)" />
         <section class="public-hero">
           <p class="eyebrow">BATCH TRACEABILITY</p>
           <h1>{{ data.product || '果蔬批次' }}</h1>

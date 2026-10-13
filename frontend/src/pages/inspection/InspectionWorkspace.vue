@@ -1,210 +1,140 @@
 <script setup>
-import { computed, onMounted, onBeforeUnmount, reactive, ref } from 'vue'
-import EmptyState from '../../components/EmptyState.vue'
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { getInspectionReady, listInspections, getInspection, predictInspection, reviewInspection } from '../../api/inspection.js'
-
-const props = defineProps({ batch: { type: Object, required: true } })
-const controller = new AbortController()
-let disposed = false
-const options = { signal: controller.signal }
-const file = ref(null), preview = ref(''), requestId = ref('')
-const error = ref(''), notice = ref(''), ready = ref(null), history = ref([]), record = ref(null)
-const busy = ref(false), refreshing = ref(false), selectedCandidate = ref(null), imageError = ref(false)
+import BatchFlowStatus from '../../components/BatchFlowStatus.vue'
+import InspectionViewer from '../../components/InspectionViewer.vue'
+import { decisionFor, candidateCaption, reviewProblem, GRADE_OPTIONS, GRADE_LABELS } from '../../utils/engineering.js'
+const props = defineProps({ batch: { type: Object, required: true }, embedded: { type: Boolean, default: false } })
+const emit = defineEmits(['changed'])
+const file = ref(null), preview = ref(''), requestId = ref(''), record = ref(null), history = ref([])
+const ready = ref(null), busy = ref(false), refreshing = ref(false), error = ref(''), historyError = ref(''), notice = ref('')
+const selected = ref(null), refreshKey = ref(0), phase = ref(''), historyLoaded = ref(false)
 const form = reactive({ reviewer: '', remark: '', final_grade: '', conclusion: 'needs_recheck', publish_summary: false, candidates: [] })
-const decisions = { confirmed: '确认目标', false_positive: '疑似误检', duplicate: '重复框', uncertain: '不确定' }
-const conclusions = { target_confirmed: '已人工确认图中存在目标', no_target_confirmed: '本次未确认目标（不等于合格）', needs_recheck: '需要进一步复核' }
-const burdenLevels = { none_observed: '未观察到目标候选', low: '低', moderate: '中等', high: '高' }
-const burdenFlags = {
-  detection_count_ge_4: '候选总数达到 4 个',
-  scratch_large_box_ge_0_025: '存在较大的表面擦伤候选框',
-  pest_damage_large_box_ge_0_0045: '存在较大的虫害损伤候选框',
-}
+const decisions = { confirmed: '确认目标', false_positive: '误检', duplicate: '重复框', uncertain: '不确定' }
+const conclusions = { target_confirmed: '确认模型候选中的目标缺陷', manual_target_confirmed: '人工发现缺陷（模型未覆盖或漏检）', no_target_confirmed: '未确认目标（不代表合格）', needs_recheck: '尚不确定，需要复查' }
 const prediction = computed(() => record.value?.prediction)
 const detections = computed(() => prediction.value?.detections || [])
-const burden = computed(() => prediction.value?.defect_burden || null)
-const suggestedGrade = computed(() => prediction.value?.suggested_grade ?? null)
-const gradeStatus = computed(() => prediction.value?.grade_status || null)
-const viewBox = computed(() => prediction.value ? `0 0 ${prediction.value.image.width} ${prediction.value.image.height}` : '0 0 1 1')
-const confirmedCandidates = computed(() => form.candidates.filter(c => c.decision === 'confirmed'))
-function time(v) { return v ? new Date(v).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '—' }
-function percent(v) { return `${(Number(v) * 100).toFixed(2)}%` }
-function areaPercent(v) { return `${(Number(v) * 100).toFixed(2)}%` }
-function bbox(d) { return d.bbox_xyxy.map(v => Number(v).toFixed(1)).join(', ') }
+const decision = computed(() => decisionFor(record.value))
+const confirmed = computed(() => form.candidates.filter(c => c.decision === 'confirmed'))
+let controller = new AbortController(), disposed = false
 function showError(e) { if (!disposed && e.name !== 'AbortError') error.value = e.message }
+function date(value) { return value ? new Date(value).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '未记录' }
+function percent(value) { return Number.isFinite(Number(value)) ? `${(Number(value) * 100).toFixed(2)}%` : '未记录' }
 function setRecord(value) {
-  if (String(value.batch_id) !== String(props.batch.batch_id)) throw new Error('记录批次不匹配，已停止展示。')
-  record.value = value; imageError.value = false; selectedCandidate.value = null
+  if (String(value.batch_id) !== String(props.batch.batch_id)) throw new Error('返回记录不属于当前批次，已停止展示。')
+  record.value = value; selected.value = null
   const latest = value.latest_review
-  form.reviewer = latest?.reviewer || ''; form.remark = ''; form.final_grade = latest?.final_grade || ''
-  form.publish_summary = false; form.conclusion = latest?.conclusion || 'needs_recheck'
-  form.candidates = value.prediction.detections.map((_, index) => {
-    const previous = latest?.candidate_reviews?.find(c => c.candidate_index === index + 1)
-    return { candidate_index: index + 1, decision: previous?.decision || '', duplicate_of: previous?.duplicate_of ?? null, note: '' }
+  Object.assign(form, { reviewer: latest?.reviewer || '', remark: '', final_grade: latest?.final_grade || '', conclusion: latest?.conclusion || 'needs_recheck', publish_summary: false })
+  form.candidates = value.prediction.detections.map((_, i) => {
+    const old = latest?.candidate_reviews?.find(c => c.candidate_index === i + 1)
+    return { candidate_index: i + 1, decision: old?.decision || '', duplicate_of: old?.duplicate_of ?? null, note: '' }
   })
 }
 async function refresh() {
   if (refreshing.value || disposed) return
-  refreshing.value = true; error.value = ''
-  const results = await Promise.allSettled([getInspectionReady(options), listInspections(props.batch.batch_id, options)])
-  if (!disposed) {
-    if (results[0].status === 'fulfilled') ready.value = results[0].value
-    else { ready.value = null; showError(results[0].reason) }
-    if (results[1].status === 'fulfilled') history.value = results[1].value
-    else showError(results[1].reason)
-    refreshing.value = false
-  }
+  const local = controller; refreshing.value = true; historyError.value = ''
+  const result = await Promise.allSettled([getInspectionReady({ signal: local.signal }), listInspections(props.batch.batch_id, { signal: local.signal })])
+  if (local.signal.aborted || disposed) return
+  ready.value = result[0].status === 'fulfilled' ? result[0].value : null
+  if (result[1].status === 'fulfilled') { history.value = result[1].value; historyLoaded.value = true }
+  else { historyError.value = result[1].reason.message; historyLoaded.value = false }
+  if (result[0].status !== 'fulfilled') showError(result[0].reason)
+  refreshing.value = false; refreshKey.value++
 }
-function choose(event) {
+function chooseFile(f) {
+  if (busy.value || !f) return
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type) || !f.size || f.size > 10 * 1024 * 1024) { error.value = '请选择不超过 10 MiB 的非空 JPG / PNG / WebP 图片。'; return }
+  if (!globalThis.crypto?.randomUUID) { error.value = '请使用 localhost 或 HTTPS 打开网页，浏览器需要安全的请求编号生成能力。'; return }
   if (preview.value) URL.revokeObjectURL(preview.value)
-  preview.value = ''; file.value = null; record.value = null; error.value = ''; notice.value = ''
-  const f = event.target.files?.[0]; event.target.value = ''
-  if (!f) return
-  if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type) || !f.size || f.size > 10 * 1024 * 1024) {
-    error.value = '请选择非空 JPG、PNG 或 WebP 图片，不超过 10 MiB。'; return
-  }
-  if (!globalThis.crypto?.randomUUID) { error.value = '浏览器无法生成请求编号，请使用本机 localhost 或 HTTPS。'; return }
   file.value = f; preview.value = URL.createObjectURL(f); requestId.value = crypto.randomUUID()
+  record.value = null; error.value = ''; notice.value = ''; phase.value = ''
 }
+function choose(event) { chooseFile(event.target.files?.[0]); event.target.value = '' }
+function dropped(event) { chooseFile(event.dataTransfer?.files?.[0]) }
 async function detect() {
-  if (busy.value || !file.value) return
-  busy.value = true; error.value = ''; notice.value = ''
+  if (busy.value || !file.value || !ready.value?.ready || record.value) return
+  busy.value = true; error.value = ''; notice.value = ''; phase.value = '上传、真实模型推理与保存…'
+  const local = controller
   try {
-    const value = await predictInspection(props.batch.batch_id, file.value, { ...options, requestId: requestId.value })
-    if (disposed) return
-    setRecord(value)
-    notice.value = '模型结果和图片已保存。下面的候选框尚需人工复核，不是已确认的缺陷数量。'
-    await refresh()
+    const saved = await predictInspection(props.batch.batch_id, file.value, { signal: local.signal, requestId: requestId.value })
+    if (local.signal.aborted) return
+    phase.value = '正在从后端重新读取保存结果…'
+    const readback = await getInspection(saved.inspection_id, { signal: local.signal })
+    if (local.signal.aborted) return
+    if (readback.prediction.prediction_id !== saved.prediction.prediction_id) throw new Error('预测编号回读不一致，请保留诊断记录。')
+    setRecord(readback); notice.value = `质检 #${readback.inspection_id} 已保存并回读成功。请核对候选框并完成图像复核，再到批次评定汇总。`
+    await refresh(); emit('changed')
   } catch (e) { showError(e) }
-  finally { if (!disposed) busy.value = false }
+  finally { if (!disposed && !local.signal.aborted) { busy.value = false; phase.value = '' } }
 }
 async function openRecord(id) {
   if (busy.value) return
   busy.value = true; error.value = ''; notice.value = ''
-  try { const value = await getInspection(id, options); if (!disposed) setRecord(value) }
+  const local = controller
+  try { const value = await getInspection(id, { signal: local.signal }); if (!local.signal.aborted) setRecord(value) }
   catch (e) { showError(e) }
-  finally { if (!disposed) busy.value = false }
+  finally { if (!disposed && !local.signal.aborted) busy.value = false }
 }
-function updateDecision(candidate) { if (candidate.decision !== 'duplicate') candidate.duplicate_of = null }
 async function submitReview() {
   if (busy.value || !record.value) return
-  if (!form.reviewer.trim() || !form.remark.trim() || form.candidates.some(c => !c.decision)) {
-    error.value = '请填写复核人、说明，并逐个选择候选状态。'; return
-  }
+  const problem = reviewProblem(form, detections.value.length)
+  if (problem) { error.value = problem; return }
   busy.value = true; error.value = ''; notice.value = ''
+  const local = controller
   try {
-    const value = await reviewInspection(record.value.inspection_id, {
+    const saved = await reviewInspection(record.value.inspection_id, {
       expected_revision: record.value.review_revision, reviewer: form.reviewer.trim(), remark: form.remark.trim(),
-      final_grade: form.final_grade.trim() || null, conclusion: form.conclusion, publish_summary: form.publish_summary,
+      conclusion: form.conclusion, final_grade: form.final_grade || null, publish_summary: form.publish_summary,
       candidate_reviews: form.candidates.map(c => ({ ...c, duplicate_of: c.decision === 'duplicate' ? Number(c.duplicate_of) : null })),
-    }, options)
-    if (disposed) return
-    setRecord(value); notice.value = '人工复核已单独保存，模型原始结果未改动。'
-    await refresh()
+    }, { signal: local.signal })
+    const readback = await getInspection(saved.inspection_id, { signal: local.signal })
+    if (local.signal.aborted) return
+    if (readback.review_revision !== saved.review_revision) throw new Error('复核版本已再次更新，请重新打开记录确认。')
+    setRecord(readback); notice.value = '人工复核已保存并回读确认。右侧展示的是已保存等级，不是尚未提交的表单值。'; await refresh(); emit('changed')
   } catch (e) { showError(e) }
-  finally { if (!disposed) busy.value = false }
+  finally { if (!disposed && !local.signal.aborted) busy.value = false }
 }
-onMounted(refresh)
+function exportRecord() {
+  const blob = new Blob([JSON.stringify(record.value, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob), a = document.createElement('a')
+  a.href = url; a.download = `inspection-${record.value.inspection_id}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+watch(() => props.batch.batch_id, () => {
+  controller.abort(); controller = new AbortController()
+  if (preview.value) URL.revokeObjectURL(preview.value)
+  file.value = null; preview.value = ''; record.value = null; ready.value = null; history.value = []; historyLoaded.value = false
+  busy.value = false; refreshing.value = false; error.value = ''; notice.value = ''; refresh()
+}, { immediate: true })
+defineExpose({ openRecord })
 onBeforeUnmount(() => { disposed = true; controller.abort(); if (preview.value) URL.revokeObjectURL(preview.value) })
 </script>
-
 <template>
-  <section class="notice info"><strong>内部联调模型。</strong>类别语义已完成 A9 数据审计；A11 提供开发版缺陷负担证据，A12 仅将已观察到的负担映射为 B/C/D 建议等级。未检出目标候选时不会自动判 A。建议等级不是正式质量标准，最终等级仍需人工复核，且不构成食品安全或整批合格认证。</section>
-  <div class="section-row"><span :class="['badge', ready?.ready ? 'ready' : 'pending']">{{ ready?.ready ? '后端 / 数据库 / 模型可用' : '连接状态待确认' }}</span><button class="btn secondary" :disabled="busy || refreshing" @click="refresh">刷新状态与历史</button></div>
-  <p v-if="ready && !ready.ready" class="notice warning">{{ ready.message }}</p>
-  <p v-if="error" class="notice danger" role="alert">{{ error }}</p>
-  <p v-if="notice" class="notice info" role="status">{{ notice }}</p>
-  <div class="two-column">
-    <section class="card">
-      <h2>01 输入图片</h2>
-      <div class="image-stage"><img v-if="record" :src="record.artifact_urls.input" alt="方向校正后的实际模型输入图" @error="imageError = true" /><img v-else-if="preview" :src="preview" alt="待上传的本地预览" /><EmptyState v-else title="选择一张苹果图片" description="JPG / PNG / WebP，不超过 10 MiB" /></div>
-      <label class="file-control"><span class="btn secondary">选择图片</span><input :disabled="busy" type="file" accept="image/jpeg,image/png,image/webp" aria-label="选择待检图片" @change="choose" /></label>
-      <p class="footnote break-word">{{ record ? `已保存记录 #${record.inspection_id} 的模型输入图` : file?.name || '可在下方打开已保存的质检记录' }}</p>
-      <button class="btn full-width" :disabled="busy || !file || !ready?.ready || !!record" @click="detect">{{ busy ? '正在处理，请勿重复提交…' : record ? '当前记录已保存，请选图开始新检测' : '开始检测并保存' }}</button>
-      <p class="footnote">关闭或切换页面不能撤销后端已开始的检测。超时后先刷新历史；同一选图请求重试不会重复新增业务记录。</p>
+  <div class="e-inspection">
+    <BatchFlowStatus v-if="!embedded" :batch-id="batch.batch_id" :refresh-key="refreshKey" />
+    <div class="e-work-heading"><div><p class="e-kicker">VISUAL INSPECTION / 苹果外观辅助检查</p><h2>看清问题，再决定下一步。</h2><p>检测范围：表面擦伤、虫害损伤。先复核每张图片；批次等级和用途在批次评定单中统一确认。</p></div><span class="badge" :class="ready?.ready ? 'ready' : 'pending'">{{ ready?.ready ? '可以开始检测' : '请先检查模型连接' }}</span></div>
+    <p v-if="error" class="notice danger" role="alert">{{ error }}</p><p v-if="notice" class="notice success" role="status">{{ notice }}</p>
+    <div class="e-inspection-grid">
+      <section class="e-panel e-visual-panel"><div class="e-section-line"><h3>01 图片与检测可视化</h3><span class="e-muted">{{ record ? `已保存 #${record.inspection_id}` : '单张图片检查' }}</span></div>
+        <InspectionViewer v-if="record" :record="record" :selected="selected" @select="selected = $event" />
+        <div v-else class="e-upload-zone" @dragover.prevent @drop.prevent="dropped"><img v-if="preview" :src="preview" alt="待上传照片的本地预览" /><div v-else><span class="e-upload-symbol">＋</span><h3>上传一张苹果照片</h3><p>拖入图片，或使用下方按钮选择</p><small>建议单个苹果、光线均匀、缺陷区域清晰</small></div></div>
+        <div class="e-upload-actions"><label class="e-file-button"><input :disabled="busy" type="file" accept="image/jpeg,image/png,image/webp" @change="choose" /><span class="btn secondary">{{ record ? '换一张图片' : '选择图片' }}</span></label><button class="btn" :disabled="busy || !file || !!record || !ready?.ready" @click="detect">{{ busy ? phase || '正在处理…' : '开始检测并保存' }}</button></div>
+        <p class="e-note">{{ file?.name || '支持 JPG / PNG / WebP，最大 10 MiB' }}。超时不代表后端已取消，请先刷新历史；同一选图保留同一请求键。</p>
+        <div v-if="record && detections.length" class="e-candidate-list"><button v-for="(d, i) in detections" :key="i" class="e-candidate" :class="{ active: selected === i + 1 }" @click="selected = i + 1"><span class="e-candidate-index">{{ i + 1 }}</span><span>{{ d.class_label || d.class_name }}</span><strong>{{ percent(d.confidence) }}</strong></button></div>
+        <div v-else-if="record" class="e-empty-result"><strong>本次未检出擦伤或虫害候选</strong><p>没有自动生成检测框。请人工看图，或更换拍摄角度；这不是“正常 / A 级”的判定。</p></div>
+      </section>
+      <aside class="e-panel e-decision-panel"><p class="e-kicker">02 / 当前图片观察</p><h3>{{ decision.title }}</h3><div class="e-grade-display" :class="{ pending: decision.source !== 'human' }"><strong>{{ decision.grade || '待定' }}</strong><span>{{ decision.source === 'human' ? '本图人工参考等级' : decision.grade ? '实验性规则建议' : '尚未核定等级' }}</span></div><p class="e-action-copy">{{ decision.action }}</p>
+        <dl v-if="record" class="e-decision-facts"><div><dt>检测候选</dt><dd>{{ detections.length }} 处</dd></div><div><dt>模型建议</dt><dd>{{ ['B','C'].includes(prediction.suggested_grade) ? prediction.suggested_grade + '（参考）' : '需人工核定' }}</dd></div><div><dt>人工复核</dt><dd>{{ record.review_revision ? `第 ${record.review_revision} 版` : '尚未保存' }}</dd></div><div><dt>工艺参数</dt><dd>由 B 规则单独计算</dd></div></dl>
+        <RouterLink v-if="record" class="btn full-width" :to="{ path: `/batches/${batch.batch_id}`, query: { tab: 'assessment' } }">汇总本轮证据 → 批次评定</RouterLink><p class="e-note">图像等级不自动代表批次等级；完成本轮复核后，在批次评定单确认等级、用途和依据。</p>
+        <RouterLink class="btn secondary full-width" :to="`/batches/${batch.batch_id}/report`">查看批次综合记录</RouterLink>
+        <p class="e-note">单图外观建议不是整批果蔬合格或食品安全结论；模型不覆盖所有缺陷。</p>
+      </aside>
+    </div>
+    <section v-if="record" class="e-panel e-review-panel"><div class="e-section-line"><div><p class="e-kicker">03 / HUMAN REVIEW</p><h3>确认候选，核定等级并留痕</h3></div><span class="badge neutral">原始模型结果不会被覆盖</span></div>
+      <div v-if="detections.length" class="table-wrap"><table><thead><tr><th>候选与类别</th><th>人工判断</th><th>关联 / 备注</th></tr></thead><tbody><tr v-for="(d, i) in detections" :key="i" :class="{ 'e-selected-row': selected === i + 1 }"><td><button class="e-text-button" @click="selected = i + 1">{{ candidateCaption(d, i) }}</button></td><td><select v-model="form.candidates[i].decision" :disabled="busy" :aria-label="`候选 ${i + 1} 的判断`" @change="form.candidates[i].decision !== 'duplicate' && (form.candidates[i].duplicate_of = null)"><option value="">请选择</option><option v-for="(label, code) in decisions" :key="code" :value="code">{{ label }}</option></select></td><td><select v-if="form.candidates[i].decision === 'duplicate'" v-model="form.candidates[i].duplicate_of" :disabled="busy" aria-label="重复于哪个已确认框"><option :value="null">请选择已确认框</option><option v-for="c in confirmed" :key="c.candidate_index" :value="c.candidate_index">候选 {{ c.candidate_index }}</option></select><input v-model="form.candidates[i].note" :disabled="busy" maxlength="500" placeholder="复核备注（可选）" :aria-label="`候选 ${i + 1} 备注`" /></td></tr></tbody></table></div>
+      <form class="form-grid" @submit.prevent="submitReview"><label>复核人<input v-model="form.reviewer" :disabled="busy" required maxlength="50" placeholder="请输入复核人" /></label><label>图像结论<select v-model="form.conclusion" :disabled="busy"><option v-for="(label, key) in conclusions" :key="key" :value="key">{{ label }}</option></select></label><label>图像参考等级（可留空）<select v-model="form.final_grade" :disabled="busy"><option value="">尚未核定</option><option v-for="g in GRADE_OPTIONS" :key="g" :value="g">{{ `${g} · ${GRADE_LABELS[g]}` }}</option><option v-if="form.final_grade && !GRADE_OPTIONS.includes(form.final_grade)" :value="form.final_grade">历史等级 {{ form.final_grade }}（请重新核定）</option></select></label><p v-if="form.conclusion === 'manual_target_confirmed'" class="notice warning full">这是人工发现，不计入模型检出数量。请说明部位、缺陷现象与核定依据；模型原始候选和图片不会被改写。</p><label class="full">复核说明 / 等级依据<textarea v-model="form.remark" required :disabled="busy" maxlength="4000" rows="3" placeholder="说明确认或漏检的部位、采用的人工标准，以及等级判断依据。" /></label><label class="full e-checkbox"><input v-model="form.publish_summary" type="checkbox" :disabled="busy" /><span>公开“已保存人工复核”通用摘要。不会公开等级、原图、候选和内部备注；已有公开事件保留。</span></label><button class="btn" :disabled="busy" type="submit">{{ busy ? '正在保存…' : '保存复核并确认回读' }}</button></form>
+      <details v-if="record.reviews?.length"><summary>查看 {{ record.reviews.length }} 版复核历史</summary><article v-for="r in record.reviews" :key="r.revision" class="e-review-history"><strong>第 {{ r.revision }} 版 · {{ r.reviewer }} · {{ r.final_grade || '未核定等级' }}</strong><p>{{ date(r.created_at) }} · {{ conclusions[r.conclusion] }}</p><p>{{ r.remark }}</p></article></details>
     </section>
-    <section class="card">
-      <div class="section-row"><h2>02 模型原始候选</h2><span class="badge neutral">{{ record ? `${detections.length} 个候选框` : '尚未检测' }}</span></div>
-      <div v-if="record" class="a3-overlay">
-        <svg :viewBox="viewBox" role="img" aria-label="模型候选位置，可点击右侧或下方列表定位">
-          <image :href="record.artifact_urls.input" :width="prediction.image.width" :height="prediction.image.height" />
-          <g v-for="(d, i) in detections" :key="i" @click="selectedCandidate = i + 1">
-            <rect :x="d.bbox_xyxy[0]" :y="d.bbox_xyxy[1]" :width="d.bbox_xyxy[2] - d.bbox_xyxy[0]" :height="d.bbox_xyxy[3] - d.bbox_xyxy[1]" :class="{ active: selectedCandidate === i + 1 }" />
-            <text :x="d.bbox_xyxy[0]" :y="Math.max(24, d.bbox_xyxy[1] - 7)" :font-size="Math.max(18, prediction.image.width / 36)">{{ i + 1 }}</text>
-          </g>
-        </svg>
-      </div>
-      <div v-else class="image-stage"><EmptyState title="等待真实模型结果" description="不使用示例检测框填充" /></div>
-      <p v-if="imageError" class="notice danger">图片文件加载失败，请检查后端证据目录。</p>
-      <template v-if="record">
-        <div class="result-summary"><div><span>记录 ID</span><strong>{{ record.inspection_id }}</strong></div><div><span>模型调用耗时</span><strong>{{ Number(prediction.inference_ms).toFixed(1) }} ms</strong></div><div><span>人工复核版本</span><strong>{{ record.review_revision }}</strong></div></div>
-        <div v-if="burden" class="a11-burden">
-          <div class="section-row"><strong>A11 缺陷负担证据</strong><span class="badge neutral">{{ burdenLevels[burden.burden_level] || burden.burden_level }}</span></div>
-          <div class="result-summary">
-            <div><span>候选总数</span><strong>{{ burden.detection_count }}</strong></div>
-            <div><span>候选联合覆盖 / 整图</span><strong>{{ areaPercent(burden.union_bbox_area_ratio_image) }}</strong></div>
-            <div><span>最大单处候选 / 整图</span><strong>{{ areaPercent(burden.max_bbox_area_ratio_image) }}</strong></div>
-          </div>
-          <p v-if="burden.escalation_flags?.length" class="footnote">升级依据：{{ burden.escalation_flags.map(f => burdenFlags[f] || f).join('；') }}</p>
-          <p class="footnote">规则 {{ burden.rule_version }}；分母为整张图像面积。该值不是苹果表面真实损伤率，不是质量等级，也不代表食品安全或整批合格。</p>
-        </div>
-        <p v-else class="footnote">该历史记录生成于 A11 之前，未保存缺陷负担字段。</p>
-        <div v-if="prediction.grade_rule_version" class="a12-grade">
-          <div class="section-row">
-            <strong>A12 开发建议等级</strong>
-            <span v-if="suggestedGrade" class="badge neutral">{{ suggestedGrade }}</span>
-            <span v-else class="badge pending">暂不自动建议</span>
-          </div>
-          <p v-if="suggestedGrade" class="footnote">依据 A11 缺陷负担“{{ burdenLevels[burden?.burden_level] || burden?.burden_level }}”映射为 {{ suggestedGrade }}。规则 {{ prediction.grade_rule_version }}；该建议不会自动写入人工最终等级。</p>
-          <p v-else-if="gradeStatus === 'withheld_no_target_observed'" class="footnote">当前未观察到目标候选，因此不自动建议 A。没有检测框不等于正常、A级、整批合格或食品安全。</p>
-          <p class="footnote">规则依据：{{ prediction.grade_basis }}。当前模型自动建议范围仅 B/C/D；A 级保留给人工或未来经独立验证的更完整质量模型。</p>
-        </div>
-        <p v-else class="footnote">该历史记录生成于 A12 之前，未保存开发建议等级规则字段。</p>
-        <p class="footnote break-word">模型：{{ prediction.model_version }}<br />时间：{{ time(prediction.executed_at) }}<br />置信度阈值：{{ prediction.confidence_threshold }} · 去重阈值：{{ prediction.iou_threshold }} · 独立评测状态：{{ prediction.evaluation_status }}</p>
-        <div class="a3-links"><a :href="record.artifact_urls.input" target="_blank" rel="noopener">放大输入图</a><a :href="record.artifact_urls.result" target="_blank" rel="noopener">查看 AI 服务保存的原始标注图</a></div>
-        <p class="footnote">图上数字为候选序号，不是类别编号。复核不会隐藏或删除原始候选。耗时不含完整上传、下载与落库。</p>
-      </template>
-    </section>
+    <details v-if="record" class="e-panel e-technical"><summary>技术详情与诊断导出</summary><p>实际推理策略：{{ prediction.runtime?.profile || '历史未记录' }} · 图像遍数：{{ prediction.runtime?.pass_count || '历史未记录' }}。增强策略尚待同图评测。</p><p>推理版本：{{ prediction.model_version }} · {{ date(prediction.executed_at) }}</p><p>置信度阈值 {{ prediction.confidence_threshold }} / NMS IoU {{ prediction.iou_threshold }} / 模型调用 {{ prediction.inference_ms }} ms（不含完整上传和保存）</p><p>独立评测状态：{{ prediction.evaluation_status }}。模型分数不是准确率。</p><p>候选框并集 / 整图：{{ percent(prediction.defect_burden?.union_bbox_area_ratio_image) }}；这不是苹果真实损伤面积比例。</p><p>等级规则：{{ prediction.grade_rule_version || '历史未记录' }}；等级依据：{{ prediction.grade_basis || '历史未记录' }}</p><button class="btn secondary" @click="exportRecord">导出当前记录 JSON（内部）</button><a :href="record.artifact_urls.result" target="_blank" rel="noopener">打开服务端保存图 ↗</a><p class="e-note">旧记录的服务端标注图不会重绘。新版本编号修复只作用于重新上传的新记录。</p></details>
+    <section class="e-panel"><div class="e-section-line"><h3>当前批次 · 已保存质检</h3><button class="btn secondary" :disabled="busy || refreshing" @click="refresh">刷新历史</button></div><p v-if="historyError" class="notice danger">{{ historyError }}</p><div class="e-history-list"><button v-for="r in history" :key="r.inspection_id" :disabled="busy" class="e-history-row" :class="{ active: record?.inspection_id === r.inspection_id }" @click="openRecord(r.inspection_id)"><strong>#{{ r.inspection_id }}</strong><span>{{ date(r.created_at) }}</span><span>{{ r.review_revision ? `已复核 ${r.review_revision} 版` : '待人工复核' }}</span><span>打开 →</span></button></div><p v-if="!history.length" class="e-note">{{ refreshing ? '正在读取…' : historyLoaded ? '暂无已保存质检记录' : '尚未成功读取，不能认定无记录' }}</p></section>
   </div>
-  <section v-if="record" class="card">
-    <h2>03 人工复核候选</h2>
-    <p class="footnote">置信度是模型分数，不是准确率。疑似重复框需指向一个已确认的候选；不确定项保留为“需要进一步复核”。</p>
-    <div class="table-wrap"><table class="a3-candidates"><thead><tr><th>候选</th><th>原始类别 / 分数</th><th>原始坐标 xyxy</th><th>人工标记</th><th>备注 / 重复对象</th></tr></thead><tbody>
-      <tr v-for="(d, i) in detections" :key="i" :class="{ chosen: selectedCandidate === i + 1 }">
-        <td><button class="btn secondary" @click="selectedCandidate = i + 1">{{ i + 1 }}</button></td>
-        <td>{{ d.class_label }}<br /><strong>{{ percent(d.confidence) }}</strong></td><td>{{ bbox(d) }}</td>
-        <td><select v-model="form.candidates[i].decision" :disabled="busy" :aria-label="`候选${i + 1}人工状态`" @change="updateDecision(form.candidates[i])"><option value="">未复核</option><option v-for="(label, value) in decisions" :key="value" :value="value">{{ label }}</option></select></td>
-        <td><select v-if="form.candidates[i].decision === 'duplicate'" v-model="form.candidates[i].duplicate_of" :disabled="busy" :aria-label="`候选${i + 1}重复于`"><option :value="null">关联已确认候选</option><option v-for="c in confirmedCandidates" :key="c.candidate_index" :value="c.candidate_index">候选 {{ c.candidate_index }}</option></select><input v-model="form.candidates[i].note" maxlength="500" :disabled="busy" :aria-label="`候选${i + 1}备注`" placeholder="可选备注" /></td>
-      </tr><tr v-if="!detections.length"><td colspan="5">未检出目标候选，仍需人工查看图片；不能据此判为正常。</td></tr>
-    </tbody></table></div>
-    <form class="form-grid" @submit.prevent="submitReview">
-      <label>复核人<input v-model="form.reviewer" required maxlength="50" :disabled="busy" /></label>
-      <label>图像复核结论<select v-model="form.conclusion" :disabled="busy"><option v-for="(label, value) in conclusions" :key="value" :value="value">{{ label }}</option></select></label>
-      <label>人工等级（可留空）<input v-model="form.final_grade" maxlength="20" :disabled="busy" placeholder="没有核定标准时留空" /></label>
-      <label class="full">复核说明<textarea v-model="form.remark" required maxlength="4000" rows="3" :disabled="busy" placeholder="说明确认、误检、重复或仍需核实的情况；不能以单图替代整批判定。" /></label>
-      <label class="full a3-checkbox"><input v-model="form.publish_summary" type="checkbox" :disabled="busy" />将“已保存一次人工复核”这一通用摘要公开到溯源页（不公开备注、等级、原图或候选详情；历史公开事件保留）</label>
-      <button class="btn" type="submit" :disabled="busy">{{ busy ? '正在保存…' : `保存第 ${record.review_revision + 1} 版复核` }}</button>
-    </form>
-    <p class="footnote">复核人目前为手工录入，尚无登录身份校验；仅用于受控本地联调。A12 开发建议等级不会自动复制到人工等级，也不会自动将批次设为合格。</p>
-    <details v-if="record.reviews.length"><summary>已保存的复核历史（{{ record.reviews.length }} 版）</summary><article v-for="r in record.reviews" :key="r.revision" class="a3-review"><strong>第 {{ r.revision }} 版 · {{ r.reviewer }} · {{ conclusions[r.conclusion] }}</strong><p>{{ time(r.created_at) }} · 人工等级：{{ r.final_grade || '未填写' }}</p><p>{{ r.remark }}</p><p v-for="c in r.candidate_reviews" :key="c.candidate_index" class="footnote">候选 {{ c.candidate_index }}：{{ decisions[c.decision] }}<span v-if="c.duplicate_of"> → {{ c.duplicate_of }}</span> {{ c.note }}</p></article></details>
-  </section>
-  <section class="card"><div class="section-row"><h2>04 当前批次质检历史</h2><span class="badge neutral">最近 100 条 A3 记录</span></div><p v-if="!history.length">{{ error ? '历史读取失败，不能据此认定无记录。' : '暂无已保存记录。' }}</p><button v-for="r in history" :key="r.inspection_id" class="row" :disabled="busy" @click="openRecord(r.inspection_id)"><strong>#{{ r.inspection_id }} · {{ r.review_revision ? `复核 ${r.review_revision} 版` : '待人工复核' }}</strong><span>{{ time(r.created_at) }} · {{ r.model_version }}</span></button></section>
 </template>
-
-<style scoped>
-.a3-overlay { background: #101713; border-radius: 12px; overflow: hidden; }
-.a3-overlay svg { display: block; width: 100%; max-height: 540px; }
-.a3-overlay rect { fill: transparent; stroke: #fb724e; stroke-width: 2; vector-effect: non-scaling-stroke; cursor: pointer; }
-.a3-overlay rect.active { stroke: #fff; stroke-width: 4; }
-.a3-overlay text { fill: #fff; stroke: #182f29; stroke-width: 2px; paint-order: stroke; font-weight: 800; pointer-events: none; }
-.a3-links { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; }
-.a3-candidates { min-width: 720px; }
-.a3-candidates td { vertical-align: top; white-space: normal; }
-.a3-candidates .chosen { background: #edf6ef; }
-.a3-checkbox { display: flex; align-items: start; gap: 10px; }
-.a3-checkbox input { width: auto; margin-top: 4px; }
-.a3-review { border-top: 1px solid #dce8df; padding: 14px 0; }
-.a3-review p { white-space: pre-wrap; overflow-wrap: anywhere; }
-.a11-burden { margin-top: 14px; padding: 14px; border: 1px solid #dce8df; border-radius: 10px; background: #f8fbf9; }
-.a12-grade { margin-top: 12px; padding: 14px; border: 1px solid #dce8df; border-radius: 10px; background: #fbfcf8; }
-details { margin-top: 20px; }
-</style>

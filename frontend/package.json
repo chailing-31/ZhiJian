@@ -9,8 +9,10 @@
     "build": "vite build",
     "build:safe": "vite build --minify=false",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node --test tests/api.test.mjs tests/batch-utils.test.mjs",
-    "check:vue": "node tools/check-vue.mjs"
+    "test": "node --test tests/api.test.mjs tests/batch-utils.test.mjs tests/coldchain-csv.test.mjs tests/engineering.test.mjs tests/batch-workbench.test.mjs",
+    "test:engineering": "node --test tests/engineering.test.mjs",
+    "check:vue": "node tools/check-vue.mjs",
+    "test:batch-workbench": "node --test tests/batch-workbench.test.mjs"
   },
   "dependencies": {
     "vue": "3.5.13",
