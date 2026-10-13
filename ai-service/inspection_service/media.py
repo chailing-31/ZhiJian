@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import shutil
 import warnings
-from PIL import Image, ImageDraw, ImageOps, UnidentifiedImageError
+from PIL import Image, ImageDraw, ImageFont, ImageOps, UnidentifiedImageError
 
 class InvalidImage(ValueError):
     pass
@@ -27,14 +27,13 @@ def decode_image(data: bytes, max_pixels: int):
                     raise InvalidImage('IMAGE_DIMENSIONS_TOO_LARGE')
                 source.load()
                 normalized = ImageOps.exif_transpose(source)
-                # Match browser appearance for alpha images, instead of making transparent pixels black.
                 if normalized.mode == 'RGBA' or 'transparency' in normalized.info:
                     rgba = normalized.convert('RGBA')
                     white = Image.new('RGBA', rgba.size, (255, 255, 255, 255))
                     image = Image.alpha_composite(white, rgba).convert('RGB')
                 else:
                     image = normalized.convert('RGB')
-                image.info.clear()  # Public/normalized artifacts must not retain EXIF/GPS metadata.
+                image.info.clear()
         return image, fmt
     except InvalidImage:
         raise
@@ -42,14 +41,33 @@ def decode_image(data: bytes, max_pixels: int):
             Image.DecompressionBombWarning, Image.DecompressionBombError):
         raise InvalidImage('INVALID_IMAGE') from None
 
+def detection_label(detection, candidate_index: int) -> str:
+    """Use the same one-based candidate ordinal as the web UI, NOT class_id."""
+    names = {'ssda_class_0': 'Scratch', 'ssda_class_1': 'Pest damage'}
+    name = names.get(detection.class_name, f'class {detection.class_id}')
+    return f'#{candidate_index} {name} {detection.confidence:.1%}'
+
 def annotate(image, detections):
     result = image.copy()
     draw = ImageDraw.Draw(result)
-    # Numeric legend prevents Chinese font dependencies; UI uses class_label from JSON.
-    for d in detections:
-        draw.rectangle(d.bbox_xyxy, outline=(229, 80, 49), width=max(2, image.width // 400))
-        draw.text((d.bbox_xyxy[0], max(0, d.bbox_xyxy[1] - 13)),
-                  f'#{d.class_id} {d.confidence:.2f}', fill=(229, 80, 49))
+    size = max(11, min(36, round(max(image.size) / 65)))
+    try:
+        font = ImageFont.load_default(size=size)
+    except TypeError:  # Compatible with older installed Pillow; no bundled font dependency.
+        font = ImageFont.load_default()
+    colors = {'ssda_class_0': (255, 212, 91), 'ssda_class_1': (101, 219, 223)}
+    for index, detection in enumerate(detections, start=1):
+        color = colors.get(detection.class_name, (255, 150, 70))
+        x1, y1, x2, y2 = detection.bbox_xyxy
+        draw.rectangle((x1, y1, x2, y2), outline=color, width=max(2, image.width // 400))
+        text = detection_label(detection, index)
+        left, top, right, bottom = draw.textbbox((0, 0), text, font=font)
+        width, height = right - left + 8, bottom - top + 6
+        # Keep the label inside the original image; never resize the evidence image.
+        x = max(0, min(x1, image.width - width))
+        y = max(0, min(y1 - height, image.height - height))
+        draw.rectangle((x, y, min(image.width - 1, x + width), min(image.height - 1, y + height)), fill=(19, 45, 35))
+        draw.text((x + 4 - left, y + 3 - top), text, font=font, fill=color)
     return result
 
 def image_metadata(data, image):

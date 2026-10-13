@@ -22,3 +22,23 @@ _backup_c_sync_*/
 # A15 fixed handoff asset: BEGIN
 !/ai-service/models/a15/best.pt
 # A15 fixed handoff asset: END
+
+# Local runtime and private assets (tracked historical files are unchanged)
+**/node_modules/
+**/.venv/
+**/venv/
+**/__pycache__/
+**/.pytest_cache/
+**/target/
+**/dist/
+**/runtime/
+**/backups/
+**/*.log
+.env
+.env.local
+.env.*.local
+*.sql.gz
+*.db
+*.sqlite*
+ai-service/models/accepted/
+.github-snapshots/

@@ -90,6 +90,7 @@ public class InspectionService {
             Long id;
             try {
                 id = transaction.execute(status -> {
+                    jdbc.queryForList("SELECT id FROM batches WHERE id=? FOR UPDATE", batchId);
                     long inspection = insert("""
                         INSERT INTO inspections(batch_id,image_path,result_image_path,model_version,detections_json,suggested_grade)
                         VALUES(?,?,?,?,?,?)
@@ -103,6 +104,7 @@ public class InspectionService {
                         VALUES(?,'AI质检',CURRENT_TIMESTAMP,?,'model',?,'private')
                         """, batchId, "单张图片推理已保存，输出 " + prediction.path("detections").size() + " 个候选框，待人工复核；不是批次合格结论。",
                         "/inspections/" + inspection + "/artifacts/result");
+                    com.zhijian.demo.batchflow.BatchLedger.enrollUpload(jdbc,batchId,inspection);
                     return inspection;
                 });
             } catch (DuplicateKeyException e) {
@@ -160,6 +162,8 @@ public class InspectionService {
     public Map<String, Object> review(long id, ReviewRules.Input input) {
         checkSchema();
         transaction.executeWithoutResult(status -> {
+            var before = row(id, false);
+            jdbc.queryForList("SELECT id FROM batches WHERE id=? FOR UPDATE", before.get("batch_id"));
             var r = row(id, true);
             JsonNode p = payload(r.get("response_json"));
             ReviewRules.Input checked = ReviewRules.validate(input, p.path("detections").size());

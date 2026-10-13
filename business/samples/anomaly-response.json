@@ -1,0 +1,187 @@
+{
+  "rule_result": {
+    "batch_id": 17,
+    "source": "simulation",
+    "alert": true,
+    "level": "HIGH",
+    "status": "active",
+    "reason": "观测到温度高于 8℃ 持续至少 5 分钟（演示规则）",
+    "episodes": [
+      {
+        "started_at": "2026-02-16T01:10:00+08:00",
+        "triggered_at": "2026-02-16T01:15:00+08:00",
+        "trigger_value": 11.06789,
+        "last_observed_at": "2026-02-16T01:21:00+08:00",
+        "recovered_at": null,
+        "end_reason": "ongoing",
+        "observed_minutes": 11.0,
+        "peak_temperature": 11.23275
+      }
+    ],
+    "data_gap_count": 0,
+    "rule_version": "demo-coldchain-v2",
+    "demo_only": true,
+    "config": {
+      "temperature_upper": 8.0,
+      "duration_minutes": 5.0,
+      "max_gap_minutes": 2.0
+    }
+  },
+  "model_result": {
+    "batch_id": 17,
+    "algorithm": "isolation_forest",
+    "model_id": "iforest-cb48e44223a72856",
+    "model_strategy": "grouped_levels",
+    "feature_version": "coldchain-causal-v1",
+    "feature_config": {
+      "profile": "device",
+      "window_minutes": 5.0,
+      "max_gap_minutes": 2.0,
+      "min_points": 3
+    },
+    "training_source": "simulation",
+    "input_source": "simulation",
+    "source_matches_training": true,
+    "demo_only": true,
+    "threshold": 2.7283337381550847,
+    "threshold_method": "independent_normal_calibration_quantile",
+    "feature_names": [
+      "temperature",
+      "humidity",
+      "temperature_rate_per_minute",
+      "humidity_rate_per_minute",
+      "temperature_std",
+      "temperature_range",
+      "humidity_std",
+      "temperature_trend_per_minute",
+      "door_open_fraction",
+      "current_mean",
+      "current_std",
+      "current_rate_per_minute"
+    ],
+    "scored_count": 12,
+    "anomaly_count": 0,
+    "points": [
+      {
+        "timestamp": "2026-02-16T01:05:00+08:00",
+        "status": "insufficient_history",
+        "score": null,
+        "anomaly": null,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:06:00+08:00",
+        "status": "insufficient_history",
+        "score": null,
+        "anomaly": null,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:07:00+08:00",
+        "status": "insufficient_history",
+        "score": null,
+        "anomaly": null,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:08:00+08:00",
+        "status": "insufficient_history",
+        "score": null,
+        "anomaly": null,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:09:00+08:00",
+        "status": "insufficient_history",
+        "score": null,
+        "anomaly": null,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:10:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:11:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:12:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:13:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:14:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:15:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:16:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:17:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:18:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:19:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:20:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      },
+      {
+        "timestamp": "2026-02-16T01:21:00+08:00",
+        "status": "scored",
+        "score": 2.1167571032613552,
+        "anomaly": false,
+        "evidence": []
+      }
+    ],
+    "explanation": "证据仅表示特征偏离训练参考分布，不是模型因果归因或设备故障诊断。"
+  }
+}

@@ -18,7 +18,7 @@ public final class ReviewRules {
         String reviewer = text(input.reviewer(), 50, true, "复核人");
         String remark = text(input.remark(), 4000, true, "复核说明");
         String grade = text(input.final_grade(), 20, false, "人工等级");
-        if (!Set.of("target_confirmed", "no_target_confirmed", "needs_recheck").contains(
+        if (!Set.of("target_confirmed", "manual_target_confirmed", "no_target_confirmed", "needs_recheck").contains(
                 input.conclusion() == null ? "" : input.conclusion())) throw bad("请选择有效的图像复核结论。");
         List<Candidate> candidates = input.candidate_reviews();
         if (candidates == null || candidates.size() != count) throw bad("请逐个标记全部候选框。");
@@ -44,6 +44,13 @@ public final class ReviewRules {
         if (uncertain > 0 && !"needs_recheck".equals(input.conclusion())) throw bad("存在不确定候选，结论必须为需再复核。");
         if ("target_confirmed".equals(input.conclusion()) && confirmed == 0) throw bad("没有已确认候选，不能提交已确认目标结论。");
         if ("no_target_confirmed".equals(input.conclusion()) && confirmed > 0) throw bad("仍有已确认候选，不能提交未确认目标结论。");
+        if ("manual_target_confirmed".equals(input.conclusion()) && remark.length() < 10) throw bad("人工发现模型未覆盖的缺陷时，请至少填写10字的位置、现象和复核依据，不伪造模型框。");
+        if (grade != null) {
+            grade = grade.toUpperCase(java.util.Locale.ROOT);
+            if (!Set.of("A", "B", "C", "REJECT").contains(grade)) throw bad("统一等级必须为 A/B/C/REJECT，历史 D 请重新核定。");
+            if ("needs_recheck".equals(input.conclusion())) throw bad("复核未完成时不得填写最终等级。");
+            if ("A".equals(grade) && (confirmed > 0 || "manual_target_confirmed".equals(input.conclusion()))) throw bad("本版 A 定义与人工确认的缺陷冲突。");
+        }
         return new Input(input.expected_revision(), reviewer, input.conclusion(), remark,
             grade, Boolean.TRUE.equals(input.publish_summary()), List.copyOf(candidates));
     }

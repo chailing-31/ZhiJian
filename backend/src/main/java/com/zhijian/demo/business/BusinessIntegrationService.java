@@ -97,6 +97,7 @@ public class BusinessIntegrationService {
         String inputsJson = writeJson(request);
         String adviceJson = writeJson(advice);
         Long recordId = transaction.execute(status -> {
+            jdbc.queryForList("SELECT id FROM batches WHERE id=? FOR UPDATE", batchId);
             var key = new org.springframework.jdbc.support.GeneratedKeyHolder();
             jdbc.update(connection -> {
                 var ps = connection.prepareStatement(
@@ -131,13 +132,19 @@ public class BusinessIntegrationService {
         text(values, "washing_pressure", true);
         String note = optionalText(input, "note");
         return transaction.execute(tx -> {
-        Map<String, Object> record = one("SELECT id,batch_id,advice_json FROM processing_records WHERE id=? FOR UPDATE", recordId);
+        Map<String, Object> sourceRecord = one("SELECT batch_id FROM processing_records WHERE id=?", recordId);
+        long sourceBatch = ((Number)sourceRecord.get("batch_id")).longValue();
+        jdbc.queryForList("SELECT id FROM batches WHERE id=? FOR UPDATE", sourceBatch);
+        Map<String, Object> record = one("SELECT id,batch_id,advice_json,inputs_json FROM processing_records WHERE id=? FOR UPDATE", recordId);
+        com.zhijian.demo.workspace.QualitySourceGuard.verify(jdbc, sourceBatch, readJson(record.get("inputs_json")));
+        com.zhijian.demo.batchflow.BatchLedger.checkAdoptionRequest(jdbc,json,sourceBatch,recordId,input);
         JsonNode savedAdvice = readJson(record.get("advice_json"));
-        if (savedAdvice != null && "blocked".equals(savedAdvice.path("status").asText())) {
-            throw fault(409, "ADVICE_BLOCKED", "该建议已标记为 blocked，不能保存采用值。");
+        if (savedAdvice == null || !"suggested".equals(savedAdvice.path("status").asText())) {
+            throw fault(409, "ADVICE_BLOCKED", "该建议不是 suggested（含 blocked/manual_review），不能绕过复核保存工艺采用值。");
         }
         String valuesJson = writeJson(values);
         jdbc.update("UPDATE processing_records SET adopted_values_json=?, operator=? WHERE id=?", valuesJson, operator, recordId);
+        com.zhijian.demo.batchflow.BatchLedger.recordAdoption(jdbc,sourceBatch,recordId,valuesJson,operator,note);
         jdbc.update("INSERT INTO batch_events(batch_id,event_type,event_time,summary,source,operator,visibility) VALUES(?, '加工采用', CURRENT_TIMESTAMP, ?, 'operator', ?, 'private')",
             ((Number) record.get("batch_id")).longValue(), note == null ? "已保存人工采用值。" : note, operator);
         Map<String, Object> result = new LinkedHashMap<>();
@@ -226,6 +233,7 @@ public class BusinessIntegrationService {
         if (input != null && input.has("config") && input.get("config").isObject()) request.put("config", input.get("config"));
         JsonNode analysis = business("POST", "/coldchain/check", request);
         List<Map<String, Object>> episodes = persistEpisodes(batchId, source, analysis, input == null ? null : input.get("config"));
+        com.zhijian.demo.batchflow.BatchLedger.saveCold(jdbc,batchId,source,history.size(),analysis);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("batch_id", batchId); result.put("source", source); result.put("timestamp", timestamp.toString());
@@ -253,6 +261,8 @@ public class BusinessIntegrationService {
         String resolution = text(input, "resolution", true);
         if (resolvedBy.length() > 50) throw fault(400, "INVALID_RESOLVED_BY", "处置人最多 50 个字符。");
         return transaction.execute(tx -> {
+        Map<String, Object> alertSource = one("SELECT batch_id FROM alerts WHERE id=?", alertId);
+        jdbc.queryForList("SELECT id FROM batches WHERE id=? FOR UPDATE", alertSource.get("batch_id"));
         Map<String, Object> alert = one("SELECT id,batch_id,status FROM alerts WHERE id=? FOR UPDATE", alertId);
         if ("resolved".equals(alert.get("status"))) return Map.of("alert_id", alertId, "status", "resolved", "persisted", true, "duplicate", true);
         jdbc.update("UPDATE alerts SET status='resolved',resolved_by=?,resolved_at=CURRENT_TIMESTAMP,resolution=? WHERE id=?", resolvedBy, resolution, alertId);
@@ -345,6 +355,6 @@ public class BusinessIntegrationService {
     private static Object nullable(Object value) { return value instanceof Number ? ((Number) value).doubleValue() : null; }
     private static Double number(JsonNode node, String field) { return node != null && node.has(field) && !node.get(field).isNull() ? node.get(field).doubleValue() : null; }
     private String writeJson(Object value) { try { return json.writeValueAsString(value); } catch (Exception error) { throw fault(500, "JSON_SERIALIZATION_FAILED", "无法序列化业务记录。"); } }
-    private JsonNode readJson(Object value) { if (value == null) return null; try { JsonNode parsed = json.readTree(value.toString()); return parsed.isTextual() ? json.readTree(parsed.textValue()) : parsed; } catch (Exception error) { throw fault(500, "JSON_RECORD_INVALID", "已保存的业务记录格式不正确。"); } }
+    private JsonNode readJson(Object value) { if (value == null) return null; try { JsonNode parsed = value instanceof byte[] b ? json.readTree(b) : value instanceof java.sql.Clob c ? json.readTree(c.getSubString(1, Math.toIntExact(c.length()))) : json.readTree(value.toString()); return parsed.isTextual() ? json.readTree(parsed.textValue()) : parsed; } catch (Exception error) { throw fault(500, "JSON_RECORD_INVALID", "已保存的业务记录格式不正确。"); } }
     private static String sha256(String value) { try { byte[] digest=MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)); StringBuilder out=new StringBuilder(); for(byte b:digest) out.append(String.format("%02x",b)); return out.toString(); } catch(Exception error){ throw new IllegalStateException(error); } }
 }

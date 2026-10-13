@@ -1,0 +1,934 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "智检鲜达 B 模块",
+    "description": "规则与冷链异常模型分别输出；Spring Boot 负责历史、落库和处置。当前模型仅经模拟验证。",
+    "version": "0.5.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/coldchain/check": {
+      "post": {
+        "summary": "Coldchain Check",
+        "operationId": "coldchain_check_coldchain_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ColdchainRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColdchainResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/business/process-advice": {
+      "post": {
+        "summary": "Advice",
+        "operationId": "advice_business_process_advice_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProcessRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "加工规则配置不可用；不返回备用参数"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/coldchain/analyze": {
+      "post": {
+        "summary": "Analyze",
+        "operationId": "analyze_coldchain_analyze_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ColdchainRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CombinedResult"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "异常检测模型未配置或不可用；规则接口仍可独立调用"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Advice": {
+        "properties": {
+          "pre_cooling_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pre Cooling Time"
+          },
+          "washing_pressure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Washing Pressure"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "Advice"
+      },
+      "AnomalyPoint": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scored",
+              "insufficient_history",
+              "missing_device_fields"
+            ],
+            "title": "Status"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "raw_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Score"
+          },
+          "score_components": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Score Components"
+          },
+          "anomaly": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anomaly"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/FeatureEvidence"
+            },
+            "type": "array",
+            "title": "Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "timestamp",
+          "status"
+        ],
+        "title": "AnomalyPoint"
+      },
+      "AnomalyResult": {
+        "properties": {
+          "batch_id": {
+            "type": "integer",
+            "maximum": 9.223372036854776e+18,
+            "exclusiveMinimum": 0.0,
+            "title": "Batch Id"
+          },
+          "algorithm": {
+            "type": "string",
+            "enum": [
+              "isolation_forest",
+              "knn_distance",
+              "isolation_forest_knn"
+            ],
+            "title": "Algorithm",
+            "default": "isolation_forest"
+          },
+          "model_id": {
+            "type": "string",
+            "title": "Model Id"
+          },
+          "model_strategy": {
+            "type": "string",
+            "title": "Model Strategy",
+            "default": "joint"
+          },
+          "feature_version": {
+            "type": "string",
+            "title": "Feature Version"
+          },
+          "feature_config": {
+            "$ref": "#/components/schemas/FeatureConfig"
+          },
+          "training_source": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "sensor"
+            ],
+            "title": "Training Source"
+          },
+          "input_source": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "sensor"
+            ],
+            "title": "Input Source"
+          },
+          "source_matches_training": {
+            "type": "boolean",
+            "title": "Source Matches Training"
+          },
+          "demo_only": {
+            "type": "boolean",
+            "title": "Demo Only",
+            "default": true
+          },
+          "threshold": {
+            "type": "number",
+            "title": "Threshold"
+          },
+          "threshold_method": {
+            "type": "string",
+            "title": "Threshold Method"
+          },
+          "confirmation_points": {
+            "type": "integer",
+            "title": "Confirmation Points",
+            "default": 1
+          },
+          "feature_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Feature Names"
+          },
+          "scored_count": {
+            "type": "integer",
+            "title": "Scored Count"
+          },
+          "anomaly_count": {
+            "type": "integer",
+            "title": "Anomaly Count"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/AnomalyPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation",
+            "default": "证据仅表示特征偏离训练参考分布，不是模型因果归因或设备故障诊断。"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "batch_id",
+          "model_id",
+          "feature_version",
+          "feature_config",
+          "training_source",
+          "input_source",
+          "source_matches_training",
+          "threshold",
+          "threshold_method",
+          "feature_names",
+          "scored_count",
+          "anomaly_count",
+          "points"
+        ],
+        "title": "AnomalyResult"
+      },
+      "ColdchainRequest": {
+        "properties": {
+          "batch_id": {
+            "type": "integer",
+            "maximum": 9.223372036854776e+18,
+            "exclusiveMinimum": 0.0,
+            "title": "Batch Id"
+          },
+          "readings": {
+            "items": {
+              "$ref": "#/components/schemas/Reading"
+            },
+            "type": "array",
+            "maxItems": 10000,
+            "minItems": 1,
+            "title": "Readings"
+          },
+          "config": {
+            "$ref": "#/components/schemas/DemoConfig"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "batch_id",
+          "readings"
+        ],
+        "title": "ColdchainRequest"
+      },
+      "ColdchainResponse": {
+        "properties": {
+          "batch_id": {
+            "type": "integer",
+            "maximum": 9.223372036854776e+18,
+            "exclusiveMinimum": 0.0,
+            "title": "Batch Id"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "sensor"
+            ],
+            "title": "Source"
+          },
+          "alert": {
+            "type": "boolean",
+            "title": "Alert"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "NONE"
+            ],
+            "title": "Level"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "pending",
+              "insufficient_data",
+              "normal"
+            ],
+            "title": "Status"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "episodes": {
+            "items": {
+              "$ref": "#/components/schemas/Episode"
+            },
+            "type": "array",
+            "title": "Episodes"
+          },
+          "data_gap_count": {
+            "type": "integer",
+            "title": "Data Gap Count"
+          },
+          "rule_version": {
+            "type": "string",
+            "title": "Rule Version"
+          },
+          "demo_only": {
+            "type": "boolean",
+            "title": "Demo Only",
+            "default": true
+          },
+          "config": {
+            "$ref": "#/components/schemas/DemoConfig"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "batch_id",
+          "source",
+          "alert",
+          "level",
+          "status",
+          "reason",
+          "episodes",
+          "data_gap_count",
+          "rule_version",
+          "config"
+        ],
+        "title": "ColdchainResponse"
+      },
+      "CombinedResult": {
+        "properties": {
+          "rule_result": {
+            "$ref": "#/components/schemas/ColdchainResponse"
+          },
+          "model_result": {
+            "$ref": "#/components/schemas/AnomalyResult"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rule_result",
+          "model_result"
+        ],
+        "title": "CombinedResult"
+      },
+      "DemoConfig": {
+        "properties": {
+          "temperature_upper": {
+            "type": "number",
+            "title": "Temperature Upper",
+            "default": 8
+          },
+          "duration_minutes": {
+            "type": "number",
+            "maximum": 1440.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Duration Minutes",
+            "default": 5
+          },
+          "max_gap_minutes": {
+            "type": "number",
+            "maximum": 1440.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Max Gap Minutes",
+            "default": 2
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DemoConfig"
+      },
+      "Episode": {
+        "properties": {
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "triggered_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Triggered At"
+          },
+          "trigger_value": {
+            "type": "number",
+            "title": "Trigger Value"
+          },
+          "last_observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Observed At"
+          },
+          "recovered_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recovered At"
+          },
+          "end_reason": {
+            "type": "string",
+            "enum": [
+              "ongoing",
+              "recovered",
+              "data_gap"
+            ],
+            "title": "End Reason"
+          },
+          "observed_minutes": {
+            "type": "number",
+            "title": "Observed Minutes"
+          },
+          "peak_temperature": {
+            "type": "number",
+            "title": "Peak Temperature"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "started_at",
+          "triggered_at",
+          "trigger_value",
+          "last_observed_at",
+          "recovered_at",
+          "end_reason",
+          "observed_minutes",
+          "peak_temperature"
+        ],
+        "title": "Episode"
+      },
+      "FeatureConfig": {
+        "properties": {
+          "profile": {
+            "type": "string",
+            "enum": [
+              "environment",
+              "device"
+            ],
+            "title": "Profile",
+            "default": "device"
+          },
+          "window_minutes": {
+            "type": "number",
+            "maximum": 60.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Window Minutes",
+            "default": 5
+          },
+          "max_gap_minutes": {
+            "type": "number",
+            "maximum": 60.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Max Gap Minutes",
+            "default": 2
+          },
+          "min_points": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 2.0,
+            "title": "Min Points",
+            "default": 3
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FeatureConfig"
+      },
+      "FeatureEvidence": {
+        "properties": {
+          "feature": {
+            "type": "string",
+            "title": "Feature"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          },
+          "reference_low": {
+            "type": "number",
+            "title": "Reference Low"
+          },
+          "reference_high": {
+            "type": "number",
+            "title": "Reference High"
+          },
+          "interpretation": {
+            "type": "string",
+            "enum": [
+              "above_reference",
+              "below_reference"
+            ],
+            "title": "Interpretation"
+          },
+          "reference_type": {
+            "type": "string",
+            "enum": [
+              "training_percentiles",
+              "normal_neighbors"
+            ],
+            "title": "Reference Type",
+            "default": "training_percentiles"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "feature",
+          "value",
+          "reference_low",
+          "reference_high",
+          "interpretation"
+        ],
+        "title": "FeatureEvidence"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ProcessRequest": {
+        "properties": {
+          "batch_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9.223372036854776e+18,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "maxLength": 64,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9-]+$"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "grade": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "REJECT"
+            ],
+            "title": "Grade"
+          },
+          "temperature": {
+            "type": "number",
+            "title": "Temperature"
+          },
+          "humidity": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Humidity"
+          },
+          "material_temperature": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Material Temperature"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "batch_id",
+          "grade",
+          "temperature",
+          "humidity"
+        ],
+        "title": "ProcessRequest"
+      },
+      "ProcessResponse": {
+        "properties": {
+          "batch_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9.223372036854776e+18,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "maxLength": 64,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9-]+$"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "type": {
+            "type": "string",
+            "const": "rule",
+            "title": "Type",
+            "default": "rule"
+          },
+          "advice_type": {
+            "type": "string",
+            "const": "rule",
+            "title": "Advice Type",
+            "default": "rule"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "suggested",
+              "manual_review",
+              "blocked"
+            ],
+            "title": "Status"
+          },
+          "rule_id": {
+            "type": "string",
+            "title": "Rule Id"
+          },
+          "rule_basis": {
+            "type": "string",
+            "title": "Rule Basis"
+          },
+          "advice": {
+            "$ref": "#/components/schemas/Advice"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "rule_version": {
+            "type": "string",
+            "title": "Rule Version"
+          },
+          "requires_confirmation": {
+            "type": "boolean",
+            "title": "Requires Confirmation",
+            "default": true
+          },
+          "demo_only": {
+            "type": "boolean",
+            "title": "Demo Only",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "batch_id",
+          "status",
+          "rule_id",
+          "rule_basis",
+          "advice",
+          "reason",
+          "rule_version"
+        ],
+        "title": "ProcessResponse"
+      },
+      "Reading": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "temperature": {
+            "type": "number",
+            "title": "Temperature"
+          },
+          "humidity": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Humidity"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "sensor"
+            ],
+            "title": "Source"
+          },
+          "door_open": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Door Open"
+          },
+          "equipment_current": {
+            "anyOf": [
+              {
+                "type": "number",
+                "ge": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equipment Current"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "timestamp",
+          "temperature",
+          "humidity",
+          "source"
+        ],
+        "title": "Reading"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

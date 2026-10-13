@@ -27,12 +27,16 @@ public class BatchReportController {
     private static final ZoneId DEMO_ZONE = ZoneId.of("Asia/Shanghai");
     private final JdbcTemplate jdbc;
     private final ObjectMapper json;
+    private com.zhijian.demo.batchflow.BatchWorkbenchService workbench;
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    public void setWorkbench(com.zhijian.demo.batchflow.BatchWorkbenchService service) { this.workbench=service; }
 
     public BatchReportController(JdbcTemplate jdbc, ObjectMapper json) {
         this.jdbc = jdbc;
         this.json = json;
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly=true)
     @GetMapping("/batches/{id}/report")
     public Map<String, Object> report(@PathVariable long id) {
         if (id < 1) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid batch id");
@@ -74,6 +78,12 @@ public class BatchReportController {
         result.put("coldchain", coldchain);
         result.put("events", events);
         result.put("data_availability", availability);
+        if (workbench != null) {
+            try { result.put("batch_workbench",workbench.view(id)); }
+            catch (com.zhijian.demo.business.BusinessIntegrationFault error) {
+                warnings.add("批次评定部分暂不可用："+error.getMessage());
+            }
+        }
         result.put("warnings", warnings);
         return result;
     }

@@ -1,0 +1,190 @@
+{
+  "development_manifest_sha256": "aaf1d07a9934e711014d7f7e8f71e1a57be5b931dcb5c5accacee22b8d725884",
+  "models": {
+    "previous": {
+      "strategy": "grouped_levels",
+      "score_method": "max_train_normalized_group_scores",
+      "feature_version": "coldchain-causal-v1",
+      "algorithm": "isolation_forest",
+      "confirmation_points": 1,
+      "feature_config": {
+        "profile": "device",
+        "window_minutes": 5,
+        "max_gap_minutes": 2,
+        "min_points": 3
+      },
+      "feature_names": [
+        "temperature",
+        "humidity",
+        "temperature_rate_per_minute",
+        "humidity_rate_per_minute",
+        "temperature_std",
+        "temperature_range",
+        "humidity_std",
+        "temperature_trend_per_minute",
+        "door_open_fraction",
+        "current_mean",
+        "current_std",
+        "current_rate_per_minute"
+      ],
+      "seed": 42,
+      "training_source": "simulation",
+      "training_windows": 2100,
+      "calibration_windows": 700,
+      "training_batches": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "calibration_batches": [
+        13,
+        14,
+        15,
+        16
+      ],
+      "training_fingerprints": [
+        "1c8bda0e46c473037833ec8f09b400f79c5eae88bde41c6fca161a577fcf8132",
+        "1f5132ad502182d2a0aacfda078ed93f35f5c77b5b671373411d5f024b9f254e",
+        "208c7b2dacac7f7cb6b39ccc8d56670a7fa8ca817f0ca69a4d780926634acae0",
+        "43428c121c2709f1a6c93d85aded0b02717c3707526bf77a5f8095f407b49487",
+        "477e00d7f80d773fa7da4e70b6fe7a2e94760c74c9ff6849a79119c01667bfdf",
+        "586b05bc0efe2f38f8c7b1707454951be4422eeefa0a3792e7b61b6af28c57c5",
+        "87b4127956aef835d899fd9489bad6db8fd9566cf5077c5b9faa3139335eff44",
+        "950eb9cb55efdb2e2e7c504b175715c24fd61e35bea8239a08f6ca501e7825ec",
+        "b5e5d2e3ce260afbc59026b9a18896418bde4246df8490555a29ba4f7e74667b",
+        "baa03bc58d09cd09d2d42cd28cdc9442d23a355d3cca4aa82ebe41783a6cdb18",
+        "bd15e3b9c5ebced14f8bc48c84cf04ede767b36652777b1db8a62ba2b11b63b9",
+        "e767f1d298575ba7e621d6b81f6fe86354c79e393394ef773bb09ad1e0a09724"
+      ],
+      "calibration_fingerprints": [
+        "04bdc10d61523f52b783810deeb4456868be6cc51f6e341b0c9209d4df905af6",
+        "20a153bb7a5cf14a073434594a9f242316d29dee87ff58e3c3c29491fdca24be",
+        "d3d5ffb4b0a6becfc5aa2739eb0edde5deff7765c8257975b0079d8a78d69bd1",
+        "ec4770fab92c6c2cec07c7aa93a509c345df1ecab329f4e7f8fe4b4de4dd7320"
+      ],
+      "target_false_positive_rate": 0.02,
+      "calibration_observed_false_positive_rate": 0.018571428571428572,
+      "threshold": 2.7283337381550847,
+      "threshold_method": "independent_normal_calibration_quantile",
+      "sklearn_version": "1.9.1",
+      "demo_only": true,
+      "model_id": "iforest-42125979311b8290",
+      "model_sha256": "e7b8eb3faf31a6a843f0b8299dbc5da3ed9a9a94050c2f3ca24c81c709f1af29"
+    },
+    "optimized": {
+      "strategy": "hybrid_distance",
+      "score_method": "max_normalized_forest_and_distance",
+      "feature_version": "coldchain-causal-v2",
+      "algorithm": "isolation_forest_knn",
+      "confirmation_points": 1,
+      "feature_config": {
+        "profile": "device",
+        "window_minutes": 5,
+        "max_gap_minutes": 2,
+        "min_points": 3
+      },
+      "feature_names": [
+        "temperature",
+        "humidity",
+        "temperature_rate_per_minute",
+        "humidity_rate_per_minute",
+        "temperature_std",
+        "temperature_range",
+        "humidity_std",
+        "temperature_trend_per_minute",
+        "door_open_fraction",
+        "current_mean",
+        "current_std",
+        "current_rate_per_minute",
+        "door_open_current",
+        "equipment_current"
+      ],
+      "seed": 42,
+      "training_source": "simulation",
+      "training_windows": 2100,
+      "calibration_windows": 700,
+      "training_batches": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "calibration_batches": [
+        13,
+        14,
+        15,
+        16
+      ],
+      "training_fingerprints": [
+        "1c8bda0e46c473037833ec8f09b400f79c5eae88bde41c6fca161a577fcf8132",
+        "1f5132ad502182d2a0aacfda078ed93f35f5c77b5b671373411d5f024b9f254e",
+        "208c7b2dacac7f7cb6b39ccc8d56670a7fa8ca817f0ca69a4d780926634acae0",
+        "43428c121c2709f1a6c93d85aded0b02717c3707526bf77a5f8095f407b49487",
+        "477e00d7f80d773fa7da4e70b6fe7a2e94760c74c9ff6849a79119c01667bfdf",
+        "586b05bc0efe2f38f8c7b1707454951be4422eeefa0a3792e7b61b6af28c57c5",
+        "87b4127956aef835d899fd9489bad6db8fd9566cf5077c5b9faa3139335eff44",
+        "950eb9cb55efdb2e2e7c504b175715c24fd61e35bea8239a08f6ca501e7825ec",
+        "b5e5d2e3ce260afbc59026b9a18896418bde4246df8490555a29ba4f7e74667b",
+        "baa03bc58d09cd09d2d42cd28cdc9442d23a355d3cca4aa82ebe41783a6cdb18",
+        "bd15e3b9c5ebced14f8bc48c84cf04ede767b36652777b1db8a62ba2b11b63b9",
+        "e767f1d298575ba7e621d6b81f6fe86354c79e393394ef773bb09ad1e0a09724"
+      ],
+      "calibration_fingerprints": [
+        "04bdc10d61523f52b783810deeb4456868be6cc51f6e341b0c9209d4df905af6",
+        "20a153bb7a5cf14a073434594a9f242316d29dee87ff58e3c3c29491fdca24be",
+        "d3d5ffb4b0a6becfc5aa2739eb0edde5deff7765c8257975b0079d8a78d69bd1",
+        "ec4770fab92c6c2cec07c7aa93a509c345df1ecab329f4e7f8fe4b4de4dd7320"
+      ],
+      "target_false_positive_rate": 0.005,
+      "calibration_observed_false_positive_rate": 0.004285714285714286,
+      "threshold": 1.2699833902390105,
+      "threshold_method": "independent_normal_calibration_quantile",
+      "sklearn_version": "1.9.1",
+      "demo_only": true,
+      "distance": {
+        "neighbors": 20,
+        "scaling": "train_median_iqr_constant_range_fallback",
+        "training_reference": "leave_self_out",
+        "distance_normalizer": 2.8392995624051967,
+        "forest_normalizer": 0.6381097559760779,
+        "level_columns": [
+          0,
+          1,
+          12,
+          13
+        ],
+        "level_normalizer": 0.423432974125777
+      },
+      "model_id": "novelty-bdab3d1c9fda5a51",
+      "model_sha256": "8aa770c5d782d2658aedbbe1c0a92589943ef89e1b13584214888179f3b3138e"
+    }
+  },
+  "code_sha256": {
+    "anomaly.py": "b8547cf1b3b7e4e04cebde9e44e509caa1f41c5189b4f772af47cdb0f6510c7f",
+    "novelty_distance.py": "7bd66164dae0fcce354fee04e8c0812ed389e866c3b044b62d76a2187809e8f7",
+    "anomaly_experiment.py": "4a505573c6aef2e29ceb18f64c1ee83a3941d0c17696f4dc690f13585ba728b1",
+    "anomaly_benchmark.py": "f8dcb0d41618fcdbb106d820aedabb1b2a91b96d238dcc15bf52d23fe95b7e0f"
+  },
+  "test_manifests_planned": [
+    "datasets\\generated\\optimization-holdout-4800100\\manifest.json",
+    "datasets\\generated\\optimization-holdout-6800200\\manifest.json",
+    "datasets\\generated\\optimization-holdout-8800300\\manifest.json"
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "temperature_upper": 8,
+  "duration_minutes": 5,
+  "max_gap_minutes": 2
+}

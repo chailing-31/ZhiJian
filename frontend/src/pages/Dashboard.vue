@@ -1,33 +1,23 @@
 <script setup>
-import { computed } from 'vue'
-import { listBatches } from '../api/batch.js'
-import { useAsyncData } from '../composables/useAsyncData.js'
-import { modules } from '../config/modules.js'
-import { formatTime, statusLabel } from '../utils/batch.js'
-import PageHeading from '../components/PageHeading.vue'
-import Icon from '../components/Icon.vue'
-import StateNotice from '../components/StateNotice.vue'
-import EmptyState from '../components/EmptyState.vue'
-const { data, loading, error, reload } = useAsyncData(signal => listBatches({ signal }))
-const latest = computed(() => (data.value || []).slice(0, 5))
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
+import { getWorkspaceBatches } from '../api/engineering.js'
+import BatchFlowStatus from '../components/BatchFlowStatus.vue'
+const batches = ref([]), error = ref(''), loading = ref(false), selected = ref('')
+const abort = new AbortController()
+const batch = computed(() => batches.value.find(b => String(b.batch_id) === String(selected.value)))
+async function load() {
+  if (loading.value) return
+  loading.value = true; error.value = ''
+  try { const data = await getWorkspaceBatches({ signal: abort.signal }); if (!abort.signal.aborted) { batches.value = data; if (!batch.value && data.length) selected.value = String(data[0].batch_id) } }
+  catch (e) { if (!abort.signal.aborted) error.value = e.message }
+  finally { if (!abort.signal.aborted) loading.value = false }
+}
+onMounted(load); onBeforeUnmount(() => abort.abort())
 </script>
 <template>
-  <PageHeading eyebrow="全链路品控 · 工作台" title="批次总览" description="从原料登记到公开溯源，让同一批次的每一条记录有据可查。"><button class="btn secondary" :disabled="loading" @click="reload"><Icon name="refresh" />刷新</button><RouterLink class="btn" to="/batches"><Icon name="plus" />管理批次</RouterLink></PageHeading>
-  <StateNotice :loading="loading" :error="error" @retry="reload" />
-  <div class="stats-grid">
-    <section class="stat-card"><div class="stat-top"><span>已登记批次</span><Icon name="box" /></div><strong>{{ data ? data.length : '—' }}</strong><small>{{ error ? '读取失败，未展示旧数据' : '来自批次数据库' }}</small></section>
-    <section class="stat-card"><div class="stat-top"><span>待复核质检</span><Icon name="scan" /></div><strong>—</strong><small>质检接口待接入，不显示占位数量</small></section>
-    <section class="stat-card"><div class="stat-top"><span>待处置告警</span><Icon name="thermometer" /></div><strong>—</strong><small>冷链接口待接入，不代表没有风险</small></section>
-    <section class="stat-card trace-stat"><div class="stat-top"><span>公开溯源</span><Icon name="trace" /></div><strong class="word-stat">已接入</strong><small>按批次查询已公开的事件</small></section>
-  </div>
-  <div class="dashboard-grid">
-    <section class="card"><div class="section-row"><div><p class="eyebrow">BATCH RECORDS</p><h2>最近批次</h2></div><RouterLink class="text-link" to="/batches">查看全部 →</RouterLink></div>
-      <EmptyState v-if="data && !data.length" title="还没有登记批次" description="从批次管理创建第一批原料。" />
-      <div v-for="batch in latest" :key="batch.batch_id" class="batch-row"><div class="batch-avatar"><Icon name="box" /></div><div class="batch-row-main"><RouterLink :to="`/batches/${batch.batch_id}`">{{ batch.batch_code }}</RouterLink><p>{{ batch.product }} · {{ batch.variety || '品种未录入' }} · {{ batch.origin || '产地未录入' }}</p><small>{{ formatTime(batch.created_at) }}</small></div><span class="badge ready">{{ statusLabel(batch.status) }}</span><RouterLink :to="`/batches/${batch.batch_id}`" class="icon-link" :aria-label="`查看 ${batch.batch_code}`"><Icon name="arrow" /></RouterLink></div>
-      <p v-if="error" class="muted">批次列表读取失败，请重试。</p>
-    </section>
-    <section class="card scope-card"><p class="eyebrow">当前版本</p><h2>先把页面连起来，<br />再逐步接入能力。</h2><p>批次和公开时间线读取真实数据库。AI、加工与冷链已预留独立页面，暂不生成检测结论、工艺建议或告警结果。</p><div class="scope-note"><Icon name="leaf" /><span>当前目标：页面完整、边界清晰、模块可独立开发。</span></div></section>
-  </div>
-  <div class="section-row section-heading"><div><p class="eyebrow">WORKSPACES</p><h2>六大业务模块</h2></div><span class="muted">围绕同一个 batch_id 协作</span></div>
-  <div class="module-grid"><RouterLink v-for="item in modules" :key="item.key" :to="item.path" class="module-card"><div class="section-row"><span class="module-icon"><Icon :name="item.icon" /></span><span class="badge" :class="item.tone">{{ item.status }}</span></div><h3>{{ item.name }}</h3><p>{{ item.description }}</p><span class="module-arrow">进入工作区 <Icon name="arrow" /></span></RouterLink></div>
+  <section class="e-hero"><div><p class="e-kicker">SMART FRESH · 批次协同质检</p><h1>从一张照片，<br />到一份可追溯记录。</h1><p>上传、检查、复核与后续处理，在同一个批次内完成。</p><div class="e-hero-actions"><RouterLink class="btn" :to="batch ? `/inspection?batch_id=${batch.batch_id}` : '/batches'">开始视觉质检 →</RouterLink><RouterLink class="btn secondary" to="/batches">管理批次</RouterLink></div></div><div class="e-hero-card"><span class="e-kicker">当前工作批次</span><h2>{{ batch?.batch_code || '选择或创建批次' }}</h2><p>{{ batch ? `${batch.product} · ${batch.variety || '品种待补充'}` : '不使用虚构批次填充界面' }}</p><label>切换批次<select v-model="selected" :disabled="loading || !batches.length"><option value="" disabled>请选择</option><option v-for="b in batches" :key="b.batch_id" :value="String(b.batch_id)">{{ b.batch_code }}</option></select></label><p class="e-note">{{ batch?.origin || '产地信息尚未录入' }}</p></div></section>
+  <p v-if="error" class="notice danger" role="alert">{{ error }}<button class="e-text-button" @click="load">重试</button></p>
+  <BatchFlowStatus v-if="batch" :batch-id="batch.batch_id" />
+  <section class="e-module-grid"><RouterLink :to="batch ? `/inspection?batch_id=${batch.batch_id}` : '/inspection'" class="e-module-card"><span class="e-module-index">01 / VISION</span><h2>可视化外观检查</h2><p>真实图像、交互检测框、原图对照、人工等级与复核留痕。</p><strong>进入质检工作区 →</strong></RouterLink><RouterLink :to="batch ? `/processing?batch_id=${batch.batch_id}` : '/processing'" class="e-module-card"><span class="e-module-index">02 / PROCESS</span><h2>下一步如何处理</h2><p>引用经人工批准的等级，生成规则建议并保存实际采用值。</p><strong>查看加工建议 →</strong></RouterLink><RouterLink :to="batch ? `/coldchain?batch_id=${batch.batch_id}` : '/coldchain'" class="e-module-card"><span class="e-module-index">03 / TRACE</span><h2>全程记录与追溯</h2><p>冷链读数、异常处置、综合报告与授权公开的溯源摘要。</p><strong>查看冷链记录 →</strong></RouterLink></section>
+  <section class="card"><div class="section-row"><h2>最近登记批次</h2><button class="btn secondary" :disabled="loading" @click="load">刷新</button></div><div class="table-wrap"><table><thead><tr><th>批次编号</th><th>产品 / 品种</th><th>产地</th><th>操作</th></tr></thead><tbody><tr v-for="b in batches.slice(0, 8)" :key="b.batch_id"><td><strong>{{ b.batch_code }}</strong></td><td>{{ b.product }} / {{ b.variety || '未录入' }}</td><td>{{ b.origin || '未录入' }}</td><td><RouterLink class="text-link" :to="`/inspection?batch_id=${b.batch_id}`">开始质检</RouterLink> · <RouterLink class="text-link" :to="`/batches/${b.batch_id}/report`">综合记录</RouterLink></td></tr><tr v-if="!batches.length"><td colspan="4">{{ loading ? '正在读取数据库…' : error ? '读取失败，无法判断批次数量' : '尚无批次，请先登记。' }}</td></tr></tbody></table></div></section>
 </template>
