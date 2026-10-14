@@ -10,7 +10,7 @@
     "washing_pressure": "normal",
     "action": "人工复核外观缺陷与分选结果，核对工序和设备档位后确认采用参数"
   },
-  "reason": "人工确认等级B；环境温度20℃；环境湿度80%RH；原料温度5℃；命中演示规则，建议预冷6h、清洗压力档位normal；温湿度仅用于适用性判断，不用于计算最优时长。仅供演示，实际参数须人工确认。",
+  "reason": "输入业务等级B；环境温度20℃；环境湿度80%RH；原料温度5℃；命中演示规则，建议预冷6h、清洗压力档位normal；温湿度仅用于适用性判断，不用于计算最优时长。仅供演示，实际参数须人工确认。",
   "rule_version": "demo-process-v3",
   "requires_confirmation": true,
   "demo_only": true

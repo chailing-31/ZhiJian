@@ -108,6 +108,6 @@ def process_advice(request: ProcessRequest) -> ProcessResponse:
     return ProcessResponse(
         batch_id=request.batch_id, status=status, rule_id=rule_id,
         rule_basis=config.basis, advice=advice,
-        reason=f"人工确认等级{request.grade}；{details}；{decision}。仅供演示，实际参数须人工确认。",
+        reason=f"输入业务等级{request.grade}；{details}；{decision}。仅供演示，实际参数须人工确认。",
         rule_version=config.version,
     )

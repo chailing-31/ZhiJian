@@ -2,9 +2,9 @@ package com.zhijian.demo.batchflow;
 
 import java.util.*;
 
-/** Pure business vocabulary and gates. No model-score-to-batch-grade conversion. */
+/** Business vocabulary shared by AI initial assessments and optional human corrections. */
 public final class BatchPolicy {
-    public static final String VERSION = "batch-workbench-v4-20261013";
+    public static final String VERSION = "ai-first-application-v5.1-20261014";
     public static final String GRADE_POLICY = "manual-batch-assessment-v1";
     private BatchPolicy() {}
     public static final Set<String> GRADES = Set.of("A", "B", "C", "REJECT");
@@ -15,7 +15,7 @@ public final class BatchPolicy {
     public static String gradeLabel(String grade) {
         return switch (grade == null ? "" : grade) {
             case "A" -> "优选外观"; case "B" -> "一般外观，需分选";
-            case "C" -> "用途待评估"; case "REJECT" -> "人工拒收"; default -> "待批次评定";
+            case "C" -> "用途待评估"; case "D" -> "历史等级待修正"; case "REJECT" -> "拒收"; default -> "等待检测";
         };
     }
     public static String useLabel(String use) {
@@ -26,13 +26,13 @@ public final class BatchPolicy {
         };
     }
     public static void validateAssessment(String grade, String use, int pictures, int pending, int confirmedImages) {
-        if (!GRADES.contains(grade == null ? "" : grade)) throw new IllegalArgumentException("业务等级只能是 A/B/C/REJECT，历史 D 需要重新核定。");
+        if (!GRADES.contains(grade == null ? "" : grade)) throw new IllegalArgumentException("业务等级应为 A/B/C/REJECT。");
         if (!USES.contains(use == null ? "" : use)) throw new IllegalArgumentException("请选择有效的拟定用途。");
         if (pictures < 1) throw new IllegalArgumentException("当前抽检轮次尚无图片，不能签发批次评定。");
-        if (pending != 0) throw new IllegalArgumentException("本轮还有未完成的图片复核，请先处理后再评定。");
+        if (pending != 0) throw new IllegalArgumentException("本轮有人员标记的待复查问题，请先处理该问题。");
         if ("A".equals(grade) && confirmedImages > 0) throw new IllegalArgumentException("本轮确认了缺陷，与本版 A 的定义冲突；请重新检查或另建分选后抽检轮次。");
-        if ("REJECT".equals(grade) != "isolate_return".equals(use)) throw new IllegalArgumentException("人工拒收须对应隔离／退货处置，不能同时选择正常商品用途。");
-        if ("premium_sorting".equals(use) && !"A".equals(grade)) throw new IllegalArgumentException("优选商品分选只允许人工 A 评定。");
+        if ("REJECT".equals(grade) != "isolate_return".equals(use)) throw new IllegalArgumentException("暂停或拒收等级须对应隔离处置用途。");
+        if ("premium_sorting".equals(use) && !"A".equals(grade)) throw new IllegalArgumentException("优选商品分选需要 A 评定。");
         if ("C".equals(grade) && !Set.of("processing_evaluation", "undetermined").contains(use)) throw new IllegalArgumentException("C 级只能进入用途评估，不能直接批准商品用途。");
     }
     public record Facts(boolean round, int images, int pending, boolean assessed, boolean current,
@@ -44,8 +44,8 @@ public final class BatchPolicy {
         if (f.pending() > 0) return "REVIEW_IMAGES";
         if (!f.assessed()) return "ASSESS_BATCH";
         if (!f.current()) return "REASSESS_BATCH";
-        if ("REJECT".equals(f.grade())) return "REJECTED";
         if (f.coldHold()) return "COLDCHAIN_REVIEW";
+        if ("REJECT".equals(f.grade())) return "REJECTED";
         if ("C".equals(f.grade()) || Set.of("processing_evaluation", "undetermined").contains(Objects.toString(f.use(), ""))) return "USE_REVIEW";
         if (!f.sorted()) return "SORTING_RECORD";
         if (!f.processLinked()) return "PROCESS_INPUT";
@@ -56,14 +56,15 @@ public final class BatchPolicy {
     }
     public static String actionLabel(String state) {
         return switch(state) {
-            case "CREATE_ROUND" -> "建立本轮抽检"; case "ADD_IMAGES" -> "上传或纳入抽检图片";
-            case "REVIEW_IMAGES" -> "完成图片复核"; case "ASSESS_BATCH" -> "确认本轮批次评定";
-            case "REASSESS_BATCH" -> "证据已更新，请重新核定"; case "REJECTED" -> "登记拒收处置";
+            case "CREATE_ROUND", "ADD_IMAGES" -> "上传照片，获取 AI 初评";
+            case "REVIEW_IMAGES" -> "处理已标记的复查问题"; case "ASSESS_BATCH", "REASSESS_BATCH" -> "更新 AI 初评";
+            case "REJECTED" -> "登记品质处置";
             case "COLDCHAIN_REVIEW" -> "核查冷链异常与数据完整性"; case "USE_REVIEW" -> "负责人确认用途和适用性";
-            case "SORTING_RECORD" -> "登记实际分选结果"; case "PROCESS_INPUT" -> "补齐工艺条件，生成 B 建议";
+            case "SORTING_RECORD" -> "登记实际分选结果"; case "PROCESS_INPUT" -> "补齐工艺条件，生成建议";
             case "PROCESS_REVIEW" -> "工艺规则不适用，请核查"; case "ADOPT_PROCESS" -> "人工确认工艺采用值";
             case "EXECUTION_RECORD" -> "登记实际加工执行"; case "COLDCHAIN_NOT_STARTED" -> "按业务计划录入冷链观测";
-            case "MONITORING" -> "查看监测与报告，按需更新公开摘要"; default -> "刷新状态";
+            case "DISPOSITION_RECORDED" -> "查看品质处置报告";
+            case "MONITORING" -> "查看报告，发布溯源摘要"; default -> "刷新状态";
         };
     }
     public static String tab(String state) {
@@ -71,7 +72,8 @@ public final class BatchPolicy {
             case "CREATE_ROUND", "ADD_IMAGES", "REVIEW_IMAGES" -> "inspection";
             case "ASSESS_BATCH", "REASSESS_BATCH", "USE_REVIEW" -> "assessment";
             case "REJECTED", "SORTING_RECORD", "PROCESS_INPUT", "PROCESS_REVIEW", "ADOPT_PROCESS", "EXECUTION_RECORD" -> "processing";
-            case "COLDCHAIN_REVIEW", "COLDCHAIN_NOT_STARTED", "MONITORING" -> "coldchain"; default -> "overview";
+            case "DISPOSITION_RECORDED", "MONITORING" -> "report";
+            case "COLDCHAIN_REVIEW", "COLDCHAIN_NOT_STARTED" -> "coldchain"; default -> "overview";
         };
     }
 }

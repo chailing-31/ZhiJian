@@ -26,9 +26,12 @@ public class QualityFlowController {
     }
     @GetMapping("/workspace/quality-contract")
     public Map<String,Object> contract() {
-        return Map.of("version",QualityFlowRules.VERSION,"grades",QualityFlowRules.grades(),
-            "pending_state","REVIEW_REQUIRED","detector_classes",List.of("表面擦伤","虫害损伤"),
-            "scope","人工核定的业务输入；不等于单图证明整批品质或食品安全");
+        return Map.of("version",com.zhijian.demo.batchflow.BatchPolicy.VERSION,
+            "grades",List.of(Map.of("grade","A","label","优选外观"),Map.of("grade","B","label","一般外观，需分选"),Map.of("grade","C","label","用途待评估"),Map.of("grade","REJECT","label","拒收")),
+            "initial_review_required",false,"grade_policy",com.zhijian.demo.batchflow.InitialGrade.IMAGE_POLICY,
+            "detector_classes",List.of("表面擦伤","虫害损伤"),
+            "scope","检测缺陷后按透明规则生成外观初评，人工可选修正；拒收初评与实际处置分别记录。",
+            "workflow_endpoint","/batches/{id}/batch-workbench");
     }
     @GetMapping("/batches/{batchId}/quality-flow")
     @Transactional(readOnly=true)

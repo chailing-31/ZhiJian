@@ -1,5 +1,5 @@
-"""Repository-native V4 launcher. No patch installation, Git reset or model promotion.
-Use one terminal per service. This launcher is limited to a trusted local Windows demo.
+"""Repository-native application launcher. No patch installation, Git reset or model promotion.
+Use one terminal per service. This launcher is limited to a trusted local Windows environment.
 """
 from __future__ import annotations
 import argparse
@@ -18,7 +18,7 @@ import warnings
 
 REPO = Path(__file__).resolve().parents[1]
 DB = 'smart_fresh_c_review'
-VERSION = 'batch-workbench-v4-20261013'
+VERSION = 'ai-first-application-v5.1-20261014'
 OLD_SHA = '8c45a0602dadf8b9f48b609e29d6d3b5e5868db5f68682da8b32583e104827a4'
 
 
@@ -49,7 +49,7 @@ def free(port):
 def check_source():
     source = REPO / 'backend/src/main/java/com/zhijian/demo/workspace/EngineeringWorkspaceController.java'
     if not source.is_file() or VERSION not in source.read_text(encoding='utf-8-sig'):
-        raise ValueError('Run this launcher from the V4 snapshot repository.')
+        raise ValueError('Run this launcher from the V5 application repository.')
 
 
 def accepted_model():
@@ -58,7 +58,7 @@ def accepted_model():
         default = Path(r'D:\ZhiJianData\models\ssda-yolov8n-dev-v1\model-manifest.json')
     path = Path(os.environ.get('ZJ_ACCEPTED_MANIFEST', str(default)))
     if not path.is_file() or path.stat().st_size > 65536:
-        raise ValueError('Set ZJ_ACCEPTED_MANIFEST to the trusted OLD model manifest. Weight is not in this snapshot.')
+        raise ValueError('Set ZJ_ACCEPTED_MANIFEST to the trusted OLD model manifest. The accepted weight is bundled in this application.')
     manifest = json.loads(path.read_text(encoding='utf-8-sig'))
     weight = Path(manifest['weights'])
     if not weight.is_absolute():
@@ -105,13 +105,13 @@ def main():
     parser.add_argument('action', choices=['ai', 'business', 'backend', 'web', 'status', 'migrate'])
     args = parser.parse_args()
     if os.name != 'nt':
-        raise ValueError('Service launcher targets Windows. See docs/V4_GITHUB_HANDOFF.md for environment setup.')
+        raise ValueError('Service launcher targets Windows. See docs/V5_APPLICATION_GUIDE.md for environment setup.')
     check_source()
     action = args.action
     if action == 'status':
         failed = False
         for name, url in [('A', 'http://127.0.0.1:8001/ready'), ('B', 'http://127.0.0.1:8002/health'),
-                          ('V4', 'http://127.0.0.1:5173/api/workspace/status')]:
+                          ('APP', 'http://127.0.0.1:5173/api/workspace/status')]:
             try:
                 result = http(url)
                 print(name, json.dumps(result, ensure_ascii=True))
@@ -127,7 +127,7 @@ def main():
                 print('FAILED:', exc)
         if failed:
             raise ValueError('One or more service checks failed. No certification inferred.')
-        print('V4_SERVICES_READY. Full write-flow acceptance remains separate.')
+        print('APP_SERVICES_READY. Full write-flow acceptance remains separate.')
     elif action == 'ai':
         free(8001)
         path, manifest = accepted_model()

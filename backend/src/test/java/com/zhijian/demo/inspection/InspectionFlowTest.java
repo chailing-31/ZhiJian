@@ -130,4 +130,11 @@ class InspectionFlowTest {
         String key=UUID.randomUUID().toString(); upload(key);
         mvc.perform(multipart("/batches/1/inspections").file(new MockMultipartFile("image","b.png","image/png",new byte[]{9})).header("Idempotency-Key",key)).andExpect(status().isConflict());
     }
+    private ObjectNode highPrediction() throws Exception {
+        var p=prediction(1,"APPLE-2026-001",IMAGE);var d=p.withArray("detections").addObject();d.put("class_id",0);d.put("class_name","ssda_class_0");d.put("class_label","Scratch");d.put("confidence",.9);d.putArray("bbox_xyxy").add(0).add(0).add(50).add(50);
+        var burden=(ObjectNode)p.path("defect_burden");burden.put("burden_level","high");burden.put("detection_count",1);burden.put("union_bbox_area_ratio_image",.25);burden.put("max_bbox_area_ratio_image",.25);burden.withArray("escalation_flags").add("scratch_large_box_ge_0_025");var summary=burden.withArray("class_summary").addObject();summary.put("class_id",0);summary.put("class_name","ssda_class_0");summary.put("class_label","Scratch");summary.put("count",1);summary.put("max_bbox_area_ratio_image",.25);
+        p.put("observation","target_defect_detected");p.put("suggested_grade","D");p.put("grade_status","development_rule_applied");p.put("requires_human_review",false);return p;
+    }
+    @Test void knownLegacyAIInitialDCanBeReadWithoutRewritingModelEvidence() throws Exception {var p=highPrediction();p.put("initial_grade","D");p.put("initial_grade_rule_version","visual-initial-v5");assertNotNull(PredictionValidator.validate(p,1,"APPLE-2026-001",p.path("image").path("source_sha256").asText()));assertEquals("D",p.path("initial_grade").asText());assertEquals("REJECT",com.zhijian.demo.batchflow.InitialGrade.grade(p));}
+    @Test void newPolicyNeverAcceptsBusinessD() throws Exception {var p=highPrediction();p.put("initial_grade_rule_version",com.zhijian.demo.batchflow.InitialGrade.IMAGE_POLICY);p.put("initial_grade","D");assertThrows(InspectionFault.class,()->PredictionValidator.validate(p,1,"APPLE-2026-001",p.path("image").path("source_sha256").asText()));p.put("initial_grade","REJECT");assertNotNull(PredictionValidator.validate(p,1,"APPLE-2026-001",p.path("image").path("source_sha256").asText()));}
 }

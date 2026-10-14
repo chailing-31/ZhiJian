@@ -57,13 +57,13 @@ public class InspectionService {
     public List<Map<String, Object>> list(long batchId) {
         checkSchema(); batch(batchId);
         return jdbc.query("""
-            SELECT i.id,i.model_version,i.created_at,p.prediction_id,
+            SELECT i.id,i.model_version,i.suggested_grade,i.created_at,p.prediction_id,
               (SELECT COUNT(*) FROM inspection_reviews r WHERE r.inspection_id=i.id) AS review_revision
             FROM inspections i JOIN inspection_payloads p ON i.id=p.inspection_id
             WHERE i.batch_id=? ORDER BY i.id DESC LIMIT 100
             """, (rs, row) -> Map.<String, Object>of("inspection_id", rs.getLong("id"), "model_version", rs.getString("model_version"),
                 "created_at", time(rs.getObject("created_at", LocalDateTime.class)), "prediction_id", rs.getString("prediction_id"),
-                "review_revision", rs.getInt("review_revision")), batchId);
+                "review_revision", rs.getInt("review_revision"), "initial_grade", rs.getString("suggested_grade") == null ? "" : rs.getString("suggested_grade")), batchId);
     }
     public Map<String, Object> create(long batchId, String requestKey, MultipartFile file) {
         checkSchema(); String code = batch(batchId);
@@ -96,15 +96,16 @@ public class InspectionService {
                         VALUES(?,?,?,?,?,?)
                         """, batchId, predictionId + "/input.png", predictionId + "/result.png",
                         prediction.path("model_version").asText(), encode(prediction.path("detections")),
-                        prediction.path("suggested_grade").isNull() ? null : prediction.path("suggested_grade").asText());
+                        com.zhijian.demo.batchflow.InitialGrade.grade(prediction));
                     jdbc.update("INSERT INTO inspection_payloads(inspection_id,request_id,image_sha256,prediction_id,response_json) VALUES(?,?,?,?,?)",
                         inspection, key, hash, predictionId.toString(), encode(prediction));
                     jdbc.update("""
                         INSERT INTO batch_events(batch_id,event_type,event_time,summary,source,evidence_path,visibility)
                         VALUES(?,'AI质检',CURRENT_TIMESTAMP,?,'model',?,'private')
-                        """, batchId, "单张图片推理已保存，输出 " + prediction.path("detections").size() + " 个候选框，待人工复核；不是批次合格结论。",
+                        """, batchId, "外观检测已保存，AI初评 " + com.zhijian.demo.batchflow.InitialGrade.grade(prediction) + "，可后续人工检查或修正。",
                         "/inspections/" + inspection + "/artifacts/result");
                     com.zhijian.demo.batchflow.BatchLedger.enrollUpload(jdbc,batchId,inspection);
+                    com.zhijian.demo.batchflow.AutomaticAssessment.synchronize(jdbc,json,batchId);
                     return inspection;
                 });
             } catch (DuplicateKeyException e) {
@@ -157,13 +158,24 @@ public class InspectionService {
         }, id);
         result.put("review_revision", reviews.size()); result.put("reviews", reviews);
         result.put("latest_review", reviews.isEmpty() ? null : reviews.get(reviews.size() - 1));
+        result.put("initial_assessment",com.zhijian.demo.batchflow.InitialGrade.assessment(original));
+        JsonNode latest=json.valueToTree(result.get("latest_review"));
+        String human=latest.path("final_grade").asText("").toUpperCase(Locale.ROOT);
+        boolean noTarget=com.zhijian.demo.batchflow.BatchPolicy.reviewed(latest.path("conclusion").asText())
+            && "no_target_confirmed".equals(latest.path("conclusion").asText()) && human.isBlank();
+        boolean corrected=com.zhijian.demo.batchflow.BatchPolicy.reviewed(latest.path("conclusion").asText())
+            && com.zhijian.demo.batchflow.BatchPolicy.GRADES.contains(human);
+        boolean pending=!reviews.isEmpty()&&(!com.zhijian.demo.batchflow.BatchPolicy.reviewed(latest.path("conclusion").asText())
+            ||!human.isBlank()&&!com.zhijian.demo.batchflow.BatchPolicy.GRADES.contains(human));
+        result.put("effective_grade",pending?null:corrected?human:noTarget?"A":com.zhijian.demo.batchflow.InitialGrade.grade(original));
+        result.put("grade_source",pending?"review_pending":corrected||noTarget?"human_corrected":"ai_initial");
         return result;
     }
     public Map<String, Object> review(long id, ReviewRules.Input input) {
         checkSchema();
         transaction.executeWithoutResult(status -> {
             var before = row(id, false);
-            jdbc.queryForList("SELECT id FROM batches WHERE id=? FOR UPDATE", before.get("batch_id"));
+            jdbc.queryForList("SELECT id FROM batches WHERE id=? FOR UPDATE",before.get("batch_id"));
             var r = row(id, true);
             JsonNode p = payload(r.get("response_json"));
             ReviewRules.Input checked = ReviewRules.validate(input, p.path("detections").size());
@@ -180,6 +192,7 @@ public class InspectionService {
                 VALUES(?,'人工复核',CURRENT_TIMESTAMP,?,'manual',?,?)
                 """, r.get("batch_id"), "已保存单张图像人工复核记录（第 " + next + " 版）；不构成食品安全或整批合格结论。",
                 checked.reviewer(), checked.publish_summary() ? "public" : "private");
+            com.zhijian.demo.batchflow.AutomaticAssessment.synchronize(jdbc,json,((Number)r.get("batch_id")).longValue());
         });
         return detail(id);
     }

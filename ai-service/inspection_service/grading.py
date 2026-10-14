@@ -4,12 +4,17 @@ from .schemas import DefectBurden
 
 RULE_VERSION = 'a12-dev-grade-v1'
 GRADE_BASIS = 'defect_burden_level'
+INITIAL_RULE_VERSION = 'visual-initial-v5.1'
 
 _GRADE_BY_BURDEN = {
     'low': 'B',
     'moderate': 'C',
     'high': 'D',
 }
+
+def initial_grade(burden: DefectBurden) -> str:
+    """A provisional appearance grade derived from the detector, not a learned grade classifier."""
+    return {'none_observed': 'A', 'low': 'B', 'moderate': 'C', 'high': 'REJECT'}[burden.burden_level]
 
 
 def suggest_grade(burden: DefectBurden) -> tuple[str | None, str]:

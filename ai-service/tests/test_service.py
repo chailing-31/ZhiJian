@@ -87,12 +87,13 @@ def test_contract_and_internal_artifacts(cfg):
         assert item['grade_status'] == 'development_rule_applied'
         assert item['grade_rule_version'] == 'a12-dev-grade-v1'
         assert item['grade_basis'] == 'defect_burden_level'
-        assert item['requires_human_review'] is True
+        assert item['requires_human_review'] is False
         assert item['observation'] == 'target_defect_detected'
         assert item['detections'][0]['bbox_xyxy'] == [1, 2, 14, 18]
         burden = item['defect_burden']
         assert burden['rule_version'] == 'a11-dev-burden-v1'
         assert burden['burden_level'] == 'high'
+        assert item['initial_grade'] == 'REJECT'
         assert burden['detection_count'] == 1
         assert burden['union_bbox_area_ratio_image'] == pytest.approx((13 * 16) / (40 * 30))
         assert burden['max_bbox_area_ratio_image'] == pytest.approx((13 * 16) / (40 * 30))
@@ -118,10 +119,11 @@ def test_empty_result_is_not_normal_or_grade_a(cfg):
     with TestClient(create_app(cfg, FakeEngine())) as c:
         item = post(c).json()
         assert item['observation'] == 'no_target_defect_detected'
+        assert item['initial_grade'] == 'A'
         assert item['grade_status'] == 'withheld_no_target_observed'
         assert item['grade_rule_version'] == 'a12-dev-grade-v1'
         assert item['grade_basis'] == 'defect_burden_level'
-        assert item['requires_human_review'] is True
+        assert item['requires_human_review'] is False
         assert item['suggested_grade'] is None
         assert item['detections'] == []
         assert item['defect_burden'] == {

@@ -3,8 +3,13 @@ import { validId } from '../utils/batch.js'
 function id(v) { const n = validId(v); if (!n) throw new Error('批次或记录编号不正确。'); return n }
 export async function getWorkbench(batch, options = {}) {
   const value = await inspectionRequest(`/batches/${id(batch)}/batch-workbench`, { ...options, timeout: 20000 })
-  if (value.version !== 'batch-workbench-v4-20261013' || String(value.batch?.id) !== String(batch) || !Array.isArray(value.evidence?.records)) throw new Error('工作台版本或批次不匹配，请检查后端是否已重启。')
+  if (value.version !== 'ai-first-application-v5.1-20261014' || String(value.batch?.id) !== String(batch) || !Array.isArray(value.evidence?.records)) throw new Error('前后端版本或批次不匹配，请重启更新后的服务。')
   return value
+}
+export async function synchronizeInitial(batch, options = {}) {
+  const result = await inspectionRequest(`/batches/${id(batch)}/auto-assessment`, { ...options, method: 'POST', timeout: 20000 })
+  if (!result.persisted || result.workbench?.version !== 'ai-first-application-v5.1-20261014') throw new Error('自动初评未确认保存，请刷新核对。')
+  return result.workbench
 }
 export const createRound = (b, body, options) => inspectionRequest(`/batches/${id(b)}/inspection-rounds`, { ...options, method: 'POST', body, timeout: 20000 })
 export const bindImage = (b, r, body, options) => inspectionRequest(`/batches/${id(b)}/inspection-rounds/${id(r)}/images`, { ...options, method: 'POST', body, timeout: 20000 })

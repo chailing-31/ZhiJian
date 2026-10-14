@@ -1,4 +1,4 @@
-"""Internal HTTP API. Bind to loopback; no database writes, no grading, no fake outputs."""
+"""Detector HTTP API with provisional appearance grading; bind to loopback."""
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from .config import Settings
 from .engine import YoloEngine, validate_detections
 from .burden import calculate_defect_burden
-from .grading import GRADE_BASIS, RULE_VERSION as GRADE_RULE_VERSION, suggest_grade
+from .grading import GRADE_BASIS, RULE_VERSION as GRADE_RULE_VERSION, suggest_grade, initial_grade
 from .media import FORMATS, InvalidImage, annotate, decode_image, image_metadata, store_prediction
 from .schemas import ArtifactLinks, PredictionResponse
 
@@ -124,12 +124,13 @@ def create_app(settings=None, engine=None):
             defect_burden=burden,
             observation='target_defect_detected' if detections else 'no_target_defect_detected',
             suggested_grade=suggested_grade, grade_status=grade_status,
+            initial_grade=initial_grade(burden), requires_human_review=False,
             grade_rule_version=GRADE_RULE_VERSION, grade_basis=GRADE_BASIS,
             artifacts=ArtifactLinks(**{k: prefix + '/' + k for k in ('source', 'input', 'result', 'record')}),
             warnings=['仅为当前图像、当前模型类别与阈值下的观察，不代表食品安全或整批合格结论。',
                       'A11 缺陷负担以候选框相对整张图像面积计算，不是真实苹果表面损伤率或质量等级。',
                       'A12 建议等级仅为开发规则：low/moderate/high 分别映射 B/C/D；未检出目标候选时不自动判 A。',
-                      '未检出目标缺陷不等于正常；建议等级不替代人工最终等级，需人工复核。']
+                      'AI 初评为所上传照片的外观规则等级；人工可后续修正，未检出两类目标不能证明其它缺陷不存在。']
         )
         if engine.manifest.evaluation_status == 'not_evaluated':
             record.warnings.append('该模型清单标记为尚未独立评测。')

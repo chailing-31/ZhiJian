@@ -10,9 +10,9 @@ if errorlevel 1 (
   echo Python is unavailable. Set AI_PYTHON to a working Python executable.
   exit /b 1
 )
-if not defined AI_MODEL_MANIFEST set "AI_MODEL_MANIFEST=%~dp0models\a15\model-manifest.json"
+if not defined AI_MODEL_MANIFEST set "AI_MODEL_MANIFEST=%~dp0models\accepted\model-manifest.json"
 if not exist "%AI_MODEL_MANIFEST%" (
-  echo Model manifest not found. See docs/AI_HANDOFF_A15.md.
+  echo Model manifest not found. See docs/V5_APPLICATION_GUIDE.md.
   exit /b 1
 )
 rem Preserve existing evidence storage; use repository-local runtime on new machines.

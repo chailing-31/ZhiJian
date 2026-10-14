@@ -47,7 +47,7 @@ public final class ReviewRules {
         if ("manual_target_confirmed".equals(input.conclusion()) && remark.length() < 10) throw bad("人工发现模型未覆盖的缺陷时，请至少填写10字的位置、现象和复核依据，不伪造模型框。");
         if (grade != null) {
             grade = grade.toUpperCase(java.util.Locale.ROOT);
-            if (!Set.of("A", "B", "C", "REJECT").contains(grade)) throw bad("统一等级必须为 A/B/C/REJECT，历史 D 请重新核定。");
+            if (!Set.of("A", "B", "C", "REJECT").contains(grade)) throw bad("统一等级必须为 A/B/C/REJECT。");
             if ("needs_recheck".equals(input.conclusion())) throw bad("复核未完成时不得填写最终等级。");
             if ("A".equals(grade) && (confirmed > 0 || "manual_target_confirmed".equals(input.conclusion()))) throw bad("本版 A 定义与人工确认的缺陷冲突。");
         }

@@ -3,12 +3,12 @@ import assert from 'node:assert/strict'
 import {assessmentProblem, evidenceDraft,steps,writeIntent,processNumber,canAdopt,toZonedTime} from '../src/utils/batch-workbench.js'
 const e={record_count:3,pending_count:0,confirmed_target_records:1}
 test('A cannot be approved with confirmed target defects',()=>assert.ok(assessmentProblem('A','premium_sorting',e)))
-test('B remains a manual business grade',()=>assert.equal(assessmentProblem('B','general_sorting',e),''))
+test('B supports the general sorting path',()=>assert.equal(assessmentProblem('B','general_sorting',e),''))
 test('C can only enter evaluation',()=>{assert.ok(assessmentProblem('C','general_sorting',e));assert.equal(assessmentProblem('C','processing_evaluation',e),'')})
-test('REJECT is not silently mapped from D',()=>{assert.ok(assessmentProblem('D','isolate_return',e));assert.equal(assessmentProblem('REJECT','isolate_return',e),'')})
+test('only ABC REJECT are business grades',()=>{assert.ok(assessmentProblem('D','isolate_return',e));assert.equal(assessmentProblem('REJECT','isolate_return',e),'')})
 test('reject disposition is not ordinary sale',()=>assert.ok(assessmentProblem('REJECT','general_sorting',e)))
 test('empty evidence does not yield A',()=>assert.ok(assessmentProblem('A','premium_sorting',{record_count:0})))
-test('all linked image reviews are required',()=>assert.ok(assessmentProblem('B','general_sorting',{...e,pending_count:1})))
+test('explicitly marked recheck holds the workflow',()=>assert.ok(assessmentProblem('B','general_sorting',{...e,pending_count:1})))
 test('no unknown use accepted',()=>assert.ok(assessmentProblem('B','juice',e)))
 test('evidence draft contains scope rather than fabricated fruit rate',()=>{const s=evidenceDraft({evidence_summary:'3条图片记录',round:{sampling_note:'指定箱位'}});assert.ok(s.includes('指定箱位'));assert.ok(!s.includes('%'))})
 test('idempotent retry retains key for identical body',()=>{let n=0;const f=writeIntent(()=>String(++n));assert.equal(f({a:1}).request_id,f({a:1}).request_id)})
