@@ -1,11 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { decisionFor, normalizedGrade, reviewProblem, candidateCaption, stageCounts, validPredictionGeometry } from '../src/utils/engineering.js'
-const prediction = { detections: [], suggested_grade: null }
+const prediction = { detections: [], suggested_grade: null, initial_grade:'A', defect_burden:{burden_level:'none_observed'} }
 test('no photo never produces a grade', () => { assert.equal(decisionFor(null).grade, null); assert.equal(decisionFor(null).canProcess, false) })
-test('no detections never imply A', () => { const d=decisionFor({prediction}); assert.equal(d.grade,null); assert.equal(d.canProcess,false) })
-test('rule grades are not human grades', () => { const d=decisionFor({prediction:{...prediction,suggested_grade:'B'}}); assert.equal(d.source,'model_rule'); assert.equal(d.canProcess,false) })
-test('a model-produced A is not accepted by display policy', () => assert.equal(decisionFor({prediction:{...prediction,suggested_grade:'A'}}).grade,null))
+test('no targets give an AI initial A with optional review', () => { const d=decisionFor({prediction}); assert.equal(d.grade,'A'); assert.equal(d.source,'ai_initial'); assert.equal(d.canProcess,true) })
+test('AI initial B is a usable source before human review', () => { const d=decisionFor({prediction:{...prediction,initial_grade:'B'}}); assert.equal(d.grade,'B'); assert.equal(d.source,'ai_initial'); assert.equal(d.canProcess,true) })
+test('missing grade evidence does not invent A', () => assert.equal(decisionFor({prediction:{detections:[],suggested_grade:'A'}}).grade,null))
 test('saved B review can be proposed as an explicitly approved source', () => { const d=decisionFor({prediction,latest_review:{final_grade:'B',conclusion:'target_confirmed'}}); assert.equal(d.source,'human'); assert.equal(d.canProcess,true) })
 test('D is never silently mapped to REJECT', () => { const d=decisionFor({prediction,latest_review:{final_grade:'D',conclusion:'target_confirmed'}}); assert.equal(d.grade,null); assert.equal(d.source,'legacy_grade'); assert.equal(d.canProcess,false) })
 test('needs_recheck cannot be used even with a saved A', () => assert.equal(decisionFor({prediction,latest_review:{final_grade:'A',conclusion:'needs_recheck'}}).canProcess,false))
@@ -20,8 +20,8 @@ test('invalid or NaN geometry is not rendered', () => { assert.equal(validPredic
 test('flow counters do not invent missing records', () => assert.deepEqual(stageCounts(null),{inspections:0,reviewed:0,processing:0,readings:0}))
 
 test('needs_recheck may not carry a final business grade',()=>assert.notEqual(reviewProblem({reviewer:'Test',remark:'Test',conclusion:'needs_recheck',final_grade:'B',candidates:[]},0),''))
-test('new grade vocabulary excludes D',()=>assert.equal(normalizedGrade('D'),null))
-test('high burden is held instead of mapped to rejection',()=>{const d=decisionFor({prediction:{detections:[{}],suggested_grade:null,grade_status:'withheld_requires_review'}});assert.equal(d.grade,null);assert.equal(d.canProcess,false);assert.match(d.title,/复核/)})
+test('business vocabulary excludes legacy D',()=>assert.equal(normalizedGrade('D'),null))
+test('high burden is held instead of mapped to rejection',()=>{const d=decisionFor({prediction:{detections:[{}],suggested_grade:null,grade_status:'withheld_requires_review'}});assert.equal(d.grade,null);assert.equal(d.canProcess,false);assert.match(d.title,/缺少初评/)})
 test('legacy A with confirmed defects is not forwarded',()=>assert.equal(decisionFor({prediction,latest_review:{final_grade:'A',conclusion:'target_confirmed'}}).canProcess,false))
 
 // Manual findings remain separate from model candidate detections.
@@ -29,3 +29,5 @@ test('manual finding can be reviewed without fabricating a model box',()=>assert
 test('manual finding requires a substantive written description',()=>assert.notEqual(reviewProblem({reviewer:'Test',remark:'test',conclusion:'manual_target_confirmed',final_grade:'B',candidates:[]},0),''))
 test('manual finding never qualifies for A',()=>assert.notEqual(reviewProblem({reviewer:'Test',remark:'人工在苹果右下方发现擦伤，模型漏检。',conclusion:'manual_target_confirmed',final_grade:'A',candidates:[]},0),''))
 test('saved manual B finding has human provenance',()=>{const d=decisionFor({prediction,latest_review:{final_grade:'B',conclusion:'manual_target_confirmed'}});assert.equal(d.source,'human');assert.equal(d.canProcess,true)})
+
+test('high burden gets REJECT initial grade without claiming actual disposition',()=>{const d=decisionFor({prediction:{detections:[{}],defect_burden:{burden_level:'high'}}});assert.equal(d.grade,'REJECT');assert.equal(d.source,'ai_initial');assert.equal(d.canProcess,true)})

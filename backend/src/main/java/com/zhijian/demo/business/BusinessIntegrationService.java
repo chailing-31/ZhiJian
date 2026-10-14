@@ -78,21 +78,28 @@ public class BusinessIntegrationService {
         String batchCode = batchCode(batchId);
         String grade = text(input, "grade", true);
         if (!List.of("A", "B", "C", "REJECT").contains(grade)) {
-            throw fault(400, "INVALID_GRADE", "grade 必须是 A、B、C 或 REJECT。");
+            throw fault(400, "INVALID_GRADE", "grade 必须是 A/B/C/REJECT。");
         }
-        double temperature = finiteNumber(input, "temperature", true);
-        double humidity = finiteNumber(input, "humidity", true);
-        if (humidity < 0 || humidity > 100) throw fault(400, "INVALID_HUMIDITY", "humidity 必须在 0—100 之间。");
+        Double temperature = optionalNumber(input,"temperature");
+        Double humidity = optionalNumber(input,"humidity");
+        if(!"REJECT".equals(grade)) {
+            temperature=finiteNumber(input,"temperature",true);
+            humidity=finiteNumber(input,"humidity",true);
+        }
+        if (humidity!=null&&(humidity < 0 || humidity > 100)) throw fault(400, "INVALID_HUMIDITY", "humidity 必须在 0—100 之间。");
         Double materialTemperature = optionalNumber(input, "material_temperature");
         String operator = optionalText(input, "operator");
 
         Map<String, Object> request = new LinkedHashMap<>();
         request.put("batch_id", batchId);
         request.put("grade", grade);
-        request.put("temperature", temperature);
-        request.put("humidity", humidity);
+        if(temperature!=null)request.put("temperature", temperature);
+        if(humidity!=null)request.put("humidity", humidity);
         if (materialTemperature != null) request.put("material_temperature", materialTemperature);
-        JsonNode advice = business("POST", "/business/process-advice", request);
+        JsonNode advice = "REJECT".equals(grade)&&(temperature==null||humidity==null)?json.valueToTree(Map.of("batch_id",batchId,"grade","REJECT","status","blocked",
+            "advice_type","quality_hold","rule_version","initial-reject-hold-v5.1","requires_confirmation",true,
+            "reason","REJECT 初评或修正等级，暂停正常流转，请登记实际处置或检查修正。")):
+            business("POST", "/business/process-advice", request);
 
         String inputsJson = writeJson(request);
         String adviceJson = writeJson(advice);

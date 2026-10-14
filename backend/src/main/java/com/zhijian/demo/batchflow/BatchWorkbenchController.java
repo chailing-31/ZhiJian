@@ -10,7 +10,9 @@ import java.util.Map;
 public class BatchWorkbenchController {
     private final BatchWorkbenchService service;
     public BatchWorkbenchController(BatchWorkbenchService service){this.service=service;}
+    @GetMapping("/workspace/dashboard") public Map<String,Object> dashboard(){return service.dashboard();}
     @GetMapping("/batches/{id}/batch-workbench") public Map<String,Object> view(@PathVariable long id){return service.view(id);}
+    @PostMapping("/batches/{id}/auto-assessment") public Map<String,Object> initial(@PathVariable long id){return service.synchronizeInitial(id);}
     @PostMapping("/batches/{id}/inspection-rounds") public Map<String,Object> round(@PathVariable long id,@RequestBody JsonNode in){return service.createRound(id,in);}
     @PostMapping("/batches/{id}/inspection-rounds/{round}/images") public Map<String,Object> image(@PathVariable long id,@PathVariable long round,@RequestBody JsonNode in){return service.bindImage(id,round,in);}
     @PostMapping("/batches/{id}/batch-assessments") public Map<String,Object> assessment(@PathVariable long id,@RequestBody JsonNode in){return service.assess(id,in);}

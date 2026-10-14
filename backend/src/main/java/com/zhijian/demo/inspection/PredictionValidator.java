@@ -44,8 +44,16 @@ final class PredictionValidator {
             validateBurden(p.path("defect_burden"), detections, w, h);
             validateGrade(p, p.path("defect_burden"));
             String expected = detections.isEmpty() ? "no_target_defect_detected" : "target_defect_detected";
-            if (!expected.equals(p.path("observation").asText())
-                || !p.path("requires_human_review").asBoolean()) fail();
+            if (!expected.equals(p.path("observation").asText())) fail();
+            if(p.has("initial_grade")) {
+                String rule=p.path("initial_grade_rule_version").asText();
+                String initialExpected=com.zhijian.demo.batchflow.InitialGrade.grade(p);
+                // Accept a known V5 response as immutable legacy evidence, then derive the active grade separately.
+                if("visual-initial-v5".equals(rule)&&"REJECT".equals(initialExpected))initialExpected="D";
+                if(!Set.of("visual-initial-v5",com.zhijian.demo.batchflow.InitialGrade.IMAGE_POLICY).contains(rule)
+                    ||!initialExpected.equals(p.path("initial_grade").asText())
+                    ||!p.path("requires_human_review").isBoolean()||p.path("requires_human_review").asBoolean())fail();
+            } else if(!p.path("requires_human_review").asBoolean())fail();
             if (!p.path("warnings").isArray()) fail();
             return id;
         } catch (RuntimeException e) {

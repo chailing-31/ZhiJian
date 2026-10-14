@@ -21,7 +21,7 @@ import java.util.Set;
 @RestController
 @Profile("inspection")
 public class EngineeringWorkspaceController {
-    public static final String PATCH_VERSION = "batch-workbench-v4-20261013";
+    public static final String PATCH_VERSION = "ai-first-application-v5.1-20261014";
     private final JdbcTemplate jdbc;
     private final ObjectMapper json;
     private final InspectionService inspection;

@@ -118,4 +118,13 @@ class BusinessIntegrationServiceTest {
         var blocked=service.processingAdvice(1,json.readTree("{\"grade\":\"REJECT\",\"temperature\":5,\"humidity\":80}"));
         assertEquals(409,assertThrows(BusinessIntegrationFault.class,()->service.adoptProcessing(((Number)blocked.get("record_id")).longValue(),json.readTree("{\"operator\":\"tester\",\"adopted_values\":{\"pre_cooling_time\":\"1h\",\"washing_pressure\":\"normal\"}}"))).status());
     }
+    @Test void rejectHoldNeedsNoInventedEnvironmentAndDoesNotFabricateBInputs() throws Exception {
+        unavailable=true; // If the adapter calls B, this test fails with 503.
+        var result=service.processingAdvice(1,json.readTree("{\"grade\":\"REJECT\",\"operator\":\"TEST\"}"));
+        JsonNode advice=json.valueToTree(result.get("advice")),inputs=json.valueToTree(result.get("inputs"));
+        assertEquals("blocked",advice.path("status").asText());assertEquals("quality_hold",advice.path("advice_type").asText());
+        assertFalse(inputs.has("temperature"));assertFalse(inputs.has("humidity"));assertEquals("REJECT",inputs.path("grade").asText());
+        assertEquals(409,assertThrows(BusinessIntegrationFault.class,()->service.adoptProcessing(((Number)result.get("record_id")).longValue(),json.readTree("{\"operator\":\"TEST\",\"adopted_values\":{\"pre_cooling_time\":\"6h\",\"washing_pressure\":\"normal\"}}"))).status());
+    }
+    @Test void unsupportedDIsRejectedBeforeCallingBusinessService() throws Exception {assertEquals(400,assertThrows(BusinessIntegrationFault.class,()->service.processingAdvice(1,json.readTree("{\"grade\":\"D\",\"temperature\":5,\"humidity\":80}"))).status());assertEquals(0,count("processing_records"));}
 }

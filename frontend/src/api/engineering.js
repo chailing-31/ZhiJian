@@ -11,3 +11,5 @@ export const createReviewedAdvice = (batchId, body, options) => inspectionReques
 export const getQualityFlow = (id,options) => inspectionRequest(`/batches/${encodeURIComponent(id)}/quality-flow`,{...options,timeout:20000})
 export const publishQualityFlow = (id,body,options) => inspectionRequest(`/batches/${encodeURIComponent(id)}/quality-flow/publish`,{...options,method:'POST',body,timeout:20000})
 export const getPublicQualityFlow = (code,options) => inspectionRequest(`/trace/${encodeURIComponent(code)}/quality-flow`,{...options,timeout:15000})
+
+export const getDashboard = options => inspectionRequest('/workspace/dashboard', { ...options, timeout: 20000 })

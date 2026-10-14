@@ -64,8 +64,10 @@ public final class BatchLedger {
     }
     public static void enrollUpload(JdbcTemplate db,long batch,long inspection) {
         if(!ready(db))return; // The pre-Q4 image endpoint remains usable before the additive migration.
+        AutomaticAssessment.prepareRound(db,new ObjectMapper(),batch);
         var r=activeRound(db,batch);if(r==null)return;
         long round=number(r.get("id"));
+        if(count(db,"SELECT COUNT(*) FROM q4_round_images WHERE round_id=? AND inspection_id=?",round,inspection)>0)return;
         if(count(db,"SELECT COUNT(*) FROM q4_round_images WHERE round_id=?",round)>=MAX_IMAGES)
             throw fault(409,"ROUND_FULL","本轮达到500条记录上限，请另建抽检轮次再上传。");
         if(count(db,"SELECT COUNT(*) FROM q4_round_images WHERE round_id=? AND inspection_id=?",round,inspection)==0)
@@ -74,7 +76,7 @@ public final class BatchLedger {
     public static Map<String,Object> evidence(JdbcTemplate db,ObjectMapper json,long batch,Map<String,Object> round) {
         var result=new LinkedHashMap<String,Object>();var list=new ArrayList<Map<String,Object>>();
         var hashes=new HashSet<String>();var samples=new HashSet<String>();var imageSamples=new HashMap<String,String>();
-        int pending=0,confirmed=0,manual=0,candidates=0;boolean allSamples=true, sampleConflict=false;
+        int pending=0,confirmed=0,manual=0,candidates=0,reviewed=0;boolean allSamples=true, sampleConflict=false;
         if(round!=null) {
             long roundId=number(round.get("id"));
             var rows=db.queryForList("""
@@ -95,7 +97,14 @@ public final class BatchLedger {
                 if(sample==null||sample.isBlank())allSamples=false;
                 else {samples.add(sample);String previous=imageSamples.putIfAbsent(source,sample);if(previous!=null&&!previous.equals(sample))sampleConflict=true;}
                 String conclusion=Objects.toString(row.get("conclusion"),"");boolean done=BatchPolicy.reviewed(conclusion);
-                if(!done)pending++;
+                if(done)reviewed++;
+                if(number(row.get("revision"))>0&&!done)pending++;
+                String aiGrade=InitialGrade.grade(prediction);
+                String corrected=Objects.toString(row.get("final_grade"),"").toUpperCase(Locale.ROOT);
+                boolean legacyGrade=done&&!corrected.isBlank()&&!BatchPolicy.GRADES.contains(corrected);
+                if(legacyGrade)pending++;
+                boolean correctedGrade=done&&BatchPolicy.GRADES.contains(corrected);
+                String effective=correctedGrade?corrected:done&&"no_target_confirmed".equals(conclusion)?"A":aiGrade;
                 int candidateCount=prediction.path("detections").size();candidates+=candidateCount;
                 var confirmedClasses=new LinkedHashSet<String>();
                 JsonNode reviewCandidates=parse(json,row.get("candidate_reviews"));
@@ -110,6 +119,9 @@ public final class BatchLedger {
                 item.put("prediction_hash",hash(json,prediction));item.put("review_revision",number(row.get("revision")));
                 item.put("reviewed",done);item.put("conclusion",conclusion);item.put("candidate_count",candidateCount);
                 item.put("confirmed_target",defect);item.put("confirmed_classes",confirmedClasses);item.put("image_grade",row.get("final_grade"));
+                item.put("ai_grade",aiGrade);item.put("effective_grade",legacyGrade?null:effective);
+                item.put("grade_source",correctedGrade||done&&"no_target_confirmed".equals(conclusion)?"human_corrected":"ai_initial");
+                item.put("initial_grade_policy",InitialGrade.IMAGE_POLICY);
                 var review=new LinkedHashMap<String,Object>();for(String k:List.of("revision","conclusion","reviewer","remark","final_grade"))review.put(k,row.get(k));review.put("candidate_reviews",reviewCandidates);
                 item.put("review_hash",hash(json,review));item.put("review_remark",row.get("remark"));
                 item.put("input_url","/api/inspections/"+id+"/artifacts/input");item.put("result_url","/api/inspections/"+id+"/artifacts/result");
@@ -117,7 +129,7 @@ public final class BatchLedger {
             }
         }
         result.put("records",list);result.put("record_count",list.size());result.put("unique_photo_count",hashes.size());
-        result.put("pending_count",pending);result.put("reviewed_count",list.size()-pending);result.put("confirmed_target_records",confirmed);
+        result.put("pending_count",pending);result.put("reviewed_count",reviewed);result.put("confirmed_target_records",confirmed);
         result.put("manual_target_records",manual);result.put("candidate_count",candidates);
         result.put("all_samples_identified",!list.isEmpty()&&allSamples&&!sampleConflict);
         result.put("identified_sample_count",!list.isEmpty()&&allSamples&&!sampleConflict?samples.size():null);
@@ -132,13 +144,13 @@ public final class BatchLedger {
         out.remove("request_id");out.remove("request_hash");return out;
     }
     public static boolean current(Map<String,Object> assessment,Map<String,Object> round,Map<String,Object> evidence) {
-        return assessment!=null&&round!=null&&number(assessment.get("round_id"))==number(round.get("id"))
+        return assessment!=null&&BatchPolicy.GRADES.contains(Objects.toString(assessment.get("final_grade"),""))&&round!=null&&number(assessment.get("round_id"))==number(round.get("id"))
             &&Objects.equals(assessment.get("evidence_fingerprint"),evidence.get("fingerprint"));
     }
     public static Map<String,Object> requireCurrent(JdbcTemplate db,ObjectMapper json,long batch,long assessmentId,long revision) {
         requireSchema(db);var r=activeRound(db,batch);var e=evidence(db,json,batch,r);var a=latestAssessment(db,json,batch);
         if(a==null||number(a.get("id"))!=assessmentId||number(a.get("revision"))!=revision||!current(a,r,e))
-            throw fault(409,"ASSESSMENT_STALE","抽检或评定已更新。请重新核定批次并重新生成工艺建议，不再使用旧来源。");
+            throw fault(409,"ASSESSMENT_STALE","质检或等级已更新，请刷新后重新生成工艺建议。");
         return a;
     }
     public static void verifyAdoption(JdbcTemplate db,ObjectMapper json,long batch,JsonNode inputs) {

@@ -29,6 +29,12 @@ public class BatchWorkbenchService {
     private Map<String,Object> saved(long id,String kind,long batch){var out=new LinkedHashMap<String,Object>();out.put("persisted",true);out.put("id",id);out.put("kind",kind);out.put("workbench",view(batch));return out;}
 
     @Transactional
+    public Map<String,Object> synchronizeInitial(long batch){
+        lock(batch);AutomaticAssessment.synchronize(db,json,batch);
+        return Map.of("persisted",true,"workbench",view(batch));
+    }
+
+    @Transactional
     public Map<String,Object> createRound(long batch,JsonNode input){
         lock(batch);Long old=repeated("q4_rounds","id",batch,input);if(old!=null)return saved(old,"round",batch);
         JsonNode expected=input.path("expected_round_id");var currentRound=activeRound(db,batch);
@@ -50,6 +56,7 @@ public class BatchWorkbenchService {
         if(n==0){if(number(before.get("record_count"))>=MAX_IMAGES)throw fault(409,"ROUND_FULL","本轮最多500条记录。");db.update("INSERT INTO q4_round_images(round_id,inspection_id,sample_code) VALUES(?,?,?)",roundId,iid,sample);}
         else db.update("UPDATE q4_round_images SET sample_code=? WHERE round_id=? AND inspection_id=?",sample,roundId,iid);
         var after=evidence(db,json,batch,round);if(Boolean.TRUE.equals(after.get("sample_conflict")))throw fault(409,"SAMPLE_CONFLICT","同一像素图片不能标成不同果实；请统一样品编号。");
+        AutomaticAssessment.synchronize(db,json,batch);
         return Map.of("persisted",true,"inspection_id",iid,"workbench",view(batch));
     }
     @Transactional
@@ -59,7 +66,7 @@ public class BatchWorkbenchService {
         if(round==null||number(round.get("id"))!=rid||!Objects.equals(text(input,"expected_fingerprint",64),e.get("fingerprint")))throw fault(409,"EVIDENCE_UPDATED","本轮证据已变化，请刷新后重新批准。");
         JsonNode expected=input.path("expected_assessment_id");if(!expected.isIntegralNumber()||!expected.canConvertToLong()||expected.asLong()<0||expected.asLong()!=number(latest==null?null:latest.get("id")))throw fault(409,"ASSESSMENT_UPDATED","批次评定版本已更新，请刷新。");
         String grade=text(input,"final_grade",16),use=text(input,"intended_use",40),basis=text(input,"grade_basis",3000),operator=text(input,"operator",50);
-        consent(input,"scope_confirmed");consent(input,"use_confirmed");if(basis.length()<10)throw fault(400,"BASIS_REQUIRED","请至少填写10字的批次评定依据、适用范围和用途限制。");
+        consent(input,"scope_confirmed");consent(input,"use_confirmed");if(basis.length()<2)throw fault(400,"BASIS_REQUIRED","请填写等级修正的原因。");
         try{BatchPolicy.validateAssessment(grade,use,(int)number(e.get("record_count")),(int)number(e.get("pending_count")),(int)number(e.get("confirmed_target_records")));}catch(IllegalArgumentException ex){throw fault(400,"ASSESSMENT_INVALID",ex.getMessage());}
         if(Boolean.TRUE.equals(e.get("sample_conflict")))throw fault(409,"SAMPLE_CONFLICT","样品编号冲突，请先修正。");
         long rev=latest==null?1:number(latest.get("revision"))+1;
@@ -98,7 +105,8 @@ public class BatchWorkbenchService {
                 if(!Objects.equals(pf,text(input,"expected_processing_fingerprint",64)))throw fault(409,"PROCESS_UPDATED","采用参数已更新，请刷新后确认实际执行内容。");
             }
             case "reject_disposition" -> {if(!"REJECT".equals(grade))throw fault(409,"NOT_REJECTED","当前批次不是人工拒收。");}
-            default -> throw fault(400,"INVALID_OPERATION","仅接受实际分选、加工执行或拒收处置记录。");
+            case "quality_disposition" -> {if(!Set.of("C","REJECT").contains(grade))throw fault(409,"NOT_ON_HOLD","当前等级没有品质处置待办。");}
+            default -> throw fault(400,"INVALID_OPERATION","请选择分选、加工或品质处置类型。");
         }
         long id=insert("INSERT INTO q4_operations(batch_id,assessment_id,processing_id,kind,performed_at,operator,note,processing_fingerprint,request_id,request_hash) VALUES(?,?,?,?,?,?,?,?,?,?)",batch,aid,pid,kind,Timestamp.valueOf(at.atZoneSameInstant(ZONE).toLocalDateTime()),operator,note,pf,requestId(input),hash(json,input));
         event(batch,"作业执行记录","已由人员登记 "+kind+"；不是设备自动反馈。",operator);return saved(id,"operation",batch);
@@ -113,6 +121,15 @@ public class BatchWorkbenchService {
         out.put("record_id",p.get("id"));out.put("inputs",inputs);out.put("advice",advice);out.put("adopted_values",adopted);out.put("created_at",time(p.get("created_at")));out.put("operator",p.get("operator"));
         out.put("linked",linked);out.put("advice_status",advice.path("status").asText());out.put("adopted",adopted.isObject()&&!adopted.path("pre_cooling_time").asText("").isBlank()&&!adopted.path("washing_pressure").asText("").isBlank()&&"suggested".equals(advice.path("status").asText()));
         out.put("fingerprint",processingFingerprint(db,json,number(p.get("id"))));return out;
+    }
+    @Transactional(readOnly=true)
+    public Map<String,Object> dashboard(){
+        requireSchema(db);
+        var recent=new ArrayList<Map<String,Object>>();
+        for(Long id:db.queryForList("SELECT id FROM batches ORDER BY id DESC LIMIT 8",Long.class))recent.add(view(id));
+        return Map.of("version",BatchPolicy.VERSION,"batch_count",count(db,"SELECT COUNT(*) FROM batches"),
+            "inspection_count",count(db,"SELECT COUNT(*) FROM inspections i JOIN inspection_payloads p ON p.inspection_id=i.id"),
+            "open_alert_count",count(db,"SELECT COUNT(*) FROM alerts WHERE status<>'resolved'"),"recent",recent);
     }
     @Transactional(readOnly=true)
     public Map<String,Object> view(long batch){
@@ -130,12 +147,19 @@ public class BatchWorkbenchService {
         }
         String grade=a==null?null:Objects.toString(a.get("final_grade"));String use=a==null?null:Objects.toString(a.get("intended_use"));
         var f=new BatchPolicy.Facts(round!=null,(int)number(e.get("record_count")),(int)number(e.get("pending_count")),a!=null,valid,grade,use,sorted,linked,Objects.toString(p.get("advice_status")),Boolean.TRUE.equals(p.get("adopted")),executed,number(cold.get("reading_count")),Boolean.TRUE.equals(cold.get("hold")));
-        String state=BatchPolicy.next(f);var out=new LinkedHashMap<String,Object>();out.put("version",BatchPolicy.VERSION);out.put("batch",clean(batches.get(0)));out.put("round",round);out.put("evidence",e);out.put("assessment",a);out.put("assessment_current",valid);out.put("processing",p);out.put("coldchain",cold);out.put("operations",ops);
-        out.put("sorting_recorded",sorted);out.put("processing_executed",executed);out.put("state",state);out.put("next_action",Map.of("label",BatchPolicy.actionLabel(state),"tab",BatchPolicy.tab(state)));
-        String headline=a==null?"尚未形成批次业务评定":(valid?"人工业务评定：":"历史评定待更新：")+grade+" · "+BatchPolicy.gradeLabel(grade);
-        out.put("headline",headline);out.put("use_label",BatchPolicy.useLabel(use));out.put("grade_label",BatchPolicy.gradeLabel(grade));
-        out.put("evidence_summary","本轮保存 "+e.get("record_count")+" 条图片记录（去重照片 "+e.get("unique_photo_count")+" 张），已复核 "+e.get("reviewed_count")+" 条，确认缺陷 "+e.get("confirmed_target_records")+" 条；待复核 "+e.get("pending_count")+" 条。");
-        out.put("scope_note","等级和用途由人员依据本轮抽检确认；候选不等于缺陷，图片数不等于果实数。工艺为 B 演示规则，执行结果须另行登记。");
+        String state=BatchPolicy.next(f);
+        boolean unsupportedHuman=a!=null&&!BatchPolicy.GRADES.contains(Objects.toString(a.get("final_grade"),""))&&!Objects.toString(a.get("grade_policy_version"),"").startsWith("ai-batch-initial-v5");
+        boolean disposed=valid&&a!=null&&ops.stream().anyMatch(o->Boolean.TRUE.equals(o.get("current"))&&Set.of("quality_disposition","reject_disposition").contains(o.get("kind")));
+        if(disposed&&!Boolean.TRUE.equals(cold.get("hold")))state="DISPOSITION_RECORDED";
+        var out=new LinkedHashMap<String,Object>();out.put("version",BatchPolicy.VERSION);out.put("batch",clean(batches.get(0)));out.put("round",round);out.put("evidence",e);out.put("assessment",a);out.put("assessment_current",valid);out.put("processing",p);out.put("coldchain",cold);out.put("operations",ops);
+        out.put("quality_disposition_recorded",disposed);
+        out.put("sorting_recorded",sorted);out.put("processing_executed",executed);out.put("state",state);out.put("next_action",Map.of("label",unsupportedHuman?"修正历史等级为 A/B/C/REJECT":BatchPolicy.actionLabel(state),"tab",unsupportedHuman?"assessment":BatchPolicy.tab(state)));
+        boolean automatic=a!=null&&Objects.toString(a.get("grade_policy_version"),"").startsWith("ai-batch-initial-v5");
+        if(a!=null)a.put("source",automatic?"ai_initial":"human_corrected");
+        String headline=a==null?"上传照片后自动生成初评":(valid?(automatic?"AI 初评：":"人工修正："):"历史评定待更新：")+grade+" · "+BatchPolicy.gradeLabel(grade);
+        out.put("headline",headline);out.put("use_label",BatchPolicy.useLabel(use));out.put("grade_label",automatic&&"REJECT".equals(grade)?"拒收初评":BatchPolicy.gradeLabel(grade));
+        out.put("evidence_summary","已检测 "+e.get("unique_photo_count")+" 张外观照片，人工检查 "+e.get("reviewed_count")+" 条，明确标记待复查 "+e.get("pending_count")+" 条。");
+        out.put("scope_note","AI 初评依据本轮外观照片，可后续人工修正。工艺按规则评估，作业和处置按实际发生情况记录。");
         out.put("release_certified",false); // No automatic release/certification workflow is implemented in this phase.
         var adoptionRows=new ArrayList<Map<String,Object>>();
         for(var raw:db.queryForList("SELECT id,processing_id,values_json,operator,note,created_at FROM q4_adoptions WHERE batch_id=? ORDER BY id DESC",batch)) {var row=clean(raw);row.put("values",parse(json,row.remove("values_json")));adoptionRows.add(row);}
@@ -154,10 +178,11 @@ public class BatchWorkbenchService {
         if(!Boolean.TRUE.equals(w.get("assessment_current")))throw fault(409,"ASSESSMENT_REQUIRED","请先完成当前批次评定，不能公开过期结论。");
         var s=new LinkedHashMap<String,Object>();s.put("batch_code",b.path("batch_code").asText());s.put("assessment_revision",a.path("revision").asLong());
         s.put("evidence_scope","本轮抽检图片 "+e.path("unique_photo_count").asInt()+" 张；摘要不代表整批全检。");
-        s.put("quality_summary","本轮抽检与人工业务评定已有保存记录。");
+        s.put("quality_summary",InitialGrade.BATCH_POLICY.equals(a.path("grade_policy_version").asText())?"本轮外观照片已完成 AI 初评。":"本轮品控等级已由人员检查修正。");
+        s.put("grade_source",InitialGrade.BATCH_POLICY.equals(a.path("grade_policy_version").asText())?"AI 初评":"人工修正");
         if(input.path("publish_grade").asBoolean(false))s.put("grade",a.path("final_grade").asText()+" · "+BatchPolicy.gradeLabel(a.path("final_grade").asText()));
         if(input.path("publish_use").asBoolean(false))s.put("intended_use",BatchPolicy.useLabel(a.path("intended_use").asText()));
-        s.put("processing_summary",!p.path("current").asBoolean()?"尚无与当前评定关联的工艺建议":Boolean.TRUE.equals(w.get("processing_executed"))?"已登记人工加工执行记录":p.path("adopted").asBoolean()?"已保存工艺采用值，尚无当前执行记录":"已保存工艺建议，尚未采用");
+        s.put("processing_summary",Boolean.TRUE.equals(w.get("quality_disposition_recorded"))?"已登记品质处置记录":Set.of("C","REJECT").contains(a.path("final_grade").asText())?"已进入品质评估或处置流程，尚未登记实际处置结果":!p.path("current").asBoolean()?"尚无与当前评定关联的工艺建议":Boolean.TRUE.equals(w.get("processing_executed"))?"已登记人工加工执行记录":p.path("adopted").asBoolean()?"已保存工艺采用值，尚无当前执行记录":"已保存工艺建议，尚未采用");
         var cs=new ArrayList<Map<String,Object>>();for(JsonNode row:c.path("sources"))cs.add(Map.of("source",row.path("source").asText(),"reading_count",row.path("reading_count").asLong()));
         s.put("coldchain_sources",cs);s.put("coldchain_summary",c.path("reading_count").asLong()==0?"尚无冷链记录":c.path("hold").asBoolean()?"存在待核查观测或告警":"已有同批次观测记录，末点状态不代表当前实测保证");
         s.put("scope_note","经批准公开的业务记录快照；不包含原图和内部备注，不是食品安全或整批合格证明。");return s;

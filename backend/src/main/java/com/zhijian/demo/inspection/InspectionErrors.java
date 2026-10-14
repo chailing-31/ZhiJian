@@ -20,6 +20,8 @@ public class InspectionErrors {
     }
     @ExceptionHandler(InspectionFault.class)
     public ResponseEntity<Map<String, String>> fault(InspectionFault e) { return reply(e.status, e.code, e.getMessage()); }
+    @ExceptionHandler(com.zhijian.demo.business.BusinessIntegrationFault.class)
+    public ResponseEntity<Map<String,String>> workflow(com.zhijian.demo.business.BusinessIntegrationFault e) { return reply(e.status(),e.code(),e.getMessage()); }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> validation(IllegalArgumentException e) { return reply(400, "INVALID_REVIEW", e.getMessage()); }
     @ExceptionHandler(MaxUploadSizeExceededException.class)

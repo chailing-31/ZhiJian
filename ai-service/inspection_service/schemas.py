@@ -118,11 +118,19 @@ class PredictionResponse(BaseModel):
     grade_status: Literal['development_rule_applied', 'withheld_no_target_observed']
     grade_rule_version: Literal['a12-dev-grade-v1'] = 'a12-dev-grade-v1'
     grade_basis: Literal['defect_burden_level'] = 'defect_burden_level'
-    requires_human_review: Literal[True] = True
+    initial_grade: Literal['A', 'B', 'C', 'REJECT'] | None = None
+    initial_grade_rule_version: Literal['visual-initial-v5.1'] = 'visual-initial-v5.1'
+    initial_grade_scope: Literal['visible_target_defects_in_submitted_image'] = 'visible_target_defects_in_submitted_image'
+    requires_human_review: bool = False
 
     @model_validator(mode='after')
     def validate_grade_suggestion(self):
         expected = {'low': 'B', 'moderate': 'C', 'high': 'D'}
+        initial = 'A' if self.defect_burden.burden_level == 'none_observed' else ('REJECT' if self.defect_burden.burden_level == 'high' else expected[self.defect_burden.burden_level])
+        if self.initial_grade is None:
+            self.initial_grade = initial
+        elif self.initial_grade != initial:
+            raise ValueError('Initial grade must match the detector-based appearance policy.')
         if self.defect_burden.burden_level == 'none_observed':
             if self.suggested_grade is not None or self.grade_status != 'withheld_no_target_observed':
                 raise ValueError('No-target observations must withhold automatic grade suggestion.')

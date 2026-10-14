@@ -1,5 +1,4 @@
 <script setup>
-import BatchFlowStatus from '../../components/BatchFlowStatus.vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { getFormalReport } from '../../api/report.js'
@@ -30,7 +29,7 @@ function compactJson(data) {
 </script>
 
 <template>
-  <PageHeading eyebrow="管理端 · 只读聚合" title="批次综合记录" description="汇总数据库中已经保存的质检、人工复核、加工、冷链、告警与事件；不自动补全缺失环节，也不推导整批合格结论。">
+  <PageHeading eyebrow="全程品控记录" title="批次品控报告" description="查看 AI 初评、人工修正、实际作业和冷链处置，支持打印归档。">
     <RouterLink class="btn secondary no-print" :to="`/batches/${route.params.id}`">返回批次</RouterLink>
     <button class="btn no-print" :disabled="!report" @click="print">打印 / 另存为 PDF</button>
   </PageHeading>
@@ -47,12 +46,11 @@ function compactJson(data) {
       <p>{{ report.batch_workbench.scope_note }}</p>
       <RouterLink class="btn secondary no-print" :to="`/batches/${route.params.id}`">返回批次工作台</RouterLink>
     </section>
-    <BatchFlowStatus :batch-id="route.params.id" />
     <div class="notice warning">{{ report.disclaimer }}</div>
     <div v-if="report.warnings?.length" class="notice danger"><div><strong>数据源提示</strong><div v-for="item in report.warnings" :key="item">{{ item }}</div></div></div>
 
     <section class="card">
-      <div class="section-row"><div><p class="eyebrow">BATCH DOSSIER</p><h2 class="mono">{{ batch.batch_code }}</h2></div><span class="badge neutral">{{ report.scope }}</span></div>
+      <div class="section-row"><div><p class="eyebrow">BATCH DOSSIER</p><h2 class="mono">{{ batch.batch_code }}</h2></div><span class="badge neutral">内部品控记录</span></div>
       <dl class="info-grid">
         <div><dt>产品 / 品种</dt><dd>{{ batch.product }} / {{ batch.variety || '未录入' }}</dd></div>
         <div><dt>产地</dt><dd>{{ batch.origin || '未录入' }}</dd></div>
@@ -64,33 +62,35 @@ function compactJson(data) {
     </section>
 
     <div class="stats-grid">
-      <article class="stat-card"><div class="stat-top"><span>AI 质检记录</span></div><strong>{{ report.inspection.count }}</strong><small>已保存的 inspection 记录</small></article>
+      <article class="stat-card"><div class="stat-top"><span>AI 质检记录</span></div><strong>{{ report.inspection.count }}</strong><small>已保存的照片检测</small></article>
       <article class="stat-card"><div class="stat-top"><span>已复核质检</span></div><strong>{{ report.inspection.reviewed_count }}</strong><small>至少存在一版人工复核</small></article>
-      <article class="stat-card"><div class="stat-top"><span>加工记录</span></div><strong>{{ report.processing.count }}</strong><small>只统计已落库记录</small></article>
+      <article class="stat-card"><div class="stat-top"><span>加工记录</span></div><strong>{{ report.processing.count }}</strong><small>已保存的工艺建议</small></article>
       <article class="stat-card trace-stat"><div class="stat-top"><span>冷链 / 告警</span></div><strong class="word-stat">{{ cold.reading_count || 0 }} / {{ report.coldchain.alert_count || 0 }}</strong><small>读数条数 / 告警条数</small></article>
     </div>
 
     <section class="card">
       <div class="section-row"><h2>AI 质检与人工复核</h2><span class="badge ready">{{ report.inspection.count }} 条</span></div>
       <EmptyState v-if="!report.inspection.records.length" title="暂无质检记录" description="没有保存的质检记录时，不生成质量结论。" icon="scan" />
-      <div v-else class="table-wrap"><table><thead><tr><th>记录</th><th>模型</th><th>候选</th><th>复核</th><th>人工等级</th><th>时间</th><th class="no-print">证据</th></tr></thead><tbody>
+      <div v-else class="table-wrap"><table><thead><tr><th>记录</th><th>模型</th><th>候选</th><th>复核</th><th>有效图像等级</th><th>时间</th><th class="no-print">证据</th></tr></thead><tbody>
         <tr v-for="item in report.inspection.records" :key="item.inspection_id">
           <td class="mono">#{{ item.inspection_id }}</td><td><span class="mono">{{ item.model_version || '未记录' }}</span></td><td>{{ item.candidate_count }}</td>
-          <td><template v-if="item.latest_review">{{ item.latest_review.conclusion }}<span class="cell-sub">{{ item.latest_review.reviewer }} · 第 {{ item.review_revision }} 版</span></template><span v-else class="muted">待复核</span></td>
-          <td>{{ item.final_grade || '未设置' }}</td><td>{{ formatTime(item.created_at) }}</td><td class="no-print"><a class="text-link" :href="item.artifact_urls.result" target="_blank" rel="noopener">结果图</a></td>
+          <td><template v-if="item.latest_review">{{ item.latest_review.conclusion }}<span class="cell-sub">{{ item.latest_review.reviewer }} · 第 {{ item.review_revision }} 版</span></template><span v-else class="muted">人工检查可选</span></td>
+          <td>{{ item.final_grade || item.suggested_grade || '历史未记录' }}</td><td>{{ formatTime(item.created_at) }}</td><td class="no-print"><a class="text-link" :href="item.artifact_urls.result" target="_blank" rel="noopener">结果图</a></td>
         </tr>
       </tbody></table></div>
     </section>
 
     <section class="card">
       <div class="section-row"><h2>加工品控记录</h2><span class="badge neutral">{{ report.processing.count }} 条</span></div>
-      <EmptyState v-if="!report.processing.records.length" title="暂无加工记录" description="B 模块尚未写入数据时，这里保持为空，不生成建议或采用值。" icon="sliders" />
+      <EmptyState v-if="!report.processing.records.length" title="暂无加工记录" description="生成加工建议后，输入条件、建议与采用值会记录在这里。" icon="sliders" />
       <div v-else class="table-wrap"><table><thead><tr><th>记录</th><th>类型</th><th>输入</th><th>建议</th><th>采用值</th><th>操作员 / 时间</th></tr></thead><tbody>
         <tr v-for="item in report.processing.records" :key="item.record_id">
-          <td class="mono">#{{ item.record_id }}</td><td>{{ item.advice_type || '未记录' }}</td><td class="mono break-word">{{ compactJson(item.inputs) }}</td><td class="mono break-word">{{ compactJson(item.advice) }}</td><td class="mono break-word">{{ compactJson(item.adopted_values) }}</td><td>{{ item.operator || '未记录' }}<span class="cell-sub">{{ formatTime(item.created_at) }}</span></td>
+          <td class="mono">#{{ item.record_id }}</td><td>{{ item.advice_type || '未记录' }}</td><td>等级 {{ item.inputs?.grade || '未记录' }}<span class="cell-sub">环境 {{ value(item.inputs?.temperature, ' ℃') }} / {{ value(item.inputs?.humidity, '%') }}</span><span class="cell-sub">等级第 {{ item.inputs?.grade_source?.revision || '—' }} 版</span></td><td>{{ item.advice?.advice?.action || item.advice?.reason || '未记录' }}<span class="cell-sub">预冷 {{ item.advice?.advice?.pre_cooling_time || '不提供' }} · 清洗 {{ item.advice?.advice?.washing_pressure || '不提供' }}</span></td><td>{{ item.adopted_values?.pre_cooling_time || '尚未采用' }}<span class="cell-sub">{{ item.adopted_values?.washing_pressure || '' }}</span></td><td>{{ item.operator || '未记录' }}<span class="cell-sub">{{ formatTime(item.created_at) }}</span></td>
         </tr>
       </tbody></table></div>
     </section>
+
+    <section v-if="report.batch_workbench" class="card"><h2>实际作业与品质处置</h2><div class="table-wrap"><table><thead><tr><th>类型</th><th>时间与人员</th><th>结果</th><th>等级版本</th><th>状态</th></tr></thead><tbody><tr v-for="o in report.batch_workbench.operations" :key="o.id"><td>{{ ({sorting_completed:'实际分选',processing_completed:'实际加工',quality_disposition:'品质处置',reject_disposition:'拒收处置'})[o.kind] }}</td><td>{{ o.performed_at }}<span class="cell-sub">{{ o.operator }}</span></td><td>{{ o.note }}</td><td>#{{ o.assessment_id }}</td><td>{{ o.current ? '当前记录' : '历史记录' }}</td></tr><tr v-if="!report.batch_workbench.operations.length"><td colspan="5">暂无实际作业记录</td></tr></tbody></table></div></section>
 
     <section class="card">
       <div class="section-row"><h2>冷链监测摘要</h2><span class="badge neutral">{{ cold.reading_count || 0 }} 条读数</span></div>
