@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getWorkbench, synchronizeInitial, createRound, bindImage, saveAssessment, previewSummary, publishSummary } from '../../api/batch-workbench.js'
+import { gradeStatusFor } from '../../utils/presentation.js'
 import { formatTime } from '../../utils/batch.js'
 import { listInspections } from '../../api/inspection.js'
 import { GRADE_OPTIONS, USE_OPTIONS, assessmentProblem, evidenceDraft, steps, writeIntent, defaultUse } from '../../utils/batch-workbench.js'
@@ -21,7 +22,7 @@ const publication = reactive({ grade: false, use: false, confirmed: false })
 const roundIntent = writeIntent(), assessmentIntent = writeIntent(), publicationIntent = writeIntent()
 try { operator.value = localStorage.getItem('zhijian.operator') || '' } catch { /* optional remembered operator */ }
 let controller = new AbortController()
-const tabs = [['overview', '品控总览'], ['inspection', 'AI 质检'], ['assessment', '检查与修正'], ['processing', '加工品控'], ['coldchain', '冷链观测'], ['report', '报告与溯源']]
+const tabs = [['overview', '品控总览'], ['inspection', '照片质检'], ['assessment', '检查与修正'], ['processing', '加工品控'], ['coldchain', '冷链观测'], ['report', '报告与溯源']]
 const tab = computed(() => tabs.some(([v]) => v === route.query.tab) ? route.query.tab : 'overview')
 const batch = computed(() => data.value ? { ...data.value.batch, batch_id: data.value.batch.id } : null)
 const workflowSteps = computed(() => steps(data.value))
@@ -29,7 +30,8 @@ const availableImages = computed(() => recentImages.value.filter(r => !data.valu
 const coldLabels = { not_started: '尚无观测', unverified: '待重新核验 B 结果', normal: '末次观测未触发超温', insufficient_data: '持续时间证据不足', pending: '超温持续计时中', active: '已触发持续超温' }
 const grade = computed(() => data.value?.assessment_current ? data.value.assessment.final_grade : '—')
 const gradeSource = computed(() => data.value?.assessment?.source === 'ai_initial' ? 'AI 初评' : '人工修正')
-const evidenceMessage = computed(() => !data.value?.evidence.record_count ? '上传照片后，系统自动评级并带入后续品控。' : data.value.evidence.pending_count ? '有人标记了需要复查的问题，请先处理。' : `本轮已完成 AI 初评，可直接进入后续品控；人工检查和修正可随时进行。`)
+const gradeStatus = computed(() => gradeStatusFor(data.value))
+const evidenceMessage = computed(() => gradeStatus.value.message)
 function setTab(value) { return router.replace({ path: route.path, query: { ...route.query, tab: value } }) }
 async function goNext() {
   const target = data.value?.next_action?.tab
@@ -111,22 +113,22 @@ onBeforeUnmount(() => controller.abort())
 <template>
   <div class="q4-workbench">
     <header class="q4-heading">
-      <div><p class="eyebrow">批次工作台</p><h1>{{ data?.batch.batch_code || '正在读取批次' }}</h1><p>{{ data ? `${data.batch.product} · ${data.batch.variety || '品种待记录'} · ${data.batch.origin || '产地待记录'}` : '质检、加工、冷链与溯源，一处完成' }}</p></div>
+      <div><p class="eyebrow">批次工作台</p><h1>{{ data?.batch.batch_code || '正在读取批次' }}</h1><p>{{ data ? `${data.batch.product} · ${data.batch.variety || '品种待记录'} · ${data.batch.origin || '产地待记录'}` : '正在读取批次信息…' }}</p></div>
       <div class="button-row"><RouterLink class="btn secondary" to="/batches">切换批次</RouterLink><button class="btn secondary" :disabled="loading || busy" @click="load">{{ loading ? '更新中…' : '刷新' }}</button></div>
     </header>
     <p v-if="error" class="notice danger" role="alert">{{ error }}</p><p v-if="notice" class="notice success" role="status">{{ notice }}</p>
     <section v-if="!data" class="q4-panel"><h2>{{ loading ? '正在汇总批次记录…' : '暂时无法读取工作台' }}</h2><p v-if="!loading">请检查服务连接后重试。已有业务记录仍保存在数据库中。</p><button v-if="!loading" class="btn" @click="load">重新加载</button></section>
     <template v-if="data">
       <section class="q4-hero" :data-grade="grade">
-        <div class="q4-hero-main"><div class="q4-grade-tile"><small>{{ data.assessment_current ? gradeSource : '等待初评' }}</small><strong>{{ grade === 'REJECT' ? '拒收' : grade }}</strong><span>{{ data.assessment_current ? data.grade_label : '上传后自动评级' }}</span></div><div><span class="q4-eyebrow">{{ data.assessment_current ? '当前有效品控等级' : '开始本轮质检' }}</span><h2>{{ data.assessment_current ? data.grade_label : '上传照片，立即获取等级' }}</h2><p>{{ data.evidence_summary }}</p><p class="q4-hero-use">处理方向 · {{ data.use_label }}</p><button v-if="data.assessment_current" class="q4-inline" @click="setTab('assessment')">检查与修正等级 →</button></div></div>
-        <aside><small>下一步</small><strong>{{ data.next_action.label }}</strong><button class="q4-next" @click="goNext">去处理 <span>→</span></button></aside>
+        <div class="q4-hero-main"><div class="q4-grade-tile"><small>{{ data.assessment_current ? gradeSource : gradeStatus.label }}</small><strong>{{ grade === 'REJECT' ? '拒收' : grade }}</strong><span>{{ data.assessment_current ? '本轮等级' : '暂无有效等级' }}</span></div><div><span class="q4-eyebrow">{{ gradeStatus.detail }}</span><h2>{{ gradeStatus.title }}</h2><p>{{ data.evidence_summary }}</p><p class="q4-hero-use">处理方向 · {{ data.use_label }}</p><button v-if="data.assessment_current" class="q4-inline" @click="setTab('assessment')">检查与修正等级 →</button></div></div>
+        <aside><small>下一步</small><strong>{{ data.next_action.label }}</strong><button class="q4-next" @click="goNext">前往处理 <span>→</span></button></aside>
       </section>
       <nav class="q4-tabs" aria-label="批次业务页面"><button v-for="[value,label] in tabs" :key="value" :class="{ active: tab === value }" :aria-current="tab === value ? 'page' : undefined" @click="setTab(value)">{{ label }}<span v-if="value === 'assessment'" class="q4-optional">可选</span></button></nav>
       <div ref="tabContent" tabindex="-1" aria-label="当前业务内容">
       <section v-show="tab === 'overview'">
         <div class="q4-stat-grid"><article><span>已检测照片</span><strong>{{ data.evidence.unique_photo_count }}<small> 张</small></strong><p>本轮去重统计</p></article><article><span>人工检查</span><strong>{{ data.evidence.reviewed_count }}<small> 条</small></strong><p>{{ data.evidence.pending_count ? `${data.evidence.pending_count} 条已标记待复查` : '可在 AI 初评后按需检查' }}</p></article><article><span>加工进度</span><strong class="q4-stat-text">{{ data.quality_disposition_recorded ? '已处置' : data.processing_executed ? '已执行' : data.processing.adopted && data.processing.current ? '已采用' : data.processing.current ? '有建议' : '待处理' }}</strong><p>按实际作业记录更新</p></article><article><span>冷链告警</span><strong>{{ data.coldchain.unresolved_alerts }}<small> 条待处理</small></strong><p>{{ data.coldchain.reading_count }} 条观测记录</p></article></div>
-        <div class="q4-step-grid"><button v-for="(step,i) in workflowSteps" :key="step.id" @click="setTab(step.id)"><span class="q4-step-number">0{{ i+1 }}</span><h3>{{ step.title }}</h3><p>{{ step.text }}</p><span class="text-link">查看 →</span></button></div>
-        <div class="q4-two"><section class="q4-panel"><div class="section-row"><h3>本轮质检照片</h3><button class="q4-inline" @click="setTab('inspection')">上传更多 →</button></div><p>{{ evidenceMessage }}</p><div class="q4-thumb-grid"><button v-for="row in data.evidence.records.slice(0,6)" :key="row.inspection_id" @click="review(row.inspection_id)"><img :src="row.result_url" :alt="`检测记录${row.inspection_id}`" loading="lazy" /><span>{{ row.effective_grade }} · {{ row.grade_source === 'human_corrected' ? '人工修正' : 'AI 初评' }}</span></button></div><div v-if="!data.evidence.record_count" class="q4-empty"><p>还没有质检照片</p><button class="btn" @click="setTab('inspection')">开始 AI 质检</button></div></section><section class="q4-panel"><h3>处理依据</h3><p>{{ data.scope_note }}</p><p v-if="data.assessment">{{ data.assessment.grade_basis }}</p><p v-if="data.coldchain.hold" class="notice warning">存在冷链待核查事项，处理后才能继续采用工艺。</p><details><summary>查看等级口径</summary><p>A：未检出当前目标缺陷；B：轻度问题；C：用途待评估；REJECT：拒收。AI 拒收初评与实际拒收处置分别记录。</p><p>当前模型检测擦伤和虫害，初评规则依据候选框数量和范围。没有检测框仍会给 A 初评，但其他缺陷需要补拍或人工修正。当前等级不是食品安全检测结果。</p><p>{{ data.round?.sampling_note }}</p></details></section></div>
+        <div class="q4-step-grid"><button v-for="step in workflowSteps" :key="step.id" @click="setTab(step.id)"><h3>{{ step.title }}</h3><p>{{ step.text }}</p><span class="text-link">查看 →</span></button></div>
+        <div class="q4-two"><section class="q4-panel"><div class="section-row"><h3>本轮质检照片</h3><button class="q4-inline" @click="setTab('inspection')">上传更多 →</button></div><p>{{ evidenceMessage }}</p><div class="q4-thumb-grid"><button v-for="row in data.evidence.records.slice(0,6)" :key="row.inspection_id" @click="review(row.inspection_id)"><img :src="row.result_url" :alt="`检测记录${row.inspection_id}`" loading="lazy" /><span>{{ row.effective_grade }} · {{ row.grade_source === 'human_corrected' ? '人工修正' : 'AI 初评' }}</span></button></div><div v-if="!data.evidence.record_count" class="q4-empty"><p>还没有质检照片</p><button class="btn" @click="setTab('inspection')">上传质检照片</button></div></section><section class="q4-panel"><h3>处理依据</h3><p>{{ data.scope_note }}</p><p v-if="data.assessment">{{ data.assessment.grade_basis }}</p><p v-if="data.coldchain.hold" class="notice warning">存在冷链待核查事项，处理后才能继续采用工艺。</p><details><summary>查看等级口径</summary><p>A：未检出当前目标缺陷；B：轻度问题；C：用途待评估；REJECT：拒收。AI 拒收初评与实际拒收处置分别记录。</p><p>当前模型检测擦伤和虫害，初评规则依据候选框数量和范围。没有检测框仍会给 A 初评，但其他缺陷需要补拍或人工修正。当前等级不是食品安全检测结果。</p><p>{{ data.round?.sampling_note }}</p></details></section></div>
       </section>
       <section v-show="tab === 'inspection'">
         <InspectionWorkspace ref="inspection" :batch="batch" embedded @changed="load" />

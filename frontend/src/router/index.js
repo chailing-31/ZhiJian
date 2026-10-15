@@ -5,10 +5,10 @@ export const routes = [
   {
     path: '/', component: AdminLayout,
     children: [
-      { path: '', name: 'dashboard', component: () => import('../pages/Dashboard.vue'), meta: { title: '首页', section: 'dashboard' } },
+      { path: '', name: 'dashboard', component: () => import('../pages/Dashboard.vue'), meta: { title: '工作台', section: 'dashboard' } },
       { path: 'batches', name: 'batches', component: () => import('../pages/batch/BatchList.vue'), meta: { title: '批次管理', section: 'batches' } },
       { path: 'batches/:id(\\d+)', name: 'batch-detail', component: () => import('../pages/batch/BatchDetail.vue'), meta: { title: '批次工作台', section: 'batches' } },
-      { path: 'inspection', name: 'inspection', component: () => import('../pages/inspection/Inspection.vue'), meta: { title: 'AI 质检', section: 'inspection' } },
+      { path: 'inspection', name: 'inspection', component: () => import('../pages/inspection/Inspection.vue'), meta: { title: '照片质检', section: 'inspection' } },
       { path: 'processing', name: 'processing', component: () => import('../pages/processing/Processing.vue'), meta: { title: '加工品控', section: 'processing' } },
       { path: 'coldchain', name: 'coldchain', component: () => import('../pages/coldchain/ColdChain.vue'), meta: { title: '冷链监测', section: 'coldchain' } },
       { path: 'traceability', name: 'traceability', component: () => import('../pages/trace/Traceability.vue'), meta: { title: '溯源与报告', section: 'traceability' } },

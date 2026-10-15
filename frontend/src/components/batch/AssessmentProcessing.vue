@@ -58,7 +58,7 @@ onBeforeUnmount(() => abort.abort())
   <section class="q4-processing">
     <p v-if="error" class="notice danger" role="alert">{{ error }}</p><p v-if="notice" class="notice success" role="status">{{ notice }}</p>
     <RouterLink v-if="errorCode === 'COLDCHAIN_REVIEW_REQUIRED'" class="btn secondary" :to="{ path: `/batches/${w.batch.id}`, query: { tab: 'coldchain' } }">前往核查冷链</RouterLink>
-    <section class="q4-panel"><div class="section-row"><h3>加工记录与溯源</h3><span class="badge" :class="w.publication?.current ? 'ready' : 'pending'">{{ !w.publication ? '尚未发布' : w.publication.current ? '已发布，来源一致' : '记录已更新，待重新发布' }}</span></div><p>保存后的加工记录可在内部报告查看。公开页展示经预览确认的摘要，加工更新后需重新发布。</p><div class="button-row"><RouterLink class="btn secondary" :to="`/batches/${w.batch.id}/report`">查看内部报告</RouterLink><RouterLink class="btn secondary" :to="{ path: `/batches/${w.batch.id}`, query: { tab: 'report' } }">前往溯源发布</RouterLink><button v-if="p.record_id" class="btn secondary" @click="trace?.open(p.record_id)">查看当前加工来源</button></div></section>
+
     <div class="q4-source-banner"><div><small>{{ a?.source === 'ai_initial' ? '等级来源 · AI 初评' : '等级来源 · 人工修正' }}</small><h3>{{ w.assessment_current ? `${a.final_grade} · ${w.grade_label}` : '尚无当前有效评定' }}</h3><p v-if="a">评定 #{{ a.id }} / 第 {{ a.revision }} 版 · {{ w.use_label }} · {{ a.approved_by }}</p></div><span class="badge" :class="w.assessment_current ? 'ready' : 'pending'">{{ w.assessment_current ? '自动带入，不再手填等级' : '请先处理等级来源问题' }}</span></div>
     <div class="q4-two processing-cards"><section class="q4-panel processing-inputs"><h3>加工条件</h3>
       <div class="form-grid">
@@ -80,7 +80,7 @@ onBeforeUnmount(() => abort.abort())
           <div v-if="p.advice?.advice?.pre_cooling_time"><dt>预冷时长</dt><dd>{{ p.advice.advice.pre_cooling_time.replace(/^(\d+)h$/, '$1 小时') }}</dd></div>
           <div v-if="p.advice?.advice?.washing_pressure"><dt>清洗档位</dt><dd>{{ ({ normal: '常规档', low: '低档' })[p.advice.advice.washing_pressure] || p.advice.advice.washing_pressure }}</dd></div>
         </dl>
-        <p class="footnote">演示建议，需人工确认。</p>
+        <p class="footnote">采用前请核对现场条件。</p>
         <details :key="p.record_id" class="advice-details"><summary>建议依据<span class="details-chevron" aria-hidden="true">⌄</span></summary>
           <div class="advice-evidence">
             <dl class="evidence-conditions">
@@ -96,16 +96,17 @@ onBeforeUnmount(() => abort.abort())
       </template>
       <p v-else class="q4-empty">填写加工条件后生成建议，等级会自动带入。</p>
     </section></div>
-    <section v-if="p.record_id" class="q4-panel"><h3>人工采用值</h3><p v-if="!eligible" class="notice warning">采用条件：当前 A/B 等级、实际分选已登记、建议可用且没有未处理的冷链问题。</p><form class="form-grid" @submit.prevent="adopt"><label>采用预冷时长<input v-model="adopted.pre_cooling_time" :disabled="busy || !eligible" maxlength="500" /></label><label>采用清洗档位<input v-model="adopted.washing_pressure" :disabled="busy || !eligible" maxlength="500" /></label><label class="full">处理提示<input v-model="adopted.action" :disabled="busy || !eligible" maxlength="500" /></label><label class="full">采用／修改依据<textarea v-model="adoptionNote" :disabled="busy || !eligible" maxlength="2000" rows="2" /></label><button class="btn" :disabled="busy || !eligible">保存采用值及版本历史</button></form><p v-if="p.adopted" class="footnote">已保存采用值；修改后旧执行记录会保留，但不再作为当前参数的执行证据。</p></section>
+    <section v-if="p.record_id" class="q4-panel"><h3>采用参数</h3><p v-if="!eligible" class="notice warning">采用条件：当前 A/B 等级、实际分选已登记、建议可用且没有未处理的冷链问题。</p><form class="form-grid" @submit.prevent="adopt"><label>采用预冷时长<input v-model="adopted.pre_cooling_time" :disabled="busy || !eligible" maxlength="500" /></label><label>采用清洗档位<input v-model="adopted.washing_pressure" :disabled="busy || !eligible" maxlength="500" /></label><label class="full">处理提示<input v-model="adopted.action" :disabled="busy || !eligible" maxlength="500" /></label><label class="full">采用／修改依据<textarea v-model="adoptionNote" :disabled="busy || !eligible" maxlength="2000" rows="2" /></label><button class="btn" :disabled="busy || !eligible">保存采用参数</button></form><p v-if="p.adopted" class="footnote">已保存采用值；修改后旧执行记录会保留，但不再作为当前参数的执行证据。</p></section>
     <section class="q4-panel"><h3>实际作业登记</h3><p>先按实际作业登记分选；加工建议采用后，再登记真实执行。未执行不能为了推进页面勾选完成。</p><div class="form-grid"><label>记录类型<select v-model="operation.kind" :disabled="busy"><option v-if="['A','B'].includes(a?.final_grade)" value="sorting_completed">实际分选已完成</option><option v-if="['A','B'].includes(a?.final_grade)" value="processing_completed">实际加工执行已完成</option><option v-if="['C','REJECT'].includes(a?.final_grade)" value="quality_disposition">品质处置（评估 / 隔离 / 退货）</option></select></label><label>实际执行时间<input v-model="operation.performed_at" type="datetime-local" :disabled="busy" /></label><label class="full">执行结果与依据<textarea v-model="operation.note" :disabled="busy" maxlength="2000" rows="3" placeholder="记录实际作业、异常及结果；不是拟执行计划" /></label><label class="q4-check full"><input v-model="operation.confirmed" type="checkbox" :disabled="busy" /><span>我确认上述作业已经实际发生，记录为人工填报而非设备自动反馈。</span></label><button class="btn" :disabled="busy || !w.assessment_current || !operation.confirmed" @click="saveOperation">保存实际作业记录</button></div></section>
     <details class="q4-panel"><summary>已保存执行与采用历史</summary><article v-for="o in w.operations" :key="o.id" class="q4-history"><b>{{ ({ sorting_completed: '分选记录', processing_completed: '加工执行', reject_disposition: '拒收处置', quality_disposition: '品质处置' })[o.kind] }}</b><span>{{ formatTime(o.performed_at) }} · {{ o.operator }} · {{ o.current ? '当前证据' : '历史证据' }}</span><p>{{ o.note }}</p></article><article v-for="v in w.adoption_history" :key="`adopt-${v.id}`" class="q4-history"><b>工艺 #{{ v.processing_id }} · 采用版本 #{{ v.id }}</b><span>{{ formatTime(v.created_at) }} · {{ v.operator }}</span><p>{{ v.values?.pre_cooling_time }} / {{ v.values?.washing_pressure }} · {{ v.note }}</p></article></details>
+    <section class="q4-panel ui-processing-links"><div class="section-row"><h3>加工记录与溯源</h3><span class="badge" :class="w.publication?.current ? 'ready' : 'pending'">{{ !w.publication ? '尚未发布' : w.publication.current ? '已发布，来源一致' : '记录已更新，待重新发布' }}</span></div><p>保存后的加工记录可在内部报告查看。公开页展示经预览确认的摘要，加工更新后需重新发布。</p><div class="button-row"><RouterLink class="btn secondary" :to="`/batches/${w.batch.id}/report`">查看内部报告</RouterLink><RouterLink class="btn secondary" :to="{ path: `/batches/${w.batch.id}`, query: { tab: 'report' } }">前往溯源发布</RouterLink><button v-if="p.record_id" class="btn secondary" @click="trace?.open(p.record_id)">查看当前加工来源</button></div></section>
     <ProcessingTrace ref="trace" :batch-id="w.batch.id" :refresh-key="w.fingerprint" />
   </section>
 </template>
 
 <style scoped>
 .processing-cards { align-items: stretch; }
-.processing-cards .q4-panel { padding: 24px; }
+.processing-cards .q4-panel { padding: 22px; }
 .processing-inputs { display: flex; flex-direction: column; }
 .processing-inputs > .btn { margin-top: auto; }
 .processing-cards h3 { margin: 0 0 20px; }
@@ -123,7 +124,7 @@ onBeforeUnmount(() => abort.abort())
 .advice-details summary::-webkit-details-marker { display: none; }
 .details-chevron { font-size: 18px; transition: transform .15s; }
 .advice-details[open] .details-chevron { transform: rotate(180deg); }
-.advice-evidence { margin-top: 4px; padding: 12px 14px; background: #f5f8fa; border: 1px solid #e7eef1; border-radius: 10px; }
+.advice-evidence { margin-top: 4px; padding: 12px 14px; background: #f5f8fa; border: 1px solid #e7eef1; border-radius: 5px; }
 .evidence-conditions { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 14px; margin: 0; }
 .evidence-conditions dt { font-size: 12px; color: #6c8089; margin-bottom: 5px; }
 .evidence-conditions dd { margin: 0; font-size: 15px; font-weight: 600; color: #203c46; }

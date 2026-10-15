@@ -36,10 +36,10 @@ defineExpose({ open })
 </script>
 <template>
   <section class="q4-panel processing-trace">
-    <div class="section-row"><div><h3>加工记录与来源追溯</h3><p class="footnote">查看每条建议生成时的等级、质检证据，以及后续采用和执行记录。最多显示最近 200 条建议。</p></div><button class="btn secondary" @click="history">刷新记录</button></div>
+    <div class="section-row"><div><h3>加工来源追溯</h3><p class="footnote">查看生成建议时保存的等级、照片和后续作业。最多显示最近 200 条建议。</p></div><button class="btn secondary" @click="history">刷新记录</button></div>
     <p v-if="historyError" class="notice danger" role="alert">{{ historyError }}</p>
-    <div class="table-wrap"><table><thead><tr><th>工艺记录</th><th>生成时间</th><th>输入等级</th><th>来源版本</th><th>操作</th></tr></thead><tbody>
-      <tr v-for="record in records" :key="record.record_id"><td>#{{ record.record_id }}</td><td>{{ formatTime(record.created_at) }}</td><td>{{ record.inputs?.grade || '未记录' }}</td><td>{{ record.inputs?.grade_source?.revision ? `评定 #${record.inputs.grade_source.assessment_id} / v${record.inputs.grade_source.revision}` : '未关联批次评定' }}</td><td><button class="btn secondary" @click="open(record.record_id)">查看来源 #{{ record.record_id }}</button></td></tr>
+    <div class="table-wrap" tabindex="0" aria-label="加工建议历史，可横向滚动"><table><thead><tr><th scope="col">工艺记录</th><th scope="col">生成时间</th><th scope="col">输入等级</th><th scope="col">来源版本</th><th scope="col">操作</th></tr></thead><tbody>
+      <tr v-for="record in records" :key="record.record_id" :class="{ 'trace-selected': selected === record.record_id }"><td>#{{ record.record_id }}</td><td>{{ formatTime(record.created_at) }}</td><td>{{ record.inputs?.grade || '未记录' }}</td><td>{{ record.inputs?.grade_source?.revision ? `评定 #${record.inputs.grade_source.assessment_id} / v${record.inputs.grade_source.revision}` : '未关联批次评定' }}</td><td><button class="btn secondary" :aria-pressed="selected === record.record_id" @click="open(record.record_id)">查看来源 #{{ record.record_id }}</button></td></tr>
       <tr v-if="!records.length && !historyError"><td colspan="5">暂无加工建议记录</td></tr>
     </tbody></table></div>
     <div v-if="selected" ref="panel" class="trace-detail" aria-live="polite">
@@ -80,8 +80,11 @@ defineExpose({ open })
   </section>
 </template>
 <style scoped>
-.trace-detail { margin-top: 24px; padding-top: 20px; border-top: 1px solid #dce6df; scroll-margin-top: 24px; }
+.trace-detail { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); scroll-margin-top: 128px; }
+.processing-trace > .table-wrap { max-height: 360px; overflow: auto; }
+.processing-trace th { position: sticky; top: 0; }
+.trace-selected { background: #f1f6f3; }
 .trace-evidence { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-.trace-evidence article { min-width: 0; padding: 12px; border: 1px solid #dce6df; border-radius: 10px; overflow-wrap: anywhere; }
-.trace-evidence img { width: 100%; height: 180px; object-fit: contain; background: #f1f5f2; }
+.trace-evidence article { min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 5px; overflow-wrap: anywhere; }
+.trace-evidence img { width: 100%; height: 180px; object-fit: contain; background: #f5f6f7; }
 </style>
