@@ -1,17 +1,20 @@
 package com.zhijian.demo.workspace;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhijian.demo.business.BusinessIntegrationFault;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /** Recheck source at adoption time, not only when a suggestion was first created. */
 public final class QualitySourceGuard {
     private QualitySourceGuard() {}
-    public static void verify(JdbcTemplate jdbc, long batchId, JsonNode inputs) {
+    public static void verify(JdbcTemplate jdbc, ObjectMapper json, long batchId, JsonNode inputs) {
         boolean q4Source = inputs != null && "approved_batch_assessment".equals(inputs.path("grade_source").path("type").asText());
         if (q4Source || (com.zhijian.demo.batchflow.BatchLedger.ready(jdbc)
                 && com.zhijian.demo.batchflow.BatchLedger.activeRound(jdbc,batchId)!=null)) {
-            com.zhijian.demo.batchflow.BatchLedger.verifyAdoption(jdbc,new com.fasterxml.jackson.databind.ObjectMapper(),batchId,inputs);
+            // Use the same date/time serializers as assessment creation. MySQL returns
+            // LocalDateTime for DATETIME; a bare mapper both fails and changes source hashes.
+            com.zhijian.demo.batchflow.BatchLedger.verifyAdoption(jdbc,json,batchId,inputs);
             return;
         }
         JsonNode source = inputs == null ? null : inputs.get("grade_source");

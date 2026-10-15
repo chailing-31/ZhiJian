@@ -143,7 +143,7 @@ public class BusinessIntegrationService {
         long sourceBatch = ((Number)sourceRecord.get("batch_id")).longValue();
         jdbc.queryForList("SELECT id FROM batches WHERE id=? FOR UPDATE", sourceBatch);
         Map<String, Object> record = one("SELECT id,batch_id,advice_json,inputs_json FROM processing_records WHERE id=? FOR UPDATE", recordId);
-        com.zhijian.demo.workspace.QualitySourceGuard.verify(jdbc, sourceBatch, readJson(record.get("inputs_json")));
+        com.zhijian.demo.workspace.QualitySourceGuard.verify(jdbc, json, sourceBatch, readJson(record.get("inputs_json")));
         com.zhijian.demo.batchflow.BatchLedger.checkAdoptionRequest(jdbc,json,sourceBatch,recordId,input);
         JsonNode savedAdvice = readJson(record.get("advice_json"));
         if (savedAdvice == null || !"suggested".equals(savedAdvice.path("status").asText())) {

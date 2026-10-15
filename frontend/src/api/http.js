@@ -15,8 +15,15 @@ export async function request(path, { method = 'GET', json, signal } = {}) {
       ...(json === undefined ? {} : { body: JSON.stringify(json) }),
     })
     if (!response.ok) {
-      const messages = { 400: '提交内容不符合要求，请核对批次编号和必填字段。', 401: '请先登录。', 403: '当前账号没有访问权限。', 404: '未找到该批次或记录。', 409: '批次编号已存在，请更换编号。', 500: '后端处理失败，请查看 Spring Boot 控制台日志。', 502: '无法连接后端，请确认 8080 端口的服务正在运行。', 503: '服务暂时不可用，请稍后重试。' }
-      throw new ApiError(messages[response.status] || `请求失败（HTTP ${response.status}）。`, response.status)
+      const payload = await response.json().catch(() => null)
+      const messages = { 400: '提交内容不符合要求，请核对必填字段。', 401: '请先登录。', 403: '当前账号没有访问权限。', 404: '未找到该批次或记录。', 409: path === '/batches' && method === 'POST' ? '批次编号已存在，请更换编号。' : '记录状态已变化或不满足操作条件，请刷新后核对。', 500: '后端处理失败，请查看 Spring Boot 控制台日志。', 502: '无法连接后端，请确认 8080 端口的服务正在运行。', 503: '服务暂时不可用，请稍后重试。' }
+      // Business faults have an explicit code/message contract. Never display raw server errors.
+      const businessFault = response.status >= 400 && response.status < 500
+        && typeof payload?.code === 'string' && /^[A-Z][A-Z0-9_]+$/.test(payload.code)
+        && typeof payload?.message === 'string' && payload.message.trim()
+      const error = new ApiError(businessFault ? payload.message.slice(0, 600) : messages[response.status] || `请求失败（HTTP ${response.status}）。`, response.status)
+      if (businessFault) error.code = payload.code
+      throw error
     }
     if (response.status === 204) return null
     try { return await response.json() } catch { throw new ApiError('接口没有返回有效 JSON，请检查 /api 代理配置。', response.status) }

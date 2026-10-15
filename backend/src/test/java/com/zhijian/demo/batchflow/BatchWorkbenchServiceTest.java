@@ -57,6 +57,75 @@ class BatchWorkbenchServiceTest {
     }
     Map<String,Object> assess(String grade,String use){var w=service.view(1);var r=json.valueToTree(w.get("round"));var a=json.valueToTree(w.get("assessment"));var n=node("final_grade",grade,"intended_use",use,"grade_basis","TEST FIXTURE ONLY: not an actual batch quality judgment","operator","Q4 TEST");n.put("round_id",r.path("id").asLong());n.put("expected_assessment_id",a.path("id").asLong());n.put("expected_fingerprint",json.valueToTree(w.get("evidence")).path("fingerprint").asText());n.put("scope_confirmed",true);n.put("use_confirmed",true);return transaction(()->service.assess(1,n));}
     ObjectNode adviceInput(){var a=json.valueToTree(service.view(1).get("assessment"));var n=node("operator","Q4 TEST");n.put("assessment_id",a.path("id").asLong());n.put("assessment_revision",a.path("revision").asLong());n.put("use_as_process_input_confirmed",true);n.put("temperature",5);n.put("humidity",80);return n;}
+    @Test void traceRetainsOriginalAssessmentAndEvidenceAfterNewGradeAndAdvice(){
+        image(11,"a".repeat(64),false);transaction(()->service.synchronizeInitial(1));
+        long pid=BatchLedger.number(transaction(()->service.generateAdvice(1,adviceInput())).get("id"));
+        var original=json.valueToTree(service.processingTrace(1,pid));
+        assertEquals("current",original.path("source_status").asText());assertTrue(original.path("record_current").asBoolean());
+        var snapshot=original.path("source_assessment").path("snapshot");
+        image(12,"b".repeat(64),false);burden(12,"low");transaction(()->service.synchronizeInitial(1));
+        transaction(()->service.generateAdvice(1,adviceInput()));
+        var historic=json.valueToTree(service.processingTrace(1,pid));
+        assertEquals("historical",historic.path("source_status").asText());assertFalse(historic.path("record_current").asBoolean());
+        assertEquals(snapshot,historic.path("source_assessment").path("snapshot"));
+        assertEquals("A",historic.path("source_assessment").path("final_grade").asText());assertEquals("B",historic.path("current_assessment").path("final_grade").asText());
+        assertEquals(1,historic.path("source_assessment").path("snapshot").path("evidence").path("records").size());
+        assertEquals(404,assertThrows(BusinessIntegrationFault.class,()->service.processingTrace(2,pid)).status());
+    }
+    @Test void traceLabelsUnlinkedLegacyAndRejectsMismatchedSource(){
+        db.update("INSERT INTO processing_records(batch_id,inputs_json,advice_json) VALUES(1,'{\"grade\":\"B\"}','{}')");
+        var legacy=json.valueToTree(service.processingTrace(1,1));assertEquals("unlinked",legacy.path("source_status").asText());assertTrue(legacy.path("source_assessment").isNull());
+        image(11,"a".repeat(64),false);transaction(()->service.synchronizeInitial(1));
+        long pid=BatchLedger.number(transaction(()->service.generateAdvice(1,adviceInput())).get("id"));
+        var inputs=(ObjectNode)json.valueToTree(service.processingTrace(1,pid).get("record")).path("inputs");inputs.put("grade","REJECT");
+        db.update("UPDATE processing_records SET inputs_json=? WHERE id=?",inputs.toString(),pid);
+        assertEquals("SOURCE_LINK_INVALID",assertThrows(BusinessIntegrationFault.class,()->service.processingTrace(1,pid)).code());
+    }
+    @Test void traceKeepsAdoptionAndExecutionHistoryButInvalidatesChangedParameters(){
+        image(11,"a".repeat(64),false);transaction(()->service.synchronizeInitial(1));
+        long pid=BatchLedger.number(transaction(()->service.generateAdvice(1,adviceInput())).get("id"));
+        var a=json.valueToTree(service.view(1).get("assessment"));
+        var op=node("kind","sorting_completed","operator","TEST","note","TEST ONLY","performed_at","2026-10-13T10:00:00+08:00");
+        op.put("assessment_id",a.path("id").asLong());op.put("assessment_revision",a.path("revision").asLong());op.put("actually_performed_confirmed",true);transaction(()->service.operation(1,op));
+        String values="{\"pre_cooling_time\":\"6h\",\"washing_pressure\":\"normal\"}";
+        db.update("UPDATE processing_records SET adopted_values_json=? WHERE id=?",values,pid);BatchLedger.recordAdoption(db,1,pid,values,"TEST","first adoption");
+        op.put("kind","processing_completed");op.put("request_id",UUID.randomUUID().toString());op.put("processing_id",pid);op.put("expected_processing_fingerprint",BatchLedger.processingFingerprint(db,json,pid));transaction(()->service.operation(1,op));
+        assertTrue(json.valueToTree(service.processingTrace(1,pid)).path("operations").get(0).path("current").asBoolean());
+        values="{\"pre_cooling_time\":\"7h\",\"washing_pressure\":\"normal\"}";
+        db.update("UPDATE processing_records SET adopted_values_json=? WHERE id=?",values,pid);BatchLedger.recordAdoption(db,1,pid,values,"TEST","changed adoption");
+        var changed=json.valueToTree(service.processingTrace(1,pid));assertEquals(2,changed.path("adoptions").size());assertEquals(2,changed.path("operations").size());
+        assertFalse(changed.path("operations").get(0).path("current").asBoolean());assertFalse(changed.path("operations").get(0).path("parameters_match").asBoolean());
+    }
+    @Test void adoptionReusesAssessmentMapperForMysqlLocalDateTime() throws Exception {
+        json=new ObjectMapper().findAndRegisterModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        db=spy(db);
+        doAnswer(invocation->{
+            @SuppressWarnings("unchecked") var rows=(List<Map<String,Object>>)invocation.callRealMethod();
+            for(var row:rows)if(row.get("created_at") instanceof java.sql.Timestamp timestamp)row.put("created_at",timestamp.toLocalDateTime());
+            return rows;
+        }).when(db).queryForList("SELECT * FROM q4_rounds WHERE batch_id=? ORDER BY id DESC LIMIT 1",1L);
+        service=new BatchWorkbenchService(db,json,business);
+        image(11,"a".repeat(64),false);transaction(()->service.synchronizeInitial(1));
+        long pid=BatchLedger.number(transaction(()->service.generateAdvice(1,adviceInput())).get("id"));
+        var a=json.valueToTree(service.view(1).get("assessment"));
+        var op=node("kind","sorting_completed","operator","TEST","note","TEST FIXTURE","performed_at","2026-10-13T10:00:00+08:00");
+        op.put("assessment_id",a.path("id").asLong());op.put("assessment_revision",a.path("revision").asLong());op.put("actually_performed_confirmed",true);transaction(()->service.operation(1,op));
+        var adapter=new BusinessIntegrationService(db,json,new DataSourceTransactionManager(db.getDataSource()),"http://127.0.0.1:1");
+        var input=node("operator","TEST","note","TEST FIXTURE","expected_processing_fingerprint",BatchLedger.processingFingerprint(db,json,pid));
+        input.set("adopted_values",json.readTree("{\"pre_cooling_time\":\"4h\",\"washing_pressure\":\"normal\"}"));
+        assertEquals(true,adapter.adoptProcessing(pid,input).get("persisted"));
+        assertEquals(1,json.valueToTree(service.processingTrace(1,pid)).path("adoptions").size());
+        assertEquals(a.path("evidence_fingerprint"),json.valueToTree(service.view(1).get("assessment")).path("evidence_fingerprint"));
+    }
+    @Test void processingChangesRequireExplicitRepublication(){
+        image(11,"a".repeat(64),false);transaction(()->service.synchronizeInitial(1));
+        var options=node("operator","TEST");options.put("confirm_public_summary",true);
+        options.put("expected_fingerprint",service.preview(1,options).get("source_fingerprint").toString());transaction(()->service.publish(1,options));
+        transaction(()->service.generateAdvice(1,adviceInput()));
+        var old=json.valueToTree(service.publicView("Q4-TEST-A"));assertFalse(old.path("current").asBoolean());assertEquals("尚无与当前评定关联的工艺建议",old.path("snapshot").path("processing_summary").asText());
+        options.put("request_id",UUID.randomUUID().toString());options.put("expected_fingerprint",service.preview(1,options).get("source_fingerprint").toString());transaction(()->service.publish(1,options));
+        var published=json.valueToTree(service.publicView("Q4-TEST-A"));assertTrue(published.path("current").asBoolean());assertEquals("已保存工艺建议，尚未采用",published.path("snapshot").path("processing_summary").asText());
+    }
     @Test void emptyRoundIsNotGradeA(){start();assertEquals("ADD_IMAGES",service.view(1).get("state"));assertThrows(BusinessIntegrationFault.class,()->assess("A","premium_sorting"));}
     @Test void unreviewedEvidenceAutomaticallyGradesWithoutHuman(){image(11,"a".repeat(64),false);var saved=transaction(()->service.synchronizeInitial(1));var w=json.valueToTree(saved).path("workbench");assertTrue(w.path("assessment_current").asBoolean());assertEquals("A",w.path("assessment").path("final_grade").asText());assertEquals("ai_initial",w.path("assessment").path("source").asText());assertEquals(0,w.path("evidence").path("pending_count").asInt());assertEquals(0,BatchLedger.count(db,"SELECT COUNT(*) FROM inspection_reviews"));transaction(()->service.generateAdvice(1,adviceInput()));verify(business).processingAdvice(eq(1L),argThat(v->"A".equals(v.path("grade").asText())));}
     @Test void twoPhotosSameSampleCountOnce() {long r=start();image(11,"a".repeat(64),true);image(12,"b".repeat(64),true);for(long id:new long[]{11,12}){var n=node("sample_code","APPLE-01");n.put("inspection_id",id);n.put("expected_fingerprint",json.valueToTree(service.view(1).get("evidence")).path("fingerprint").asText());transaction(()->service.bindImage(1,r,n));}var e=json.valueToTree(service.view(1).get("evidence"));assertEquals(2,e.path("unique_photo_count").asInt());assertEquals(1,e.path("identified_sample_count").asInt());assertTrue(e.path("fruit_defect_rate").isNull());}

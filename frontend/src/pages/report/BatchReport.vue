@@ -83,8 +83,9 @@ function compactJson(data) {
     <section class="card">
       <div class="section-row"><h2>加工品控记录</h2><span class="badge neutral">{{ report.processing.count }} 条</span></div>
       <EmptyState v-if="!report.processing.records.length" title="暂无加工记录" description="生成加工建议后，输入条件、建议与采用值会记录在这里。" icon="sliders" />
-      <div v-else class="table-wrap"><table><thead><tr><th>记录</th><th>类型</th><th>输入</th><th>建议</th><th>采用值</th><th>操作员 / 时间</th></tr></thead><tbody>
+      <div v-else class="table-wrap"><table><thead><tr><th class="no-print">追溯</th><th>记录</th><th>类型</th><th>输入</th><th>建议</th><th>采用值</th><th>操作员 / 时间</th></tr></thead><tbody>
         <tr v-for="item in report.processing.records" :key="item.record_id">
+          <td class="no-print"><RouterLink class="text-link" :to="{ path: `/batches/${report.batch.batch_id}`, query: { tab: 'processing', processing_record: item.record_id } }">查看加工来源</RouterLink></td>
           <td class="mono">#{{ item.record_id }}</td><td>{{ item.advice_type || '未记录' }}</td><td>等级 {{ item.inputs?.grade || '未记录' }}<span class="cell-sub">环境 {{ value(item.inputs?.temperature, ' ℃') }} / {{ value(item.inputs?.humidity, '%') }}</span><span class="cell-sub">等级第 {{ item.inputs?.grade_source?.revision || '—' }} 版</span></td><td>{{ item.advice?.advice?.action || item.advice?.reason || '未记录' }}<span class="cell-sub">预冷 {{ item.advice?.advice?.pre_cooling_time || '不提供' }} · 清洗 {{ item.advice?.advice?.washing_pressure || '不提供' }}</span></td><td>{{ item.adopted_values?.pre_cooling_time || '尚未采用' }}<span class="cell-sub">{{ item.adopted_values?.washing_pressure || '' }}</span></td><td>{{ item.operator || '未记录' }}<span class="cell-sub">{{ formatTime(item.created_at) }}</span></td>
         </tr>
       </tbody></table></div>

@@ -7,6 +7,12 @@ export function getProcessingHistory(batchId, options = {}) {
   return request(`/batches/${id}/processing-records`, { signal: options.signal })
 }
 
+export function getProcessingTrace(batchId, recordId, options = {}) {
+  const batch = validId(batchId), record = validId(recordId)
+  if (!batch || !record) return Promise.reject(new ApiError('批次或加工记录 ID 不正确。'))
+  return request(`/batches/${batch}/processing-records/${record}/trace`, { signal: options.signal })
+}
+
 export function requestAdvice(batchId, inputs, options = {}) {
   const id = validId(batchId)
   if (!id) return Promise.reject(new ApiError('批次 ID 不正确。'))

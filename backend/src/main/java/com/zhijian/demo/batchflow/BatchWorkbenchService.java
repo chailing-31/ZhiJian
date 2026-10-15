@@ -173,6 +173,50 @@ public class BatchWorkbenchService {
         if(!pub.isEmpty()){var r=pub.get(0);out.put("publication",Map.of("id",r.get("id"),"snapshot",parse(json,r.get("snapshot_json")),"published_at",time(r.get("published_at")),"current",Objects.equals(r.get("source_fingerprint"),out.get("fingerprint"))));}
         return out;
     }
+    /** Internal trace: historical evidence comes only from the assessment's immutable snapshot. */
+    @Transactional(readOnly=true)
+    public Map<String,Object> processingTrace(long batch,long recordId){
+        requireSchema(db);
+        var rows=db.queryForList("SELECT id,batch_id,inputs_json,advice_json,adopted_values_json,operator,created_at FROM processing_records WHERE id=? AND batch_id=?",recordId,batch);
+        if(rows.isEmpty())throw fault(404,"PROCESSING_NOT_FOUND","该批次下没有这条加工记录。");
+        var record=clean(rows.get(0));record.put("record_id",record.remove("id"));
+        for(String key:List.of("inputs","advice","adopted_values"))record.put(key,parse(json,record.remove(key+"_json")));
+        var result=new LinkedHashMap<String,Object>();result.put("batch_id",batch);result.put("record",record);
+        result.put("source_status","unlinked");result.put("source_assessment",null);result.put("source_current",false);result.put("record_current",false);
+        var latest=latestAssessment(db,json,batch);
+        var round=activeRound(db,batch);var now=evidence(db,json,batch,round);
+        result.put("current_assessment",latest==null?null:Map.of("id",latest.get("id"),"revision",latest.get("revision"),"final_grade",latest.get("final_grade"),"valid",current(latest,round,now)));
+        var links=db.queryForList("SELECT assessment_id FROM q4_processing_links WHERE processing_id=? AND batch_id=?",recordId,batch);
+        Long assessmentId=null;boolean sourceCurrent=false;
+        if(!links.isEmpty()) {
+            assessmentId=number(links.get(0).get("assessment_id"));
+            var assessments=db.queryForList("SELECT id,batch_id,round_id,revision,final_grade,intended_use,grade_basis,grade_policy_version,approved_by,evidence_fingerprint,evidence_json,created_at FROM q4_assessments WHERE id=? AND batch_id=?",assessmentId,batch);
+            if(assessments.isEmpty())throw fault(409,"SOURCE_LINK_INVALID","加工来源评定缺失或不属于本批次，请核查历史关联。");
+            var source=clean(assessments.get(0));JsonNode inputs=json.valueToTree(record.get("inputs")),ref=inputs.path("grade_source");
+            if(!"approved_batch_assessment".equals(ref.path("type").asText())||ref.path("assessment_id").asLong()!=assessmentId
+                ||ref.path("revision").asLong()!=number(source.get("revision"))||!Objects.equals(source.get("evidence_fingerprint"),ref.path("evidence_fingerprint").asText())
+                ||!Objects.equals(source.get("final_grade"),inputs.path("grade").asText())||!Objects.equals(source.get("intended_use"),ref.path("intended_use").asText()))
+                throw fault(409,"SOURCE_LINK_INVALID","加工记录与保存的来源版本不一致，请核查历史关联。");
+            source.put("snapshot",parse(json,source.remove("evidence_json")));
+            sourceCurrent=latest!=null&&number(latest.get("id"))==assessmentId&&current(latest,round,now);
+            result.put("source_status",sourceCurrent?"current":"historical");result.put("source_current",sourceCurrent);result.put("source_assessment",source);
+        }
+        boolean recordCurrent=sourceCurrent&&recordId==count(db,"SELECT MAX(id) FROM processing_records WHERE batch_id=?",batch);
+        result.put("record_current",recordCurrent);
+        var adoptions=new ArrayList<Map<String,Object>>();
+        for(var raw:db.queryForList("SELECT id,values_json,operator,note,created_at FROM q4_adoptions WHERE batch_id=? AND processing_id=? ORDER BY id DESC",batch,recordId)) {
+            var row=clean(raw);row.put("values",parse(json,row.remove("values_json")));adoptions.add(row);
+        }
+        result.put("adoptions",adoptions);
+        String fingerprint=processingFingerprint(db,json,recordId);var operations=new ArrayList<Map<String,Object>>();
+        for(var raw:db.queryForList("SELECT id,assessment_id,processing_id,kind,performed_at,operator,note,processing_fingerprint FROM q4_operations WHERE batch_id=? AND (processing_id=? OR (assessment_id=? AND kind='sorting_completed')) ORDER BY id DESC",batch,recordId,assessmentId)) {
+            var row=clean(raw);boolean sorting="sorting_completed".equals(row.get("kind"));
+            boolean parametersMatch=!sorting&&Objects.equals(fingerprint,row.get("processing_fingerprint"));
+            row.put("parameters_match",parametersMatch);row.put("current",sorting?sourceCurrent:recordCurrent&&parametersMatch);operations.add(row);
+        }
+        result.put("operations",operations);return result;
+    }
+
     private Map<String,Object> publicSnapshot(Map<String,Object> w,JsonNode input){
         JsonNode a=json.valueToTree(w.get("assessment")),p=json.valueToTree(w.get("processing")),c=json.valueToTree(w.get("coldchain")),b=json.valueToTree(w.get("batch")),e=json.valueToTree(w.get("evidence"));
         if(!Boolean.TRUE.equals(w.get("assessment_current")))throw fault(409,"ASSESSMENT_REQUIRED","请先完成当前批次评定，不能公开过期结论。");
