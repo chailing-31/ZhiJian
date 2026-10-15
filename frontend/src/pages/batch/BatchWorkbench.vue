@@ -13,6 +13,7 @@ import '../../styles/batch-workbench.css'
 const props = defineProps({ batchId: { type: [String, Number], required: true } })
 const route = useRoute(), router = useRouter()
 const data = ref(null), loading = ref(false), busy = ref(false), error = ref(''), notice = ref(''), operator = ref('')
+const tabContent = ref(null)
 const inspection = ref(null), recentImages = ref([]), selectedImages = ref([]), sampleCodes = reactive({}), publicationPreview = ref(null)
 const round = reactive({ name: '入厂抽检', sampling_note: '', confirmed: false })
 const assessment = reactive({ final_grade: '', intended_use: '', grade_basis: '', scope: false, use: false })
@@ -29,7 +30,17 @@ const coldLabels = { not_started: '尚无观测', unverified: '待重新核验 B
 const grade = computed(() => data.value?.assessment_current ? data.value.assessment.final_grade : '—')
 const gradeSource = computed(() => data.value?.assessment?.source === 'ai_initial' ? 'AI 初评' : '人工修正')
 const evidenceMessage = computed(() => !data.value?.evidence.record_count ? '上传照片后，系统自动评级并带入后续品控。' : data.value.evidence.pending_count ? '有人标记了需要复查的问题，请先处理。' : `本轮已完成 AI 初评，可直接进入后续品控；人工检查和修正可随时进行。`)
-function setTab(value) { router.replace({ path: route.path, query: { ...route.query, tab: value } }) }
+function setTab(value) { return router.replace({ path: route.path, query: { ...route.query, tab: value } }) }
+async function goNext() {
+  const target = data.value?.next_action?.tab
+  if (!tabs.some(([value]) => value === target)) return
+  if (tab.value !== target) await setTab(target)
+  await nextTick()
+  // Let Vue Router finish its default scroll before positioning the action area.
+  await new Promise(resolve => requestAnimationFrame(resolve))
+  tabContent.value?.focus({ preventScroll: true })
+  tabContent.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 function accept(value) {
   if (String(value.batch?.id) !== String(props.batchId)) throw new Error('工作台返回了不同批次。')
   if (data.value?.fingerprint !== value.fingerprint) { publicationPreview.value = null; publication.confirmed = false; assessment.scope = false; assessment.use = false }
@@ -108,9 +119,10 @@ onBeforeUnmount(() => controller.abort())
     <template v-if="data">
       <section class="q4-hero" :data-grade="grade">
         <div class="q4-hero-main"><div class="q4-grade-tile"><small>{{ data.assessment_current ? gradeSource : '等待初评' }}</small><strong>{{ grade === 'REJECT' ? '拒收' : grade }}</strong><span>{{ data.assessment_current ? data.grade_label : '上传后自动评级' }}</span></div><div><span class="q4-eyebrow">{{ data.assessment_current ? '当前有效品控等级' : '开始本轮质检' }}</span><h2>{{ data.assessment_current ? data.grade_label : '上传照片，立即获取等级' }}</h2><p>{{ data.evidence_summary }}</p><p class="q4-hero-use">处理方向 · {{ data.use_label }}</p><button v-if="data.assessment_current" class="q4-inline" @click="setTab('assessment')">检查与修正等级 →</button></div></div>
-        <aside><small>下一步</small><strong>{{ data.next_action.label }}</strong><button class="q4-next" @click="setTab(data.next_action.tab)">去处理 <span>→</span></button></aside>
+        <aside><small>下一步</small><strong>{{ data.next_action.label }}</strong><button class="q4-next" @click="goNext">去处理 <span>→</span></button></aside>
       </section>
       <nav class="q4-tabs" aria-label="批次业务页面"><button v-for="[value,label] in tabs" :key="value" :class="{ active: tab === value }" :aria-current="tab === value ? 'page' : undefined" @click="setTab(value)">{{ label }}<span v-if="value === 'assessment'" class="q4-optional">可选</span></button></nav>
+      <div ref="tabContent" tabindex="-1" aria-label="当前业务内容">
       <section v-show="tab === 'overview'">
         <div class="q4-stat-grid"><article><span>已检测照片</span><strong>{{ data.evidence.unique_photo_count }}<small> 张</small></strong><p>本轮去重统计</p></article><article><span>人工检查</span><strong>{{ data.evidence.reviewed_count }}<small> 条</small></strong><p>{{ data.evidence.pending_count ? `${data.evidence.pending_count} 条已标记待复查` : '可在 AI 初评后按需检查' }}</p></article><article><span>加工进度</span><strong class="q4-stat-text">{{ data.quality_disposition_recorded ? '已处置' : data.processing_executed ? '已执行' : data.processing.adopted && data.processing.current ? '已采用' : data.processing.current ? '有建议' : '待处理' }}</strong><p>按实际作业记录更新</p></article><article><span>冷链告警</span><strong>{{ data.coldchain.unresolved_alerts }}<small> 条待处理</small></strong><p>{{ data.coldchain.reading_count }} 条观测记录</p></article></div>
         <div class="q4-step-grid"><button v-for="(step,i) in workflowSteps" :key="step.id" @click="setTab(step.id)"><span class="q4-step-number">0{{ i+1 }}</span><h3>{{ step.title }}</h3><p>{{ step.text }}</p><span class="text-link">查看 →</span></button></div>
@@ -139,6 +151,7 @@ onBeforeUnmount(() => controller.abort())
           <p v-if="data.publication" class="notice" :class="data.publication.current ? 'success' : 'warning'">{{ data.publication.current ? '公开摘要已与当前记录同步' : '记录已变化，公开摘要需要重新发布' }} · {{ formatTime(data.publication.published_at) }}</p>
         </section><TraceWorkspace :batch="batch" :refresh-key="`${data.fingerprint}:${data.publication?.id || ''}`" />
       </section>
+      </div>
     </template>
   </div>
 </template>
