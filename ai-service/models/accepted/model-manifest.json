@@ -1,0 +1,24 @@
+{
+  "task": "apple_surface_defect_detection",
+  "model_version": "ssda-yolov8n-20261001-8c45a0602dad-n050-sem1",
+  "weights": "best.pt",
+  "weights_sha256": "8c45a0602dadf8b9f48b609e29d6d3b5e5868db5f68682da8b32583e104827a4",
+  "classes": [
+    {
+      "id": 0,
+      "name": "ssda_class_0",
+      "label": "表面擦伤（Scratch）"
+    },
+    {
+      "id": 1,
+      "name": "ssda_class_1",
+      "label": "虫害损伤（Pest damage）"
+    }
+  ],
+  "confidence_threshold": 0.25,
+  "iou_threshold": 0.5,
+  "image_size": 640,
+  "training_data_source": "SSDA prepared data (user-reported). Checkpoint metadata references /kaggle/working/zhijian-baseline-v1/runs/ssda-baseline-20261001T104226579521Z/data.server.yaml. Matching run report pending: uploaded baseline_summary.json records a different weights SHA-256; see ARTIFACT_CHECK.md.",
+  "evaluation_status": "not_evaluated",
+  "evaluation_report": null
+}

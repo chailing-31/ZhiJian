@@ -1,26 +1,291 @@
-<<<<<<< HEAD
-# 智检鲜达 Demo
+# 智检鲜达 · V5.1 应用集成版
 
-AI-based fruit quality inspection and traceability demo system.
+当前入口：[启动与使用](docs/V5_APPLICATION_GUIDE.md) · [版本说明与验证](docs/releases/V5_1_20261014.md)
 
-本项目围绕烟台苹果批次 `APPLE-2026-001`，实现批次登记、视觉质检、加工规则建议、冷链告警、批次报告与扫码溯源。管理端六页，手机端一页。当前提交是**项目结构和接口契约**，尚无应用代码。
+上传苹果照片后，系统直接生成 A/B/C/REJECT 外观初评并汇总为本轮品控等级。人工检查与修正可在之后进行。
+加工建议自动读取有效等级，实际分选、采用参数、加工执行、冷链告警处置、内部报告及公开溯源均关联同一批次和来源版本。
 
-## 技术约定
+Windows 已有 V4 数据库环境：`npm ci --include=dev`（frontend）后双击根目录 `START_APP.cmd`。
+数据库仍为 `smart_fresh_c_review`，已有记录不重新初始化；正常启动默认加载仓库随附的 accepted 旧模型。
 
-- Vue 3：`frontend/`；Spring Boot（JDK 17）：`backend/`；Python FastAPI + YOLO：`ai-service/`；MySQL 8：`database/`。
-- 浏览器只访问后端业务接口；后端访问 AI 服务并写入数据库。所有业务记录用内部 `batch_id` 外键关联；二维码使用可公开的 `batch_code` 查询。
-- 加工建议首版是规则建议；模拟传感器数据须标记 `simulation`；未发生的事件不作为真实结果展示。
+当前 YOLO 检测类别为擦伤和虫害。A/B/C/REJECT 为检测结果之上的外观初评规则，尚不是独立训练、独立验证的四等级分类器。
 
-## 首次启动范围
+以下内容保留为历史开发记录；历史 A15 启动和人工前置定级说明不适用于 V5.1 的默认入口。
 
-此提交仅可启动数据库：`docker compose up -d mysql`。执行 `database/tables.sql` 建表，执行 `database/demo.sql` 创建演示批次。应用服务 Dockerfile、实际接口和页面在首周各功能分支完成后加入，届时更新 Compose 与部署文档。不要把当前骨架称为“空系统已跑通”。
+---
 
-## 协作
+# V4 阶段性集成快照（2026-10-13）
 
-`main` 为稳定分支；`develop` 用于集成；`feature-ai`、`feature-business`、`feature-system` 分别由 A/B/C 开发。功能分支提交 PR，经至少另一名成员复核再合入 `develop`；稳定演示版本从 `develop` 提 PR 合入 `main`。A 负责 `ai-service/`，B 负责 `business/`，C 负责 `backend/`、`frontend/`、`database/`。共同维护 `docs/API.md`，变更字段时同步更新示例和 `docs/DATABASE.md`。
+当前入口：[V4 团队交接与启动](docs/V4_GITHUB_HANDOFF.md) · [阶段状态](docs/releases/V4_20261013.md)
 
-首周日程与验收见 [WEEK1.md](docs/WEEK1.md)。
-=======
-# ZhiJian
-智检鲜达——面向山东果蔬加工产业的AI视觉质检与全链路品控溯源系统
->>>>>>> 40fe3a6bd963f1e0deb55a980ce390b2ca293ae7
+本快照将本机已安装 V4 代码与 B 的固定 `business/` 子目录归档到独立分支，不自动合并 develop/main。
+当前视觉基线是旧权重 `8c45a060…`，不是 A15；实际旧权重需另行提供，启动入口为 `scripts/v4_local.py`。
+以下原 README 属于历史基线说明，其中 A15 启动建议与旧测试状态不能覆盖本快照交接文档。
+完整业务写入和浏览器验收仍待完成，健康接口的 ready 不等于批次质量或食品安全认证。
+
+---
+
+# 智检鲜达 Demo（ZhiJian）
+
+<!-- A15-HANDOFF-CURRENT:BEGIN -->
+## A15 模型资产与 C 交接（2026-10-12）
+
+本次修复“Git只同步了路径、队友拿不到真实权重”的交付缺口。A15固定资产位置是 `ai-service/models/a15/best.pt` 与同目录的 `model-manifest.json`。**是否拿全，以 `python ai-service/tools/verify_a15.py --require-tracked` 通过为准**；缺少文件不能宣称当前checkout模型已就绪。
+
+在 `ai-service` 执行 `run-a15.cmd` 使用仓库相对路径启动，需预先安装推理依赖。见 [C启动与验收](docs/AI_HANDOFF_A15.md)、[A15模型卡](docs/AI_MODEL_A15.md)、[交付进度](docs/AI_DELIVERY_STATUS.md)。A本机训练与联调已记录，C环境真实模型验收仍应单独执行；不是生产或食品安全认证。
+
+下方未同步章节保留为先前阶段记录，B/C最新进展以其已合并PR为准，本次不覆盖其集成代码。
+<!-- A15-HANDOFF-CURRENT:END -->
+
+面向果蔬批次的 AI 视觉质检、加工品控、冷链监测与公开溯源 Demo。
+
+2026-10-12：已同步 C 的后端、前端、数据库及部署联调成果，并补入 A15 固定模型资产、校验工具与启动说明。本目录的加工与冷链连接独立 B 规则服务；C 环境的 A15 真实图片全链路验收仍待执行。同步范围与验证结果见 `docs/C_SYNC.md`。
+
+当前主要演示批次：
+
+```text
+APPLE-2026-001
+```
+
+## 当前真实状态
+
+截至 2026-10-12，C 的代码链路已接入并通过模拟/H2/HTTP 替身测试；真实 A15 图片全链路仍待在本环境验收：
+
+```text
+批次登记 / 查询
+    ↓
+AI 图片质检（YOLO）
+    ↓
+Spring Boot 持久化
+    ↓
+人工复核与历史记录
+    ↓
+内部批次综合记录
+    ↓
+二维码 / 公开溯源
+    ↓
+公开事件摘要
+
+加工输入 → B 规则服务 → MySQL 建议/人工采用历史
+冷链 CSV → Spring Boot 去重 → B 连续规则 → episode/告警/人工处置
+```
+
+| 模块 | 状态 | 说明 |
+| --- | --- | --- |
+| 首页 / 批次管理 | 已接入 | 真实 MySQL 批次数据 |
+| AI 视觉质检 | 代码与 A15 资产已接入，C 环境待真实验收 | FastAPI + Spring Boot + MySQL + 人工复核；`ai-service/models/a15/` 含固定权重和 manifest，但真实加载、上传、落库、复核、公开摘要仍需在 C 环境复验 |
+| 加工品控 | 已接入 | B 演示规则、建议保存、人工采用值及历史读取 |
+| 冷链监测 | 已接入 | CSV 校验、逐点持久化、连续规则、幂等 episode、告警和人工处置 |
+| 内部综合记录 | 已接入 | `GET /batches/{id}/report` 只读聚合已保存数据 |
+| 公开溯源 | 已接入基础版 | 仅公开 `visibility=public` 事件，并提供公开摘要 |
+| 正式部署 / 权限 | 未完成 | 当前仍是受控开发 Demo |
+
+未发生、未保存或未公开的环节，不会被页面自动补成“已完成”。
+
+## 技术栈
+
+- 前端：Vue 3 + Vite
+- 后端：Spring Boot 3 + JDK 17
+- 数据库：MySQL 8
+- AI 服务：Python FastAPI + Ultralytics YOLO
+- 二维码：浏览器本地生成
+
+```text
+Browser
+   ↓
+Vue 5173
+   ↓ /api
+Spring Boot 8080
+   ├── MySQL 3306
+   ├── AI Service 8001（需要受信权重）
+           ↓
+        best.pt
+   └── B Rule Service 8002
+```
+
+浏览器不直接访问 MySQL 或 8001。
+
+## AI 模块
+
+当前 Demo 冻结：
+
+```text
+confidence_threshold = 0.25
+iou_threshold = 0.50
+image_size = 640
+evaluation_status = not_evaluated
+```
+
+详细说明见：
+
+- `docs/AI_SERVICE_A1.md`
+- `docs/AI_INTEGRATION_A3.md`
+- `docs/AI_MODEL_FREEZE.md`
+
+## 数据库
+
+基础表：
+
+```text
+batches
+inspections
+processing_records
+sensor_readings
+alerts
+batch_events
+```
+
+A3 增量表：
+
+```text
+inspection_payloads
+inspection_reviews
+```
+
+C 增量表：
+
+```text
+coldchain_episode_records
+c_integration_metadata
+```
+
+迁移：
+
+```text
+database/migrations/20261001_A3_inspection_integration.sql
+database/migrations/20261012_C_business_integration.sql
+```
+
+## 当前主要接口
+
+```text
+GET  /health
+GET  /batches
+POST /batches
+GET  /batches/{id}
+
+POST  /batches/{id}/inspections
+GET   /batches/{id}/inspections
+GET   /inspections/{id}
+PATCH /inspections/{id}/review
+
+POST /batches/{id}/processing-advice
+GET  /batches/{id}/processing-records
+POST /processing-records/{id}/adopt
+POST /batches/{id}/sensor-readings
+GET  /batches/{id}/coldchain
+POST /alerts/{id}/resolve
+GET  /business-service/ready
+
+GET /batches/{id}/report
+GET /trace/{batch_code}
+```
+
+完整字段见 `docs/API.md`。
+
+## Windows 本机启动
+
+完整 Demo 推荐：
+
+```text
+1. MySQL 3306，并依次执行基础脚本、A3 和 C migration
+2. B rule service 8002
+3. Spring Boot 8080
+4. Vue 5173
+5. 需要演示视觉质检时再启动 AI service 8001；必须先取得受信权重和 manifest
+```
+
+详细命令见 `docs/DEPLOY.md`。
+
+## 前端测试与构建
+
+```bat
+cd /d ^<项目目录^>\ZhiJian-feature-integration\frontend
+```
+
+```bat
+npm test
+```
+
+默认构建：
+
+```bat
+npm run build
+```
+
+部分 Windows 开发机若默认 minify 阶段偶发卡住：
+
+```bat
+npm run build:safe
+```
+
+`build:safe` 使用同一 Vite 和源码，只关闭最终 JS minify，适合本地验收；正式发布仍优先使用默认 build。
+
+## 分支协作
+
+- `main`：最终稳定版本
+- `develop`：团队集成基线
+- `feature-ai`：AI 模块已完成
+- `feature-business`：B 的加工/冷链
+- `feature-integration`：当前报告、溯源与系统联调准备
+
+## 当前未完成
+
+- 包装 / 运输 / 出厂录入
+- 管理端登录、权限与审计
+- 正式部署与公网安全加固
+- C 环境的 A15 真实图片全链路验收
+- 模型独立 test 与生产性能/类别认证
+
+## 已验证结果（2026-10-12）
+
+```text
+Backend: 20 tests passed
+Business service: 183 tests passed (1 dependency deprecation warning)
+Frontend: 36 tests passed; 24 Vue SFC passed; build:safe passed
+Real local integration: MySQL + B 8002 + Backend 8080 passed
+```
+
+真实联调覆盖加工建议/采用历史、7 条冷链读数、持续超温 episode、恢复、人工处置和综合报告。该结果只证明工程链路，不证明规则为生产标准或食品安全结论。
+
+C 链路只读复验（服务全部启动后）：
+
+```bat
+python3.14 scripts\smoke_c_integration.py
+```
+
+成功输出 `C INTEGRATION READY (read-only checks)`。
+
+## I4 全量只读冒烟验收
+
+完整服务启动后，在仓库根目录执行：
+
+```bat
+python scripts\smoke_full_demo.py
+```
+
+该脚本只发 GET 请求，不创建批次、不上传图片、不修改数据库，也不改变人工复核或公开状态。
+
+当前检查：
+
+```text
+AI 8001 /health
+AI 8001 /ready
+Backend 8080 /health
+Backend /inspection-service/ready
+GET /batches
+GET /batches/{id}
+GET /batches/{id}/inspections
+GET /batches/{id}/report
+GET /trace/{batch_code}
+公开响应隐私字段检查
+Frontend 5173
+```
+
+全部必需项通过时输出：
+
+```text
+FULL DEMO READY
+```
+
+这只表示当前工程链路冒烟通过，不代表模型准确率、食品安全或整批质量认证。

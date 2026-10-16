@@ -1,0 +1,67 @@
+{
+  "base_commit": "bfccdfefde5920dd4474fb84a08d9fa78a0da72e",
+  "version": "ai-first-application-v5.1-20261014",
+  "tests": {
+    "AI": 68,
+    "B": 183,
+    "Java": 51,
+    "frontend": 86
+  },
+  "vue_sfc": "passed",
+  "frontend_build": "passed",
+  "http": {
+    "version": "ai-first-application-v5.1-20261014",
+    "database": "v5_acceptance",
+    "batch_id": 1,
+    "batch_code": "TEST-V5-0699c62dfcfd",
+    "real_model_version": "ssda-yolov8n-20261001-8c45a0602dad-n050-sem1",
+    "fixture_initial_grade": "A",
+    "checks": [
+      "upload_auto_grade_without_human",
+      "initial_advice_from_same_source",
+      "idempotent_auto_sync",
+      "actual_operation_fixture",
+      "simulation_alert_recovery_resolution",
+      "coldchain_blocks_adoption",
+      "internal_report",
+      "whitelist_publication",
+      "manual_correction_versions",
+      "stale_processing_and_publication",
+      "immutable_model_output",
+      "REJECT_hold_without_environment",
+      "quality_disposition"
+    ],
+    "accuracy_evaluation": false,
+    "real_production_operations": false
+  },
+  "browser": {
+    "desktop": "1440x1050",
+    "mobile": "390x844",
+    "batch_id": 2,
+    "batch_code": "TEST-UI-1791940961767",
+    "initial_grade": "A",
+    "checks": [
+      "create_batch",
+      "photo_upload_auto_grade",
+      "optional_review_closed",
+      "processing_source_prefilled",
+      "actual_operation_fixture",
+      "publish_snapshot",
+      "qr_render",
+      "mobile_layout",
+      "public_AI_grade",
+      "REJECT_grade_render",
+      "REJECT_mobile_layout"
+    ],
+    "javascript_errors": [],
+    "fixture_only": true
+  },
+  "limits": {
+    "database": "isolated H2 in MySQL compatibility mode; not user Windows MySQL",
+    "image": "synthetic integration fixture; not accuracy evaluation",
+    "coldchain": "simulation readings",
+    "operations": "explicit test fixtures; not real production execution",
+    "model_grade_classifier_trained": false,
+    "authentication_and_production_deployment_verified": false
+  }
+}
