@@ -19,18 +19,23 @@ export function parseColdchainCsv(text) {
   if (quoted) throw new Error('CSV 引号未闭合。')
   if (field || row.length || closed) finishRow()
   if (rows.length < 2) throw new Error('CSV 必须包含表头和至少一条读数。')
-  const headers = rows.shift()
+  const aliases = new Map([
+    ['读数时间', 'timestamp'], ['温度（℃）', 'temperature'], ['湿度（%）', 'humidity'],
+    ['数据来源', 'source'], ['门开启状态', 'door_open'], ['设备电流（A）', 'equipment_current'],
+  ])
+  const headers = rows.shift().map(header => aliases.get(header) || header)
   const allowed = ['timestamp', 'temperature', 'humidity', 'source', 'door_open', 'equipment_current']
   if (new Set(headers).size !== headers.length || headers.some(h => !allowed.includes(h))) throw new Error('CSV 包含重复或未知列。')
-  if (!allowed.slice(0, 4).every(h => headers.includes(h))) throw new Error('CSV 必须包含 timestamp、temperature、humidity、source 列。')
+  if (!allowed.slice(0, 4).every(h => headers.includes(h))) throw new Error('CSV 必须包含读数时间、温度（℃）、湿度（%）、数据来源列（也支持原英文列名）。')
   if (rows.length > 10000) throw new Error('单次 CSV 最多 10000 条读数。')
   const previous = new Map()
   return rows.map((values, index) => {
     const fail = message => { throw new Error(`CSV 第 ${index + 2} 行：${message}`) }
     if (values.length !== headers.length) fail('列数不匹配。')
     const item = Object.fromEntries(headers.map((h, i) => [h, values[i]]))
+    item.source = new Map([['模拟数据', 'simulation'], ['传感器采集', 'sensor']]).get(item.source) || item.source
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/.test(item.timestamp) || !Number.isFinite(Date.parse(item.timestamp))) fail('时间须为带时区、精确到秒的 ISO 8601。')
-    if (!['simulation', 'sensor'].includes(item.source)) fail('source 必须为 simulation 或 sensor。')
+    if (!['simulation', 'sensor'].includes(item.source)) fail('数据来源须为模拟数据或传感器采集（simulation / sensor）。')
     const time = Date.parse(item.timestamp)
     if (previous.has(item.source) && time <= previous.get(item.source)) fail('同来源时间必须严格递增，不能重复。')
     previous.set(item.source, time)
@@ -42,7 +47,7 @@ export function parseColdchainCsv(text) {
     if (item.humidity < 0 || item.humidity > 100) fail('湿度必须在 0—100 之间。')
     if (item.equipment_current < 0) fail('电流不能为负数。')
     if (item.door_open) {
-      const door = item.door_open.toLowerCase()
+      const door = new Map([['开启', 'true'], ['关闭', 'false']]).get(item.door_open) || item.door_open.toLowerCase()
       if (!['true', 'false', '1', '0'].includes(door)) fail('door_open 须为 true/false/1/0。')
       item.door_open = ['true', '1'].includes(door)
     } else delete item.door_open

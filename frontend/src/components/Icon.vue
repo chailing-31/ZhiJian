@@ -17,6 +17,7 @@ const paths = {
   close: 'M6 6l12 12 M6 18L18 6',
   menu: 'M4 6h16 M4 12h16 M4 18h16',
   upload: 'M12 16V3 M7 8l5-5 5 5 M4 15v5h16v-5',
+  download: 'M12 3v13 M7 11l5 5 5-5 M4 17v4h16v-4',
   alert: 'M12 3L2 21h20L12 3z M12 9v5 M12 17h.01',
   chevron: 'M9 5l7 7-7 7',
   back: 'M20 12H4 M10 6l-6 6 6 6',

@@ -1,7 +1,27 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { reportStatusFor, attentionFor } from '../src/utils/presentation.js'
 import {assessmentProblem, evidenceDraft,steps,writeIntent,processNumber,canAdopt,toZonedTime} from '../src/utils/batch-workbench.js'
 const e={record_count:3,pending_count:0,confirmed_target_records:1}
+test('published disposition has no processing todo, but real alerts and stale publication remain visible', () => {
+  const w = { state: 'DISPOSITION_RECORDED', assessment_current: true, assessment: { final_grade: 'REJECT' }, quality_disposition_recorded: true, coldchain: { hold: false }, processing: { record_id: 5, current: false }, publication: { current: true } }
+  assert.equal(attentionFor(w), null)
+  assert.equal(reportStatusFor(w).complete, true)
+  assert.equal(attentionFor({ ...w, publication: { current: false } }).tab, 'report')
+  assert.equal(attentionFor({ ...w, coldchain: { hold: true } }).tab, 'coldchain')
+})
+test('registered disposition report does not send the reader back to view the same report', () => {
+  const state = reportStatusFor({ state: 'DISPOSITION_RECORDED', coldchain: { hold: false }, next_action: { label: '查看品质处置报告' } })
+  assert.equal(state.complete, true)
+  assert.equal(state.title, '品质处置已登记')
+})
+test('real pending work remains visible even with a saved disposition', () => {
+  const state = reportStatusFor({ state: 'COLDCHAIN_REVIEW', quality_disposition_recorded: true, coldchain: { hold: true }, next_action: { label: '核查冷链异常与数据完整性' } })
+  assert.equal(state.complete, false)
+  assert.equal(state.title, '核查冷链异常与数据完整性')
+  assert.equal(reportStatusFor({ state: 'REJECTED' }).complete, false)
+  assert.equal(reportStatusFor({ state: 'MONITORING' }).title, '已进入报告阶段')
+})
 test('A cannot be approved with confirmed target defects',()=>assert.ok(assessmentProblem('A','premium_sorting',e)))
 test('B supports the general sorting path',()=>assert.equal(assessmentProblem('B','general_sorting',e),''))
 test('C can only enter evaluation',()=>{assert.ok(assessmentProblem('C','general_sorting',e));assert.equal(assessmentProblem('C','processing_evaluation',e),'')})

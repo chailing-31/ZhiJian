@@ -38,6 +38,8 @@
 .ui-global-search { display:flex; align-items:center; gap:9px; margin-left:auto; background:#f7f8f9; border:1px solid var(--line); border-radius:6px; padding:0 8px 0 11px; width:270px; }
 .ui-global-search>.icon { width:15px; height:15px; color:#8b949d; }
 .zj-application .ui-global-search input { padding:7px 0; margin:0; min-height:34px; background:none; border:0; border-radius:0; font-size:12px; }
+/* The rounded search container provides the focus indicator via :focus-within. */
+.zj-application .ui-global-search input:focus { outline:none; }
 .ui-global-search button { display:flex; border:0; padding:5px; color:var(--muted); background:none; }
 .ui-global-search button .icon { width:15px; height:15px; }
 .zj-application .main-content { padding:26px 24px 40px; max-width:1440px; margin:0 auto; }
@@ -1538,7 +1540,7 @@
     }
     /* Real pending markers and enabled cold-chain resolution controls take priority. */
     .zj-application:has(:where(.ui-metric.has-alert, .ui-attention-list > a, .main-content .notice.danger[role="alert"])),
-    .zj-application:has(:where(.ui-csv-import)):has(:where(.table-wrap tbody tr > td:last-child > button.btn.secondary:enabled)) {
+    .zj-application:has(.q4-workbench[data-needs-attention="true"]) {
         --zj-ip-face: var(--zj-ip-worried); --zj-ip-closed: var(--zj-ip-worried-blink);
         --zj-ip-message: "有待办或提示，请先核对。";
         --zj-ip-bubble: var(--zj-bubble-warning); --zj-ip-bubble-ink: #9E3D4D;
@@ -1564,7 +1566,7 @@
         transition: color .25s ease;
     }
     .zj-application:has(:where(.ui-metric.has-alert, .ui-attention-list > a, .main-content .notice.danger[role="alert"])) .sidebar-bottom,
-    .zj-application:has(:where(.ui-csv-import)):has(:where(.table-wrap tbody tr > td:last-child > button.btn.secondary:enabled)) .sidebar-bottom { --zj-ip-auto-text: var(--zj-ip-message) !important; }
+    .zj-application:has(.q4-workbench[data-needs-attention="true"]) .sidebar-bottom { --zj-ip-auto-text: var(--zj-ip-message) !important; }
     .zj-application .badge.ready { --zj-status-icon: var(--zj-tag-apple-smile); }
     .zj-application .badge.pending { --zj-status-icon: var(--zj-tag-apple-waiting); }
     .zj-application .badge:is(.danger, .error) { --zj-status-icon: var(--zj-tag-apple-worried); }

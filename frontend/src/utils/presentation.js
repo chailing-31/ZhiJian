@@ -29,7 +29,17 @@ export function attentionFor(w) {
   if (w?.evidence?.pending_count) return { label: `${w.evidence.pending_count} 条照片待复查`, tab: 'inspection', icon: 'scan' }
   if (w?.assessment && !w.assessment_current) return { label: '等级来源需要更新', tab: 'assessment', icon: 'refresh' }
   if (w?.assessment_current && ['C', 'REJECT'].includes(w.assessment?.final_grade) && !w.quality_disposition_recorded) return { label: w.assessment.final_grade === 'REJECT' ? '拒收初评待处置' : '用途待评估', tab: 'processing', icon: 'sliders' }
-  if (w?.processing?.record_id && !w.processing.current) return { label: '加工建议需要更新', tab: 'processing', icon: 'sliders' }
+  if (w?.state !== 'DISPOSITION_RECORDED' && w?.processing?.record_id && !w.processing.current) return { label: '加工建议需要更新', tab: 'processing', icon: 'sliders' }
   if (w?.publication && !w.publication.current) return { label: '公开摘要需要更新', tab: 'report', icon: 'trace' }
   return null
+}
+
+export function reportStatusFor(w) {
+  if (w?.state === 'DISPOSITION_RECORDED' && !w?.coldchain?.hold) {
+    return { complete: true, label: '处置状态', title: '品质处置已登记', description: '本页已汇总处置记录，可查看明细或打印留档。' }
+  }
+  if (w?.state === 'MONITORING' && !w?.coldchain?.hold) {
+    return { complete: true, label: '报告状态', title: '已进入报告阶段', description: '本页可查看或打印已保存记录；公开溯源摘要按需发布。' }
+  }
+  return { complete: false, label: '当前待办', title: w?.next_action?.label || '请核对批次记录', description: '' }
 }

@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getWorkbench, synchronizeInitial, createRound, bindImage, saveAssessment, previewSummary, publishSummary } from '../../api/batch-workbench.js'
-import { gradeStatusFor } from '../../utils/presentation.js'
+import { gradeStatusFor, reportStatusFor, attentionFor } from '../../utils/presentation.js'
 import { formatTime } from '../../utils/batch.js'
 import { listInspections } from '../../api/inspection.js'
 import { GRADE_OPTIONS, USE_OPTIONS, assessmentProblem, evidenceDraft, steps, writeIntent, defaultUse } from '../../utils/batch-workbench.js'
@@ -31,9 +31,12 @@ const coldLabels = { not_started: '尚无观测', unverified: '待重新核验 B
 const grade = computed(() => data.value?.assessment_current ? data.value.assessment.final_grade : '—')
 const gradeSource = computed(() => data.value?.assessment?.source === 'ai_initial' ? 'AI 初评' : '人工修正')
 const gradeStatus = computed(() => gradeStatusFor(data.value))
+const reportStatus = computed(() => reportStatusFor(data.value))
+const attention = computed(() => attentionFor(data.value))
 const evidenceMessage = computed(() => gradeStatus.value.message)
 function setTab(value) { return router.replace({ path: route.path, query: { ...route.query, tab: value } }) }
 async function goNext() {
+  if (reportStatus.value.complete) return router.push(`/batches/${props.batchId}/report`)
   const target = data.value?.next_action?.tab
   if (!tabs.some(([value]) => value === target)) return
   if (tab.value !== target) await setTab(target)
@@ -111,7 +114,7 @@ watch(() => props.batchId, () => { controller.abort(); controller = new AbortCon
 onBeforeUnmount(() => controller.abort())
 </script>
 <template>
-  <div class="q4-workbench">
+  <div class="q4-workbench" :data-needs-attention="Boolean(attention)">
     <header class="q4-heading">
       <div><p class="eyebrow">批次工作台</p><h1>{{ data?.batch.batch_code || '正在读取批次' }}</h1><p>{{ data ? `${data.batch.product} · ${data.batch.variety || '品种待记录'} · ${data.batch.origin || '产地待记录'}` : '正在读取批次信息…' }}</p></div>
       <div class="button-row"><RouterLink class="btn secondary" to="/batches">切换批次</RouterLink><button class="btn secondary" :disabled="loading || busy" @click="load">{{ loading ? '更新中…' : '刷新' }}</button></div>
@@ -121,7 +124,7 @@ onBeforeUnmount(() => controller.abort())
     <template v-if="data">
       <section class="q4-hero" :data-grade="grade">
         <div class="q4-hero-main"><div class="q4-grade-tile"><small>{{ data.assessment_current ? gradeSource : gradeStatus.label }}</small><strong>{{ grade === 'REJECT' ? '拒收' : grade }}</strong><span>{{ data.assessment_current ? '本轮等级' : '暂无有效等级' }}</span></div><div><span class="q4-eyebrow">{{ gradeStatus.detail }}</span><h2>{{ gradeStatus.title }}</h2><p>{{ data.evidence_summary }}</p><p class="q4-hero-use">处理方向 · {{ data.use_label }}</p><button v-if="data.assessment_current" class="q4-inline" @click="setTab('assessment')">检查与修正等级 →</button></div></div>
-        <aside><small>下一步</small><strong>{{ data.next_action.label }}</strong><button class="q4-next" @click="goNext">前往处理 <span>→</span></button></aside>
+        <aside><small>{{ reportStatus.complete ? '记录状态' : '下一步' }}</small><strong>{{ reportStatus.complete ? reportStatus.title : data.next_action.label }}</strong><p v-if="reportStatus.complete">{{ data.publication?.current ? '公开摘要已发布，当前无须重复办理。' : data.publication ? '公开摘要来源已更新，请核对后重新发布。' : '可查看或打印报告，公开摘要按需发布。' }}</p><button class="q4-next" @click="goNext">{{ reportStatus.complete ? '查看报告 / 打印' : '前往处理' }} <span>→</span></button></aside>
       </section>
       <nav class="q4-tabs" aria-label="批次业务页面"><button v-for="[value,label] in tabs" :key="value" :class="{ active: tab === value }" :aria-current="tab === value ? 'page' : undefined" @click="setTab(value)">{{ label }}<span v-if="value === 'assessment'" class="q4-optional">可选</span></button></nav>
       <div ref="tabContent" tabindex="-1" aria-label="当前业务内容">
