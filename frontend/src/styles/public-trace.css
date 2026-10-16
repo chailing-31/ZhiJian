@@ -44,3 +44,141 @@
 .public-app .notice { display:block; border-radius:5px; }
 .public-app .public-quality-summary .notice.success { background:#f1f7f2; color:#3d654b; border-color:#dbe8df; }
 @media(max-width:640px) { .public-app .published-facts { grid-template-columns:1fr; }.public-app .public-quality-summary .btn { min-height:44px; }.public-app .public-quality-summary .section-row { align-items:flex-start; } }
+
+/* Orchard theme for the existing public record page. Decorative CSS only. */
+@media screen {
+  .public-app {
+    --ink: var(--zj-ink, #263238);
+    --green: var(--zj-primary, #2F7D5F);
+    --muted: var(--zj-muted, #546E7A);
+    --line: var(--zj-border, #E1E9E4);
+    max-width: 860px;
+    background: #F7F9F8;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  .public-app .public-header { padding: 20px 28px; border-bottom-color: var(--line); }
+  .public-app .public-header strong { font-size: 20px; color: var(--ink); }
+  .public-app .public-header small { color: var(--muted); font-size: 12px; }
+  .public-app .brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #EDF6F0 var(--zj-icon-apple) center / 26px 26px no-repeat;
+  }
+  .public-app .brand-mark > .icon { visibility: hidden; }
+  .public-app .public-main {
+    padding: 28px 24px 32px;
+    background-image: var(--zj-leaf-texture);
+    background-repeat: no-repeat;
+    background-position: right 18px bottom 12px;
+    background-size: 140px 140px;
+  }
+  .public-app :is(.card, .public-hero, .public-disclaimer) {
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #FFFFFF;
+    box-shadow: 0 2px 10px rgb(38 50 56 / 3%);
+    margin-bottom: 20px;
+  }
+  .public-app .public-hero h1 { margin: 12px 0 8px; color: var(--ink); font-size: 25px; font-weight: 650; line-height: 1.4; }
+  .public-app .public-hero :is(.eyebrow, .mono) { color: var(--muted); }
+  .public-app .public-product { margin-top: 20px; padding: 16px 18px; border-color: var(--line); border-radius: 8px; background: #F6FAF7; }
+  .public-app .public-product span { color: var(--muted); font-size: 12px; }
+  .public-app .public-product strong { color: var(--ink); font-size: 15px; }
+  .public-app .card h2 { color: var(--ink); font-size: 16px; font-weight: 600; line-height: 1.5; }
+  .public-app .card p { color: var(--muted); font-size: 13px; line-height: 1.8; }
+  .public-app .public-quality-heading { gap: 12px; margin-bottom: 18px; }
+  .public-app .public-quality-heading h2::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 7px;
+    vertical-align: -3px;
+    background: var(--zj-icon-trace) center / contain no-repeat;
+    pointer-events: none;
+  }
+  .public-app .public-quality-grade { gap: 16px; border-color: var(--line); border-radius: 8px; background: #FBFCFB; }
+  .public-app .ui-grade-value { border-radius: 8px; }
+  .public-app .ui-grade[data-grade="A"] .ui-grade-value { color: #2F7D5F; background: #EDF6F0; }
+  .public-app .ui-grade[data-grade="B"] .ui-grade-value { color: #446C73; background: #EDF5F4; }
+  .public-app .ui-grade[data-grade="C"] .ui-grade-value { color: #8A682E; background: #FBF6EA; }
+  .public-app .ui-grade[data-grade="REJECT"] .ui-grade-value { color: #A94843; background: #FCF1EF; }
+  .public-app .badge { gap: 5px; padding: 4px 8px; border: 1px solid #E4EBE7; border-radius: 6px; font-size: 12px; font-weight: 500; line-height: 1.5; color: var(--muted); background: #F1F5F3; }
+  .public-app .badge::before {
+    content: "";
+    display: inline-block;
+    flex: 0 0 13px;
+    width: 13px;
+    height: 13px;
+    background: var(--zj-public-status-icon, var(--zj-icon-info)) center / contain no-repeat;
+    pointer-events: none;
+  }
+  .public-app .badge.ready { --zj-public-status-icon: var(--zj-icon-check); color: #35654B; background: #EDF6F0; border-color: #DCECDF; }
+  .public-app .badge.pending { --zj-public-status-icon: var(--zj-icon-clock); color: #8A682E; background: #FBF6EA; border-color: #EEE2C7; }
+  .public-app .badge:is(.danger, .error) { --zj-public-status-icon: var(--zj-icon-alert); color: #A94843; background: #FCF1EF; border-color: #EFD9D5; }
+  .public-app .public-header > .badge { --zj-public-status-icon: var(--zj-icon-trace); white-space: nowrap; }
+  .public-app .public-quality-summary .btn { min-height: 38px; padding: 8px 13px; border-color: var(--green); border-radius: 8px; color: #FFFFFF; background: var(--green); font-size: 13px; }
+  .public-app .public-quality-summary .btn:hover:not(:disabled) { background: #286B52; border-color: #286B52; }
+  .public-app .public-quality-summary .btn.secondary { color: #3D5B4D; background: #FFFFFF; border-color: #CBD9D1; }
+  .public-app .public-quality-summary .btn.secondary:hover:not(:disabled) { color: var(--green); background: #F3F8F5; border-color: #A7C3B3; }
+  .public-app .published-facts { gap: 18px 24px; }
+  .public-app .published-facts :is(dt, small), .public-app .footnote { color: var(--muted); font-size: 12px; }
+  .public-app .published-facts dd { color: var(--ink); font-size: 14px; }
+  .public-app .notice { border-radius: 8px; line-height: 1.8; }
+  .public-app .notice.warning { color: #8A682E; background: #FBF6EA; border-color: #EEE2C7; }
+  .public-app .notice.danger { color: #A94843; background: #FCF1EF; border-color: #EFD9D5; }
+  .public-app .public-quality-summary .notice.success { color: #35654B; background: #F0F7F2; border-color: #DCECDF; }
+  .public-app .empty-state { padding: 28px 12px; }
+  .public-app .empty-state > .icon { display: none; }
+  .public-app .empty-state::before { content: ""; display: block; width: 88px; height: 70px; margin: 0 auto 12px; background: var(--zj-empty-fruit) center / contain no-repeat; pointer-events: none; }
+  .public-app .empty-state h3 { color: #4B6357; font-size: 14px; }
+  .public-app .timeline { margin-top: 22px; }
+  .public-app .timeline li { gap: 14px; padding-bottom: 24px; }
+  .public-app .timeline li:last-child { padding-bottom: 0; }
+  .public-app .timeline li:not(:last-child)::before { left: 11px; top: 19px; background-color: #DDE9E1; }
+  .public-app .timeline-dot {
+    position: relative;
+    width: 23px;
+    height: 23px;
+    margin-top: 1px;
+    border: 1px solid #D7E7DC;
+    border-radius: 50%;
+    background: #F3F8F4;
+  }
+  .public-app .timeline-dot::after { content: ""; position: absolute; inset: 4px; background: var(--zj-icon-trace) center / contain no-repeat; pointer-events: none; }
+  .public-app .timeline-content h3 { color: var(--ink); font-size: 14px; font-weight: 600; }
+  .public-app .timeline-content p { color: var(--muted); line-height: 1.8; }
+  .public-app .timeline time, .public-app .public-disclaimer, .public-app .public-footer { color: var(--muted); font-size: 12px; }
+  .public-app :is(a, button, summary):focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+}
+@media screen and (max-width: 640px) {
+  .public-app .public-header { padding: 17px 16px; gap: 10px; }
+  .public-app .public-header strong { font-size: 19px; }
+  .public-app .public-header > .badge { font-size: 11px; padding: 4px 6px; }
+  .public-app .public-main { padding: 20px 14px 24px; background-size: 110px 110px; }
+  .public-app :is(.card, .public-hero, .public-disclaimer) { padding: 18px; border-radius: 10px; margin-bottom: 18px; }
+  .public-app .public-hero h1 { font-size: 23px; }
+  .public-app .public-product { padding: 14px; margin-top: 18px; }
+  .public-app .public-quality-grade { padding: 14px; }
+  .public-app .public-quality-summary .btn { min-height: 44px; }
+  .public-app .public-quality-heading { align-items: flex-start; flex-wrap: wrap; }
+  .public-app .public-disclaimer { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-app *, .public-app *::before, .public-app *::after { transition: none !important; animation: none !important; }
+}
+@media print {
+  .public-app { max-width: none; background: #FFFFFF; color: #222222; }
+  .public-app :is(.public-main, .brand-mark) { background-image: none !important; }
+  .public-app .brand-mark { display: none !important; }
+  .public-app .public-quality-heading h2::before,
+  .public-app .badge::before,
+  .public-app .empty-state::before,
+  .public-app .timeline-dot::after { content: none !important; display: none !important; }
+  .public-app :is(.brand-mark > .icon, .empty-state > .icon) { display: none !important; }
+  .public-app :is(.card, .public-hero, .public-product, .public-disclaimer) { background: #FFFFFF; box-shadow: none; border-color: #CCCCCC; }
+}
