@@ -297,3 +297,22 @@
   .public-app *, .public-app *::before, .public-app *::after { animation: none !important; transition: none !important; }
   .public-app .public-main { background-image: none !important; background-attachment: scroll; }
 }
+
+/* Orchard IP scenes round 5: status expressions and a small inline mobile bubble. */
+@media screen {
+  .public-app .badge.ready { --zj-public-status-icon: var(--zj-tag-apple-smile); }
+  .public-app .badge.pending { --zj-public-status-icon: var(--zj-tag-apple-waiting); }
+  .public-app .badge:is(.danger, .error) { --zj-public-status-icon: var(--zj-tag-apple-worried); }
+}
+@media screen and (max-width: 760px) {
+  .public-app .empty-state { position: relative; }
+  .public-app .empty-state > .icon { display: block; visibility: hidden; }
+  .public-app .empty-state::before { content: ""; display: block; position: absolute; left: calc(50% - 36px); top: 18px; width: 40px; height: 48px; margin: 0; background: var(--zj-apple-3d) center / contain no-repeat; pointer-events: none; }
+  .public-app .empty-state::after { content: "按页面提示查看已公开记录。"; position: absolute; left: calc(50% + 6px); top: 8px; width: 100px; max-width: calc(50% - 12px); box-sizing: border-box; padding: 6px 8px 13px; font: 11px/1.35 var(--zj-font-ui); color: #36523F; background: var(--zj-bubble-regular) center / 100% 100% no-repeat; pointer-events: none; }
+}
+@media screen and (max-width: 360px) {
+  .public-app .empty-state::after { left: calc(50% + 4px); width: 88px; font-size: 10.5px; }
+}
+@media print {
+  .public-app .empty-state::before, .public-app .empty-state::after { content: none !important; display: none !important; }
+}
