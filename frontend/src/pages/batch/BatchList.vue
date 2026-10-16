@@ -34,16 +34,101 @@ async function submit() {
 }
 </script>
 <template>
-  <PageHeading title="批次管理" description="登记、查找和继续处理业务批次。"><button class="btn secondary" :disabled="loading" @click="reload"><Icon name="refresh" />刷新</button><button class="btn" :aria-expanded="showForm" aria-controls="new-batch-dialog" @click="showForm = true"><Icon name="plus" />新建批次</button></PageHeading>
-  <AppDialog id="new-batch-dialog" :open="showForm" :busy="submitting" title="新建批次" description="填写批次信息，保存后进入该批次工作台。" @close="closeForm">
+  <PageHeading
+      eyebrow="原料入厂 · 批次台账"
+      title="批次管理"
+      description="登记原料批次，上传质检照片，开展 AI 初评与后续品控。"
+  >
+    <button class="btn secondary" :disabled="loading" @click="reload">
+      <Icon name="refresh" />刷新
+    </button>
+    <button
+        class="btn"
+        :aria-expanded="showForm"
+        aria-controls="new-batch-dialog"
+        @click="showForm = true"
+    >
+      <Icon name="plus" />新建批次
+    </button>
+  </PageHeading>
+
+  <AppDialog
+      id="new-batch-dialog"
+      :open="showForm"
+      :busy="submitting"
+      title="新建批次"
+      description="填写批次信息，保存后进入批次工作台，上传照片开始 AI 质检。"
+      @close="closeForm"
+  >
     <form class="ui-dialog-body" @submit.prevent="submit">
-      <fieldset :disabled="submitting"><div class="form-grid">
-        <label>批次编号 <span class="required" aria-hidden="true">*</span><input v-model.trim="form.batch_code" autofocus required maxlength="64" pattern="[A-Za-z0-9-]{1,64}" placeholder="例如 APPLE-2026-002" aria-describedby="batch-code-help" /><small id="batch-code-help">英文、数字或连字符，最多 64 位</small></label>
-        <label>产品名称 <span class="required" aria-hidden="true">*</span><input v-model.trim="form.product" required maxlength="50" /></label>
-        <label>品种<input v-model.trim="form.variety" maxlength="50" placeholder="例如 红富士" /></label><label>产地<input v-model.trim="form.origin" maxlength="100" placeholder="例如 山东烟台" /></label><label class="full">供应商<input v-model.trim="form.supplier" maxlength="100" placeholder="填写供应商名称" /><small>仅用于内部记录</small></label>
-      </div></fieldset>
-      <p v-if="submitError" class="notice danger" role="alert">{{ submitError }}</p>
-      <footer class="ui-dialog-footer"><button class="btn secondary" type="button" :disabled="submitting" @click="closeForm">取消</button><button class="btn" type="submit" :disabled="submitting">{{ submitting ? '正在保存…' : '保存并打开批次' }}</button></footer>
+      <fieldset :disabled="submitting">
+        <div class="form-grid">
+          <label>
+            <span>批次编号 <span class="required" aria-hidden="true">*</span></span>
+            <input
+                v-model.trim="form.batch_code"
+                autofocus
+                required
+                maxlength="64"
+                pattern="[A-Za-z0-9-]{1,64}"
+                placeholder="例如 APPLE-2026-002"
+                aria-describedby="batch-code-help"
+            />
+            <small id="batch-code-help">英文、数字或连字符，最多 64 位</small>
+          </label>
+
+          <label>
+            <span>产品名称 <span class="required" aria-hidden="true">*</span></span>
+            <input v-model.trim="form.product" required maxlength="50" />
+          </label>
+
+          <label>
+            <span>品种</span>
+            <input
+                v-model.trim="form.variety"
+                maxlength="50"
+                placeholder="例如 红富士"
+            />
+          </label>
+
+          <label>
+            <span>产地</span>
+            <input
+                v-model.trim="form.origin"
+                maxlength="100"
+                placeholder="例如 山东烟台"
+            />
+          </label>
+
+          <label class="full">
+            <span>供应商</span>
+            <input
+                v-model.trim="form.supplier"
+                maxlength="100"
+                placeholder="填写供应商名称"
+            />
+            <small>仅用于内部记录</small>
+          </label>
+        </div>
+      </fieldset>
+
+      <p v-if="submitError" class="notice danger" role="alert">
+        {{ submitError }}
+      </p>
+
+      <footer class="ui-dialog-footer">
+        <button
+            class="btn secondary"
+            type="button"
+            :disabled="submitting"
+            @click="closeForm"
+        >
+          取消
+        </button>
+        <button class="btn" type="submit" :disabled="submitting">
+          {{ submitting ? '正在保存…' : '保存并打开批次' }}
+        </button>
+      </footer>
     </form>
   </AppDialog>
   <StateNotice :loading="loading" :error="error" @retry="reload" />
@@ -56,3 +141,9 @@ async function submit() {
     </template>
   </section>
 </template>
+
+<style scoped>
+.batch-registration > label {
+  align-content: start;
+}
+</style>
