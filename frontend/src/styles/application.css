@@ -1275,3 +1275,201 @@
 @media print {
   .zj-application .sidebar::after { content: none !important; display: none !important; background-image: none !important; }
 }
+
+/* Orchard interactions round 4 2026-10-16
+   CSS only. Visible DOM markers drive pending cues; CSS cannot read real idle time.
+   Night tokens are reserved, without a switch or automatic theme change. */
+@media screen {
+  :root {
+    --zj-fruit-page: #F5FAF4;
+    --zj-fruit-surface: #FFFFFF;
+    --zj-fruit-aside: #FFF8ED;
+    --zj-fruit-aside-soft: #FBF5E9;
+    --zj-fruit-ink: #1F2933;
+    --zj-fruit-muted: #4A5568;
+    --zj-fruit-border: #E0EBDD;
+    --zj-fruit-scroll-track: #F0F6EC;
+    --zj-fruit-scroll-thumb: #A6C2AC;
+    --zj-fruit-selection: #FFE1DE;
+    --zj-night-page: #17231D;
+    --zj-night-surface: #223128;
+    --zj-night-aside: #2E332A;
+    --zj-night-ink: #E8F1EA;
+    --zj-night-muted: #BBCBC0;
+    --zj-night-border: #405846;
+    --zj-night-primary: #6BD6A0;
+    --zj-night-danger: #F0A1A9;
+    --zj-night-warning: #EAC780;
+    --zj-night-scroll-track: #1D2A22;
+    --zj-night-scroll-thumb: #688571;
+    --zj-night-selection: #66464C;
+    --zj-apple-3d-blink: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20180%20220%22%20fill%3D%22none%22%3E%0A%3Cdefs%3E%0A%20%20%3CradialGradient%20id%3D%22zj-body%22%20cx%3D%22.28%22%20cy%3D%22.22%22%20r%3D%22.88%22%3E%0A%20%20%20%20%3Cstop%20stop-color%3D%22%23FFB0A5%22%20%2F%3E%3Cstop%20offset%3D%22.26%22%20stop-color%3D%22%23FF7E78%22%20%2F%3E%0A%20%20%20%20%3Cstop%20offset%3D%22.53%22%20stop-color%3D%22%23FF6B6B%22%20%2F%3E%3Cstop%20offset%3D%22.8%22%20stop-color%3D%22%23E63946%22%20%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23B72C44%22%20%2F%3E%0A%20%20%3C%2FradialGradient%3E%0A%20%20%3ClinearGradient%20id%3D%22zj-leaf%22%20x1%3D%22.18%22%20y1%3D%220%22%20x2%3D%22.85%22%20y2%3D%221%22%3E%0A%20%20%20%20%3Cstop%20stop-color%3D%22%23A2E37C%22%20%2F%3E%3Cstop%20offset%3D%22.44%22%20stop-color%3D%22%2336B37E%22%20%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23177A48%22%20%2F%3E%0A%20%20%3C%2FlinearGradient%3E%0A%20%20%3ClinearGradient%20id%3D%22zj-limb%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%3Cstop%20stop-color%3D%22%23FFB4A8%22%20%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23F37474%22%20%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23D94B5D%22%20%2F%3E%0A%20%20%3C%2FlinearGradient%3E%0A%20%20%3ClinearGradient%20id%3D%22zj-shoe%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%3Cstop%20stop-color%3D%22%2357BB83%22%20%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2323764D%22%20%2F%3E%0A%20%20%3C%2FlinearGradient%3E%0A%20%20%3CradialGradient%20id%3D%22zj-palm%22%3E%3Cstop%20stop-color%3D%22%23FFF1E4%22%20%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23E9C6B7%22%20%2F%3E%3C%2FradialGradient%3E%0A%20%20%3Cfilter%20id%3D%22zj-soft%22%20x%3D%22-50%25%22%20y%3D%22-70%25%22%20width%3D%22200%25%22%20height%3D%22240%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%224%22%20%2F%3E%3C%2Ffilter%3E%0A%20%20%3Cfilter%20id%3D%22zj-gloss%22%20x%3D%22-40%25%22%20y%3D%22-60%25%22%20width%3D%22180%25%22%20height%3D%22220%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%222.2%22%20%2F%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cellipse%20cx%3D%2291%22%20cy%3D%22205%22%20rx%3D%2248%22%20ry%3D%227%22%20fill%3D%22%23386F47%22%20opacity%3D%22.16%22%20filter%3D%22url%28%23zj-soft%29%22%20%2F%3E%0A%3Cpath%20d%3D%22M65%20173c0%207-2%2013-3%2018%22%20stroke%3D%22url%28%23zj-limb%29%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%20%2F%3E%0A%3Cpath%20d%3D%22M112%20174c0%206%202%2012%204%2017%22%20stroke%3D%22url%28%23zj-limb%29%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%20%2F%3E%0A%3Cpath%20d%3D%22M52%20188c8-5%2016-1%2018%205%201%205-2%208-10%208H49c-8-1-7-9%203-13Z%22%20fill%3D%22url%28%23zj-shoe%29%22%20%2F%3E%0A%3Cpath%20d%3D%22M111%20187c9-3%2018%203%2022%209%203%205-3%206-11%205h-12c-6-2-7-10%201-14Z%22%20fill%3D%22url%28%23zj-shoe%29%22%20%2F%3E%0A%3Cpath%20d%3D%22M48%20195c6-2%2012-2%2017%200M111%20195c5-1%2010-1%2016%201%22%20stroke%3D%22%23CBEDCC%22%20stroke-opacity%3D%22.48%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20%2F%3E%0A%3Cpath%20d%3D%22M39%20112c-10%203-14%2012-19%2019%22%20stroke%3D%22url%28%23zj-limb%29%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%20%2F%3E%0A%3Cpath%20d%3D%22M143%20111c12-4%2015-11%2019-17%22%20stroke%3D%22url%28%23zj-limb%29%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20%2F%3E%0A%3Cellipse%20cx%3D%2218%22%20cy%3D%22133%22%20rx%3D%228%22%20ry%3D%229%22%20transform%3D%22rotate%2820%2018%20133%29%22%20fill%3D%22url%28%23zj-palm%29%22%20%2F%3E%0A%3Cpath%20d%3D%22M156%2093c-3-7%200-13%203-11l2%206c0-9%205-11%206-7l-1%208c6-6%209-3%206%201l-7%209c-3%203-8%200-9-6Z%22%20fill%3D%22url%28%23zj-palm%29%22%20%2F%3E%0A%3Cpath%20d%3D%22M90%2065C71%2048%2042%2053%2035%2077C21%20117%2045%20177%2069%20180C78%20181%2082%20176%2090%20176C98%20176%20103%20181%20112%20180C138%20177%20159%20117%20145%2077C137%2052%20109%2049%2090%2065Z%22%20fill%3D%22url%28%23zj-body%29%22%20%2F%3E%0A%3Cpath%20d%3D%22M92%2064c-3-13-1-21%203-27%22%20stroke%3D%22%23865646%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20%2F%3E%0A%3Cpath%20d%3D%22M94%2048c-1-20%2016-31%2039-27-2%2020-17%2031-39%2027Z%22%20fill%3D%22url%28%23zj-leaf%29%22%20%2F%3E%0A%3Cpath%20d%3D%22M98%2044c9-8%2018-14%2028-17%22%20stroke%3D%22%23D8F5BD%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.72%22%20%2F%3E%0A%3Cpath%20d%3D%22M91%2064c-5-4-10-5-15-4%22%20stroke%3D%22%23BE3D47%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.36%22%20%2F%3E%0A%3Cellipse%20cx%3D%2254%22%20cy%3D%2285%22%20rx%3D%2211%22%20ry%3D%2220%22%20transform%3D%22rotate%2829%2054%2085%29%22%20fill%3D%22%23FFE1D7%22%20opacity%3D%22.47%22%20filter%3D%22url%28%23zj-gloss%29%22%20%2F%3E%0A%3Cpath%20d%3D%22M45%2085c2-9%206-15%2012-17%22%20stroke%3D%22%23FFF3E7%22%20stroke-width%3D%223.6%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.66%22%20%2F%3E%0A%3Cellipse%20cx%3D%2256%22%20cy%3D%22133%22%20rx%3D%229%22%20ry%3D%224.7%22%20fill%3D%22%23F9B2A1%22%20opacity%3D%22.63%22%20%2F%3E%0A%3Cellipse%20cx%3D%22124%22%20cy%3D%22133%22%20rx%3D%229%22%20ry%3D%224.7%22%20fill%3D%22%23F9B2A1%22%20opacity%3D%22.54%22%20%2F%3E%0A%3Cpath%20d%3D%22M79%20136c6%2010%2016%2010%2022%200%22%20stroke%3D%22%23863846%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20%2F%3E%0A%3Cpath%20d%3D%22M82%20139c5%204%2011%204%2016%200%22%20stroke%3D%22%23FFF1E5%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20%2F%3E%0A%3Cpath%20d%3D%22M89%20126c1.5%201%203%201%204.5%200%22%20stroke%3D%22%23C14B54%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.55%22%20%2F%3E%0A%3Cpath%20d%3D%22M64%20119q6%205%2012%200m28%200q6%205%2012%200%22%20stroke%3D%22%234F3540%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20%2F%3E%3C%2Fsvg%3E");
+    --zj-fruit-silhouette: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20240%20260%22%20fill%3D%22%23399862%22%20opacity%3D%22.035%22%3E%3Cpath%20d%3D%22M119%2089c-24-22-65-19-76%2015-17%2049%2011%20119%2042%20119%2013%200%2020-8%2034-8s21%208%2034%208c31%200%2059-70%2042-119-11-34-52-37-76-15Z%22%2F%3E%3Cpath%20d%3D%22M119%2083c-1-35%2022-51%2056-48-3%2029-24%2047-56%2048Z%22%2F%3E%3Cpath%20d%3D%22M202%2056c-5-28%208-44%2033-46%205%2024-5%2042-33%2046Z%22%2F%3E%3C%2Fsvg%3E");
+  }
+  .zj-application {
+    --zj-ip-display: none;
+    --zj-ip-left: calc(var(--ui-sidebar) - 88px);
+    --zj-ip-bottom: 136px;
+    --zj-ip-width: 100px;
+    --zj-ip-height: 120px;
+    --zj-tip-left: calc(var(--ui-sidebar) - 152px);
+    --zj-tip-bottom: 140px;
+    --zj-tip-width: 164px;
+  }
+  /* Retire the old passive corner; the same SVG is now owned by the static footer. */
+  .zj-application .sidebar::after { content: none; display: none; pointer-events: none; }
+  .zj-application .sidebar-bottom::before {
+    content: ""; display: var(--zj-ip-display); position: fixed;
+    left: var(--zj-ip-left); bottom: var(--zj-ip-bottom);
+    width: var(--zj-ip-width); height: var(--zj-ip-height); z-index: -1;
+    background: var(--zj-apple-3d) center / contain no-repeat;
+    pointer-events: none; transform: none;
+    transition: transform .3s ease, opacity .3s ease;
+  }
+  .zj-application .sidebar-bottom::after {
+    content: "质检提示：光线均匀，苹果完整入镜。";
+    display: var(--zj-ip-display); position: fixed;
+    left: var(--zj-tip-left); bottom: var(--zj-tip-bottom); width: var(--zj-tip-width);
+    z-index: 0; box-sizing: border-box; padding: 9px 10px;
+    border: 1px solid #D8E7D3; border-radius: 10px;
+    color: #36523F; background: #FFFFFF; box-shadow: 0 3px 12px rgb(31 72 43 / 10%);
+    font: 12px/1.6 var(--zj-font-ui); letter-spacing: 0;
+    opacity: 0; visibility: hidden; transform: translateY(3px);
+    pointer-events: none; transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
+  }
+
+  .zj-application .ui-metric, .zj-application .ui-metric:nth-child(n) {
+    --zj-metric-end: #F2F9EE;
+    background-image: linear-gradient(90deg, #FFFFFF 18%, var(--zj-metric-end));
+    transition: border-color .25s ease, box-shadow .25s ease, background-color .25s ease;
+  }
+  .zj-application .ui-metric:nth-child(2) { --zj-metric-end: #EDF8F1; }
+  .zj-application .ui-metric:nth-child(3) { --zj-metric-end: #F5F9EC; }
+  .zj-application .ui-metric.has-alert { --zj-metric-end: #FFF7E9; }
+  .zj-application .ui-metric::before {
+    content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px;
+    background: linear-gradient(110deg, transparent 32%, #B1E2BD 48%, #EBC8C1 55%, transparent 70%) 100% 50% / 250% 100% no-repeat;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    opacity: 0; z-index: -1; pointer-events: none; transition: opacity .25s ease;
+  }
+  .zj-application .ui-metric::after { transition: transform .3s ease, opacity .3s ease; transform-origin: center; }
+
+  .zj-application .ui-dashboard-aside .card { background: var(--zj-fruit-aside); border-color: #EAE2D3; }
+  .zj-application .ui-dashboard-aside .ui-last-batch { background: var(--zj-fruit-aside-soft); }
+  .zj-application .ui-attention-list > a::before {
+    content: ""; display: block; flex: 0 0 16px; width: 16px; height: 18px;
+    background: var(--zj-apple-line) center / 16px no-repeat; opacity: .9; pointer-events: none;
+  }
+  .zj-application .ui-attention-list > a > .icon:first-child { display: none; }
+  .zj-application .ui-attention-list > a { border-bottom-color: #EBE4D8; }
+  .zj-application .ui-attention-list > a:hover { background-color: #F7F2E5; }
+  .zj-application .ui-batch-name, .zj-application .ui-mobile-batches header > a { color: #177249; font-weight: 650; }
+  .zj-application .ui-batch-table tbody tr { --zj-row-stripe: #CBD9CE; }
+  .zj-application .ui-batch-table tbody tr:has(.badge.ready) { --zj-row-stripe: #A8D8B7; }
+  .zj-application .ui-batch-table tbody tr:has(.badge.danger, .badge.error) { --zj-row-stripe: #E8A9AD; }
+  .zj-application .ui-batch-table tbody tr > td:first-child { position: relative; }
+  .zj-application .ui-batch-table tbody tr > td:first-child::before {
+    content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px;
+    border-radius: 3px; background: var(--zj-row-stripe); pointer-events: none;
+  }
+  .zj-application .ui-batch-table tbody tr:hover { background-color: #E8F5E7; }
+  .zj-application .ui-batch-table tbody tr:focus-within { background-color: #EDF7EB; }
+  .zj-application .ui-recent-row { --zj-row-stripe: #CBD9CE; position: relative; }
+  .zj-application .ui-recent-row:has(.ui-grade:is([data-grade="A"], [data-grade="B"])) { --zj-row-stripe: #A8D8B7; }
+  .zj-application .ui-recent-row:has(.ui-grade[data-grade="C"]) { --zj-row-stripe: #E6C682; }
+  .zj-application .ui-recent-row:has(.ui-grade[data-grade="REJECT"]) { --zj-row-stripe: #E8A9AD; }
+  .zj-application .ui-recent-row::before {
+    content: ""; position: absolute; left: -10px; top: 14px; bottom: 14px; width: 3px;
+    border-radius: 3px; background: var(--zj-row-stripe); pointer-events: none;
+  }
+  .zj-application .nav-item > span { display: inline-block; transition: transform .25s ease; }
+  .zj-application .nav-item::after {
+    content: ""; position: absolute; width: 13px; height: 13px; right: 11px; top: calc(50% - 6.5px);
+    background: var(--zj-icon-leaf) center / contain no-repeat;
+    opacity: 0; transform: translateX(-2px); pointer-events: none;
+    transition: transform .25s ease, opacity .25s ease;
+  }
+  .zj-application .nav-item.selected {
+    background-color: #DFF4E8;
+    background-image: linear-gradient(180deg, #58CB91, #19834F);
+    background-position: left center; background-repeat: no-repeat; background-size: 3px 78%;
+    box-shadow: none;
+  }
+  .zj-application .main-content .empty-state::before, .zj-application .main-content .card .empty-state::before, .zj-application .q4-empty::before { background-image: var(--zj-apple-3d); background-size: 64px 72px; }
+  .zj-application .main-content {
+    background-image: var(--zj-fruit-silhouette), var(--zj-leaf-texture);
+    background-repeat: no-repeat; background-attachment: fixed, scroll;
+    background-position: right 28px bottom 24px, right 16px top 80px;
+    background-size: 170px 184px, 112px 112px;
+  }
+  html, .zj-application *, .public-app * { scrollbar-width: thin; scrollbar-color: var(--zj-fruit-scroll-thumb) var(--zj-fruit-scroll-track); }
+  html::-webkit-scrollbar, .zj-application *::-webkit-scrollbar, .public-app *::-webkit-scrollbar { width: 9px; height: 9px; }
+  html::-webkit-scrollbar-track, .zj-application *::-webkit-scrollbar-track, .public-app *::-webkit-scrollbar-track { background: var(--zj-fruit-scroll-track); }
+  html::-webkit-scrollbar-thumb, .zj-application *::-webkit-scrollbar-thumb, .public-app *::-webkit-scrollbar-thumb { border: 2px solid var(--zj-fruit-scroll-track); border-radius: 8px; background: var(--zj-fruit-scroll-thumb); }
+  html::-webkit-scrollbar-thumb:hover, .zj-application *::-webkit-scrollbar-thumb:hover, .public-app *::-webkit-scrollbar-thumb:hover { background: #86B296; }
+  .zj-application ::selection, .public-app ::selection { color: #472B33; background: var(--zj-fruit-selection); }
+
+  @keyframes zj-number-enter { from { opacity: .55; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+  @keyframes zj-card-sheen { from { background-position: 100% 50%; } to { background-position: 0% 50%; } }
+  @keyframes zj-ip-breathe { from { opacity: .94; } to { opacity: 1; } }
+  @keyframes zj-ip-blink { 0%, 24%, 75%, 100% { background-image: var(--zj-apple-3d); } 25%, 74% { background-image: var(--zj-apple-3d-blink); } }
+}
+@media screen and (min-width: 761px) {
+  .zj-application .ui-overview-metrics .ui-metric > strong { animation: zj-number-enter .32s ease-out 1 both; }
+}
+@media screen and (min-width: 1180px) and (min-height: 760px) {
+  .zj-application { --zj-ip-display: block; }
+}
+@media screen and (min-width: 1180px) and (min-height: 900px) {
+  .zj-application { --zj-ip-left: calc(var(--ui-sidebar) - 112px); --zj-ip-bottom: 146px; --zj-ip-width: 128px; --zj-ip-height: 176px; --zj-tip-left: calc(var(--ui-sidebar) - 148px); --zj-tip-bottom: 150px; }
+}
+@media screen and (min-width: 1760px) and (min-height: 640px) {
+  .zj-application { --zj-ip-display: block; --zj-ip-left: calc(var(--ui-sidebar) + 8px); --zj-ip-bottom: 24px; --zj-ip-width: 128px; --zj-ip-height: 176px; --zj-tip-left: calc(var(--ui-sidebar) + 8px); --zj-tip-bottom: 208px; --zj-tip-width: 128px; }
+}
+@media screen and (min-width: 1180px) and (hover: hover) and (pointer: fine) {
+  /* Footer is plain text, with no links or controls. Only the picture is a hit area. */
+  .zj-application .sidebar-bottom { pointer-events: none; }
+  .zj-application .sidebar-bottom::before { pointer-events: auto; animation: var(--zj-ip-signal, none), var(--zj-ip-blink, none); }
+  .zj-application .sidebar-bottom:hover::before { transform: translateY(-2px); }
+  .zj-application .sidebar-bottom:hover::after { opacity: 1; visibility: visible; transform: none; }
+  .zj-application:has(.ui-metric.has-alert, .ui-attention-list > a) .sidebar-bottom::before { --zj-ip-signal: zj-ip-breathe .4s ease-in-out 2 alternate; }
+  /* A delayed one-time blink while no control is hovered/focused; not an idle sensor. */
+  .zj-application:not(:focus-within):not(:has(:is(a, button, input, select, textarea):hover)) .sidebar-bottom:not(:hover)::before { --zj-ip-blink: zj-ip-blink .28s step-end 6s 1; }
+}
+@media screen and (min-width: 761px) and (hover: hover) and (pointer: fine) {
+  .zj-application .ui-metric:hover::before { opacity: 1; animation: zj-card-sheen .4s ease-out 1 forwards; }
+  .zj-application .ui-metric:hover::after { transform: translateY(-1px) rotate(-4deg); }
+  .zj-application .nav-item:hover > span { transform: translateX(2px); }
+  .zj-application .nav-item:hover::after, .zj-application .nav-item:focus-visible::after { opacity: .9; transform: none; }
+}
+@media screen and (max-width: 760px) {
+  .zj-application { --zj-ip-display: none; }
+  .zj-application *, .zj-application *::before, .zj-application *::after { animation: none !important; transition: none !important; }
+  .zj-application .main-content { background-image: none; background-attachment: scroll; }
+  .zj-application .sidebar-bottom::before, .zj-application .sidebar-bottom::after,
+  .zj-application .ui-metric::before, .zj-application .ui-metric::after,
+  .zj-application .nav-item::after, .zj-application .ui-attention-list > a::before,
+  .zj-application .ui-batch-table tbody tr > td:first-child::before,
+  .zj-application .ui-recent-row::before,
+  .zj-application .empty-state::before, .zj-application .q4-empty::before,
+  .zj-application :is(.page-heading, .zj-dashboard-heading) h1::before { content: none; display: none; }
+  .zj-application .ui-metric > div { padding-right: 0; }
+  .zj-application .ui-attention-list > a > .icon:first-child { display: block; }
+  .zj-application .empty-state > .icon { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zj-application *, .zj-application *::before, .zj-application *::after { animation: none !important; transition: none !important; }
+  .zj-application .main-content { background-attachment: scroll; }
+  .zj-application .sidebar-bottom:hover::before, .zj-application .ui-metric:hover::after, .zj-application .nav-item:hover > span { transform: none !important; }
+}
+@media print {
+  .zj-application .sidebar-bottom::before, .zj-application .sidebar-bottom::after,
+  .zj-application .ui-metric::before, .zj-application .ui-attention-list > a::before,
+  .zj-application .ui-batch-table tbody tr > td:first-child::before,
+  .zj-application .ui-recent-row::before, .zj-application .nav-item::after { content: none !important; display: none !important; }
+  .zj-application *, .zj-application *::before, .zj-application *::after { animation: none !important; transition: none !important; }
+  .zj-application .main-content { background-image: none !important; background-attachment: scroll; }
+  .zj-application .ui-dashboard-aside .card { background: #FFFFFF !important; box-shadow: none !important; }
+}

@@ -278,3 +278,22 @@
   .public-app .public-hero h1 { font-size: 26px; }
   .public-app .public-product { padding: 14px; }
 }
+
+/* Orchard interactions round 4: shared selection, IP empty state, motion boundaries. */
+@media screen {
+  .public-app .empty-state::before { background-image: var(--zj-apple-3d); background-size: 60px 68px; }
+  .public-app .public-main { background-image: var(--zj-fruit-silhouette); background-repeat: no-repeat; background-position: right 20px bottom 24px; background-size: 150px 162px; background-attachment: fixed; }
+}
+@media screen and (max-width: 760px) {
+  .public-app *, .public-app *::before, .public-app *::after { animation: none !important; transition: none !important; }
+  .public-app .public-main { background-image: none; background-attachment: scroll; }
+  .public-app .empty-state::before, .public-app .public-quality-heading h2::before, .public-app .timeline-dot::after { content: none; display: none; }
+  .public-app .empty-state > .icon { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-app .public-main { background-attachment: scroll; }
+}
+@media print {
+  .public-app *, .public-app *::before, .public-app *::after { animation: none !important; transition: none !important; }
+  .public-app .public-main { background-image: none !important; background-attachment: scroll; }
+}
