@@ -182,3 +182,53 @@
   .public-app :is(.brand-mark > .icon, .empty-state > .icon) { display: none !important; }
   .public-app :is(.card, .public-hero, .public-product, .public-disclaimer) { background: #FFFFFF; box-shadow: none; border-color: #CCCCCC; }
 }
+/* Orchard polish round 2 for published records. No character mascots here. */
+@media screen {
+  .public-app { color: #546E7A; }
+  .public-app .public-header { padding: 22px 28px; }
+  .public-app .public-main { padding: 32px 26px 36px; }
+  .public-app :is(.card, .public-hero, .public-disclaimer) { padding: 28px; margin-bottom: 24px; border-color: #E7EEEA; border-radius: 14px; box-shadow: var(--zj-shadow); }
+  .public-app .public-hero h1 { font-size: 28px; font-weight: 700; }
+  .public-app .public-product { padding: 18px 20px; border-color: #E5EDE7; border-radius: 10px; background: #F6FAF7; }
+  .public-app .card h2 { font-size: 17px; font-weight: 650; }
+  .public-app .card p { line-height: 1.85; }
+  .public-app .public-disclaimer { font-size: 12px; background: #FBFDFB; box-shadow: var(--zj-shadow-quiet); }
+  .public-app .public-quality-summary:has(> .notice.success) { border-color: #DCEAE0; }
+  .public-app .public-quality-summary:has(> .notice.warning) { border-color: #EDE2CE; }
+  .public-app .badge { padding: 4px 10px; min-height: 26px; border-radius: 999px; }
+  .public-app .badge.ready { color: #35664E; background: #EAF4EE; border-color: #DEEBE2; }
+  .public-app .badge.pending { color: #86632D; background: #FAF3E6; border-color: #EEE2C9; }
+  .public-app .badge.partial { color: #3E7162; background: #ECF5F1; border-color: #DCEAE2; }
+  .public-app .badge:is(.danger, .error) { color: #A34B46; background: #FAECE9; border-color: #EED8D3; }
+  .public-app .public-quality-summary .btn { min-height: 42px; padding: 10px 16px; border-radius: 10px; background-color: #2F7D5F; background-image: var(--zj-button-gradient); box-shadow: 0 3px 8px rgb(47 125 95 / 10%); }
+  .public-app .public-quality-summary .btn.secondary { color: #416451; background: #FFFFFF; border-color: #C3D7C9; box-shadow: 0 1px 2px rgb(47 125 95 / 3%); }
+  .public-app .public-quality-summary .btn.secondary:hover:not(:disabled) { background: #F0F7F2; border-color: #9FBEAA; }
+  .public-app :is(a, button, summary) { transition: background-color var(--zj-duration) var(--zj-easing), border-color var(--zj-duration) var(--zj-easing), color var(--zj-duration) var(--zj-easing), box-shadow var(--zj-duration) var(--zj-easing); }
+  .public-app .public-quality-heading h2::before { background-image: var(--zj-apple-trace); width: 21px; height: 21px; }
+  .public-app .timeline-dot { width: 25px; height: 25px; background: #F5FAF6; border-color: #DCE9E0; }
+  .public-app .timeline-dot::after { inset: 3px; background-image: var(--zj-apple-trace); opacity: .85; }
+  .public-app .timeline li:not(:last-child)::before { left: 12px; top: 21px; }
+  .public-app .timeline li { padding-bottom: 28px; }
+  .public-app .timeline li:last-child { padding-bottom: 0; }
+  .public-app .empty-state h3 { font-weight: 600; }
+  .public-app .empty-state p { font-size: 12px; }
+}
+@media screen and (max-width: 640px) {
+  .public-app .public-header { padding: 18px 16px; }
+  .public-app .public-main { padding: 22px 15px 28px; }
+  .public-app :is(.card, .public-hero, .public-disclaimer) { padding: 20px; margin-bottom: 20px; border-radius: 12px; }
+  .public-app .public-hero h1 { font-size: 25px; }
+  .public-app .public-product { padding: 15px; }
+  .public-app .public-quality-summary .btn { min-height: 44px; }
+  .public-app .public-header > .badge { padding-inline: 7px; }
+  .public-app .public-quality-heading h2::before { width: 18px; height: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-app *, .public-app *::before, .public-app *::after { transition: none !important; animation: none !important; }
+}
+@media print {
+  .public-app, .public-app * { box-shadow: none !important; text-shadow: none !important; background-image: none !important; color: #111111 !important; }
+  .public-app :is(.card, .public-hero, .public-product, .public-disclaimer, .notice, .badge, .ui-grade-value) { background-color: #FFFFFF !important; border-color: #C9C9C9 !important; }
+  .public-app .timeline-dot { background-color: #FFFFFF !important; border-color: #999999 !important; }
+  .public-app .timeline li:not(:last-child)::before { background-color: #CCCCCC !important; }
+}
