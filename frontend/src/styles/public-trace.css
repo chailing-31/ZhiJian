@@ -232,3 +232,49 @@
   .public-app .timeline-dot { background-color: #FFFFFF !important; border-color: #999999 !important; }
   .public-app .timeline li:not(:last-child)::before { background-color: #CCCCCC !important; }
 }
+
+/* Apple workspace round 3: published records share typography and semantic colours. */
+@media screen {
+  .public-app { --ink: #1F2933; --muted: #4A5568; --green: #19834F; --line: #E0EBDD; max-width: 980px; font-family: var(--zj-font-ui); font-size: 14px; color: #1F2933; background: #F5FAF4; }
+  .public-app :is(button, input, select, textarea) { font-family: var(--zj-font-ui); }
+  .public-app .public-header { padding: 20px 24px; border-color: #DCE9D8; }
+  .public-app .public-header strong { color: #1F2933; font-weight: 750; }
+  .public-app .brand-mark { background-color: #FFF0EA; background-image: var(--zj-apple-line); }
+  .public-app .public-main { max-width: none; padding: 24px 20px 28px; }
+  .public-app :is(.card, .public-hero, .public-disclaimer) { padding: 22px; margin-bottom: 18px; border-color: #E0EBDD; box-shadow: var(--zj-shadow); }
+  .public-app .public-hero h1 { color: #1F2933; font-size: 30px; font-weight: 700; line-height: 1.3; }
+  .public-app .card h2 { color: #1F2933; font-size: 17px; font-weight: 650; }
+  .public-app .public-product { padding: 16px 18px; margin-top: 18px; border-color: #D7E8D1; background: #F0F8EC; }
+  .public-app .card p { color: #4A5568; line-height: 1.75; }
+  .public-app :is(.footnote, .public-footer, .public-disclaimer, .timeline-meta, .timeline time) { color: #5F6C80; font-size: 12px; }
+  .public-app .published-facts { gap: 16px 20px; margin-block: 18px; }
+  .public-app .published-facts dd { color: #1F2933; }
+  .public-app .badge.ready { color: #176D43; background: #E0F5E8; border-color: #BFE5CA; }
+  .public-app .badge.pending { color: #88510B; background: #FFF0CE; border-color: #F4D18E; }
+  .public-app .badge.partial { color: #236C5B; background: #E2F4EE; border-color: #C4E7DA; }
+  .public-app .badge:is(.danger, .error) { color: #B32F44; background: #FFE7E8; border-color: #F4BEC6; }
+  .public-app .badge.neutral { color: #526475; background: #EDF2F4; border-color: #DCE5E9; }
+  .public-app .notice.warning { color: #88510B; background: #FFF5DF; border-color: #F1D5A0; }
+  .public-app .notice.danger { color: #B32F44; background: #FFECEE; border-color: #F4BEC6; }
+  .public-app .public-quality-summary .notice.success { color: #176D43; background: #EAF7EE; border-color: #BFE5CA; }
+  .public-app .ui-grade[data-grade="A"] .ui-grade-value { color: #176D43; background: #E0F5E8; }
+  .public-app .ui-grade[data-grade="B"] .ui-grade-value { color: #236C5B; background: #E2F4EE; }
+  .public-app .ui-grade[data-grade="C"] .ui-grade-value { color: #88510B; background: #FFF0CE; }
+  .public-app .ui-grade[data-grade="REJECT"] .ui-grade-value { color: #B32F44; background: #FFE7E8; }
+  .public-app .public-quality-summary .btn { color: #FFFFFF; font-weight: 650; border-color: #19834F; background-color: #19834F; background-image: var(--zj-button-gradient); }
+  .public-app .public-quality-summary .btn:hover:not(:disabled) { border-color: #167345; background-color: #177449; background-image: var(--zj-button-gradient); }
+  .public-app .public-quality-summary .btn.secondary { color: #176F45; border-color: #A7CDB0; background: #FFFFFF; }
+  .public-app .public-quality-summary .btn.secondary:hover:not(:disabled) { color: #176F45; border-color: #71B98C; background: #EAF7EC; }
+  .public-app .timeline li { padding-bottom: 22px; }
+  .public-app .timeline li:last-child { padding-bottom: 0; }
+  .public-app .timeline-dot { border-color: #99CAA3; background: #EAF7EC; }
+  .public-app .timeline li:not(:last-child)::before { background: #CCE3C7; }
+  .public-app :is(a, button, summary):focus-visible { outline-color: #19834F; }
+}
+@media screen and (max-width: 640px) {
+  .public-app .public-main { padding: 20px 14px 24px; }
+  .public-app .public-header { padding: 18px 16px; }
+  .public-app :is(.card, .public-hero, .public-disclaimer) { padding: 18px; margin-bottom: 16px; }
+  .public-app .public-hero h1 { font-size: 26px; }
+  .public-app .public-product { padding: 14px; }
+}
