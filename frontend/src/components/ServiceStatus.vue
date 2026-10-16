@@ -26,7 +26,7 @@ onBeforeUnmount(() => abort.abort())
 <template>
   <section class="e-services" aria-label="服务连接检查">
     <span class="e-services-label">连接检查</span>
-    <span v-for="row in rows" :key="row.name" class="e-service" :class="row.ok ? 'ok' : 'fail'" :title="row.text"><i />{{ row.name }} {{ row.ok ? '可用' : '待检查' }}</span>
+    <span v-for="row in rows" :key="row.name" class="e-service" :class="row.ok ? 'ok' : 'fail'" :title="row.text"><i /><span>{{ row.name }}</span><strong>{{ row.ok ? '可用' : '待检查' }}</strong></span>
     <span v-if="!rows.length" class="muted">{{ loading ? '正在检测…' : '尚未检查' }}</span>
     <button class="e-text-button" :disabled="loading" @click="refresh">{{ loading ? '检查中…' : '重新检查' }}</button>
     <small v-if="checked">上次检查 {{ checked }}</small>

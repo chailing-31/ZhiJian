@@ -29,10 +29,11 @@ function compactJson(data) {
 </script>
 
 <template>
-  <PageHeading eyebrow="全程品控记录" title="批次品控报告" description="查看 AI 初评、人工修正、实际作业和冷链处置，支持打印归档。">
+  <PageHeading eyebrow="全程品控记录" title="批次品控报告" description="查看本批次已保存的品控记录。">
     <RouterLink class="btn secondary no-print" :to="`/batches/${route.params.id}`">返回批次</RouterLink>
     <button class="btn no-print" :disabled="!report" @click="print">打印 / 另存为 PDF</button>
   </PageHeading>
+  <nav v-if="report" class="ui-report-index no-print" aria-label="报告目录"><a href="#report-inspection">质检与复核</a><a href="#report-processing">加工记录</a><a href="#report-coldchain">冷链摘要</a><a href="#report-alerts">告警处置</a><a href="#report-events">业务事件</a></nav>
   <StateNotice :loading="loading" :error="error" @retry="reload" />
 
   <template v-if="report && batch">
@@ -50,7 +51,7 @@ function compactJson(data) {
     <div v-if="report.warnings?.length" class="notice danger"><div><strong>数据源提示</strong><div v-for="item in report.warnings" :key="item">{{ item }}</div></div></div>
 
     <section class="card">
-      <div class="section-row"><div><p class="eyebrow">BATCH DOSSIER</p><h2 class="mono">{{ batch.batch_code }}</h2></div><span class="badge neutral">内部品控记录</span></div>
+      <div class="section-row"><div><p class="eyebrow">批次信息</p><h2 class="mono">{{ batch.batch_code }}</h2></div><span class="badge neutral">内部品控记录</span></div>
       <dl class="info-grid">
         <div><dt>产品 / 品种</dt><dd>{{ batch.product }} / {{ batch.variety || '未录入' }}</dd></div>
         <div><dt>产地</dt><dd>{{ batch.origin || '未录入' }}</dd></div>
@@ -68,7 +69,7 @@ function compactJson(data) {
       <article class="stat-card trace-stat"><div class="stat-top"><span>冷链 / 告警</span></div><strong class="word-stat">{{ cold.reading_count || 0 }} / {{ report.coldchain.alert_count || 0 }}</strong><small>读数条数 / 告警条数</small></article>
     </div>
 
-    <section class="card">
+    <section id="report-inspection" class="card ui-report-section">
       <div class="section-row"><h2>AI 质检与人工复核</h2><span class="badge ready">{{ report.inspection.count }} 条</span></div>
       <EmptyState v-if="!report.inspection.records.length" title="暂无质检记录" description="没有保存的质检记录时，不生成质量结论。" icon="scan" />
       <div v-else class="table-wrap"><table><thead><tr><th>记录</th><th>模型</th><th>候选</th><th>复核</th><th>有效图像等级</th><th>时间</th><th class="no-print">证据</th></tr></thead><tbody>
@@ -80,7 +81,7 @@ function compactJson(data) {
       </tbody></table></div>
     </section>
 
-    <section class="card">
+    <section id="report-processing" class="card ui-report-section">
       <div class="section-row"><h2>加工品控记录</h2><span class="badge neutral">{{ report.processing.count }} 条</span></div>
       <EmptyState v-if="!report.processing.records.length" title="暂无加工记录" description="生成加工建议后，输入条件、建议与采用值会记录在这里。" icon="sliders" />
       <div v-else class="table-wrap"><table><thead><tr><th class="no-print">追溯</th><th>记录</th><th>类型</th><th>输入</th><th>建议</th><th>采用值</th><th>操作员 / 时间</th></tr></thead><tbody>
@@ -93,7 +94,7 @@ function compactJson(data) {
 
     <section v-if="report.batch_workbench" class="card"><h2>实际作业与品质处置</h2><div class="table-wrap"><table><thead><tr><th>类型</th><th>时间与人员</th><th>结果</th><th>等级版本</th><th>状态</th></tr></thead><tbody><tr v-for="o in report.batch_workbench.operations" :key="o.id"><td>{{ ({sorting_completed:'实际分选',processing_completed:'实际加工',quality_disposition:'品质处置',reject_disposition:'拒收处置'})[o.kind] }}</td><td>{{ o.performed_at }}<span class="cell-sub">{{ o.operator }}</span></td><td>{{ o.note }}</td><td>#{{ o.assessment_id }}</td><td>{{ o.current ? '当前记录' : '历史记录' }}</td></tr><tr v-if="!report.batch_workbench.operations.length"><td colspan="5">暂无实际作业记录</td></tr></tbody></table></div></section>
 
-    <section class="card">
+    <section id="report-coldchain" class="card ui-report-section">
       <div class="section-row"><h2>冷链监测摘要</h2><span class="badge neutral">{{ cold.reading_count || 0 }} 条读数</span></div>
       <dl class="info-grid">
         <div><dt>时间范围</dt><dd>{{ formatTime(cold.first_time) }} → {{ formatTime(cold.last_time) }}</dd></div>
@@ -106,7 +107,7 @@ function compactJson(data) {
       <p v-if="report.coldchain.readings_truncated" class="footnote">读数较多，页面只返回最近 200 条明细；上方统计仍基于该批次全部已保存读数。</p>
     </section>
 
-    <section class="card">
+    <section id="report-alerts" class="card ui-report-section">
       <div class="section-row"><h2>冷链告警与处置</h2><span class="badge neutral">{{ report.coldchain.alert_count }} 条</span></div>
       <EmptyState v-if="!report.coldchain.alerts.length" title="暂无告警记录" description="没有告警记录只表示数据库中暂无记录，不自动解释为安全或合格。" icon="thermometer" />
       <div v-else class="table-wrap"><table><thead><tr><th>时间</th><th>级别</th><th>原因</th><th>触发值</th><th>状态</th><th>处置</th></tr></thead><tbody>
@@ -114,6 +115,6 @@ function compactJson(data) {
       </tbody></table></div>
     </section>
 
-    <section class="card"><div class="section-row"><h2>全链路已保存事件</h2><span class="badge neutral">{{ report.events.length }} 条</span></div><EventTimeline :events="report.events" /></section>
+    <section id="report-events" class="card ui-report-section"><div class="section-row"><h2>全链路已保存事件</h2><span class="badge neutral">{{ report.events.length }} 条</span></div><EventTimeline :events="report.events" /></section>
   </template>
 </template>

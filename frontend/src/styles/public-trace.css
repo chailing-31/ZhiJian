@@ -1,0 +1,318 @@
+.public-app { background:#fff; color:#68727a; min-height:100dvh; font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif; --ink:#24313b; --green:#236548; --muted:#68727a; --line:#e2e6ea; }
+.public-app .public-header { background:#fff; border-bottom:1px solid #e2e6ea; padding:18px 28px; }
+.public-app .brand-mark { background:#236548; color:#fff; border:0; border-radius:7px; width:40px; height:44px; }
+.public-app .public-header strong { font-size:21px; color:#24313b; }
+.public-app .public-header small { font-size:12px; color:#68727a; margin-top:4px; }
+.public-app .public-main { max-width:900px; padding:32px 24px; }
+.public-app .public-hero { background:#fff; border:1px solid #e2e6ea; border-radius:7px; padding:24px; margin-bottom:23px; }
+.public-app .public-hero .eyebrow { font-size:12px; color:#68727a; display:flex; align-items:center; gap:7px; }
+.public-app .public-hero .eyebrow .icon { width:16px; height:16px; }
+.public-app .public-hero h1 { font-size:28px; margin:14px 0 7px; color:#24313b; }
+.public-app .public-hero .mono { font-size:13px; color:#68727a; overflow-wrap:anywhere; }
+.public-app .public-product { background:#ffffff70; border:1px solid #e2e6ea; border-radius:7px; padding:17px; margin-top:23px; }
+.public-app .public-product span { color:#68727a; font-size:12px; }
+.public-app .public-product strong { color:#24313b; font-size:16px; margin-top:6px; }
+.public-app .card { border:1px solid #e2e6ea; border-radius:7px; box-shadow:none; padding:25px; margin-bottom:22px; }
+.public-app .card h2 { color:#24313b; font-size:20px; margin-bottom:14px; }
+.public-app .card p { color:#68727a; font-size:13px; line-height:1.9; }
+.public-app .public-quality-heading { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:17px; }
+.public-app .public-quality-heading h2 { margin:0; }
+.public-app .public-quality-grade { display:flex; align-items:center; gap:16px; padding:17px; border:1px solid #e2e6ea; border-radius:7px; background:#fff; margin-bottom:17px; }
+.public-app .public-quality-grade .ui-grade-value { min-width:52px; height:53px; font-size:29px; }
+.public-app .public-quality-grade .ui-grade[data-grade=REJECT] .ui-grade-value { font-size:18px; }
+.public-app .public-quality-grade p { margin:0; }
+.public-app .public-quality-grade small { color:#68727a; font-size:12px; }
+.public-app .badge { border-radius:6px; font-size:11px; padding:5px 9px; }
+.public-app .badge.ready { background:#e9f4e1; color:#4a7544; }
+.public-app .badge.neutral { background:#f1f5e9; color:#70805f; }
+.public-app .footnote { font-size:12px; color:#68727a; }
+.public-app .notice.warning { background:#fff8e8; border-color:#edddae; color:#8d6d28; font-size:13px; }
+.public-app summary { color:#68727a; cursor:pointer; font-size:12px; padding:10px 0; }
+.public-app .public-disclaimer { border:1px solid #e2e6ea; border-radius:7px; padding:17px; background:#fff; color:#68727a; font-size:12px; line-height:1.9; }
+.public-app .public-footer { color:#68727a; font-size:12px; padding:4px 20px 30px; }
+.public-app .timeline-title { color:#24313b; }
+.public-app .timeline-meta { font-size:12px; color:#68727a; }
+.public-app :is(a,button,summary):focus-visible { outline:2px solid #5d9667; outline-offset:3px; }
+@media(max-width:640px) { .public-app .public-header { padding:15px 17px; gap:12px; }.public-app .public-header strong { font-size:19px; }.public-app .public-header small { font-size:11px; }.public-app .public-header>.badge { font-size:10px; }.public-app .public-main { padding:23px 15px; }.public-app .public-hero { padding:24px; border-radius:7px; }.public-app .public-hero h1 { font-size:29px; }.public-app .public-hero .mono { font-size:12px; }.public-app .public-product { padding:14px; }.public-app .card { padding:21px; }.public-app .card h2 { font-size:18px; }.public-app .public-quality-grade { padding:14px; gap:12px; }.public-app .public-quality-grade p { font-size:12px; }.public-app .public-disclaimer { font-size:11px; } }
+.public-app .public-quality-summary h2 { font-size:17px; margin:0; }
+.public-app .public-quality-summary .btn { background:#286548; border-color:#286548; border-radius:5px; font-size:12px; min-height:36px; }
+.public-app .public-quality-summary .btn.secondary { background:#fff; color:#59646d; border-color:#d6dde2; }
+.public-app .published-facts { display:grid; grid-template-columns:1fr 1fr; gap:18px 24px; margin:20px 0; }
+.public-app .published-facts dt { font-size:12px; color:#68727a; margin-bottom:6px; }
+.public-app .published-facts dd { font-size:14px; color:#28323c; line-height:1.8; }
+.public-app .published-facts small { display:block; font-size:12px; color:#68727a; }
+.public-app .notice { display:block; border-radius:5px; }
+.public-app .public-quality-summary .notice.success { background:#f1f7f2; color:#3d654b; border-color:#dbe8df; }
+@media(max-width:640px) { .public-app .published-facts { grid-template-columns:1fr; }.public-app .public-quality-summary .btn { min-height:44px; }.public-app .public-quality-summary .section-row { align-items:flex-start; } }
+
+/* Orchard theme for the existing public record page. Decorative CSS only. */
+@media screen {
+  .public-app {
+    --ink: var(--zj-ink, #263238);
+    --green: var(--zj-primary, #2F7D5F);
+    --muted: var(--zj-muted, #546E7A);
+    --line: var(--zj-border, #E1E9E4);
+    max-width: 860px;
+    background: #F7F9F8;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  .public-app .public-header { padding: 20px 28px; border-bottom-color: var(--line); }
+  .public-app .public-header strong { font-size: 20px; color: var(--ink); }
+  .public-app .public-header small { color: var(--muted); font-size: 12px; }
+  .public-app .brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #EDF6F0 var(--zj-icon-apple) center / 26px 26px no-repeat;
+  }
+  .public-app .brand-mark > .icon { visibility: hidden; }
+  .public-app .public-main {
+    padding: 28px 24px 32px;
+    background-image: var(--zj-leaf-texture);
+    background-repeat: no-repeat;
+    background-position: right 18px bottom 12px;
+    background-size: 140px 140px;
+  }
+  .public-app :is(.card, .public-hero, .public-disclaimer) {
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #FFFFFF;
+    box-shadow: 0 2px 10px rgb(38 50 56 / 3%);
+    margin-bottom: 20px;
+  }
+  .public-app .public-hero h1 { margin: 12px 0 8px; color: var(--ink); font-size: 25px; font-weight: 650; line-height: 1.4; }
+  .public-app .public-hero :is(.eyebrow, .mono) { color: var(--muted); }
+  .public-app .public-product { margin-top: 20px; padding: 16px 18px; border-color: var(--line); border-radius: 8px; background: #F6FAF7; }
+  .public-app .public-product span { color: var(--muted); font-size: 12px; }
+  .public-app .public-product strong { color: var(--ink); font-size: 15px; }
+  .public-app .card h2 { color: var(--ink); font-size: 16px; font-weight: 600; line-height: 1.5; }
+  .public-app .card p { color: var(--muted); font-size: 13px; line-height: 1.8; }
+  .public-app .public-quality-heading { gap: 12px; margin-bottom: 18px; }
+  .public-app .public-quality-heading h2::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 7px;
+    vertical-align: -3px;
+    background: var(--zj-icon-trace) center / contain no-repeat;
+    pointer-events: none;
+  }
+  .public-app .public-quality-grade { gap: 16px; border-color: var(--line); border-radius: 8px; background: #FBFCFB; }
+  .public-app .ui-grade-value { border-radius: 8px; }
+  .public-app .ui-grade[data-grade="A"] .ui-grade-value { color: #2F7D5F; background: #EDF6F0; }
+  .public-app .ui-grade[data-grade="B"] .ui-grade-value { color: #446C73; background: #EDF5F4; }
+  .public-app .ui-grade[data-grade="C"] .ui-grade-value { color: #8A682E; background: #FBF6EA; }
+  .public-app .ui-grade[data-grade="REJECT"] .ui-grade-value { color: #A94843; background: #FCF1EF; }
+  .public-app .badge { gap: 5px; padding: 4px 8px; border: 1px solid #E4EBE7; border-radius: 6px; font-size: 12px; font-weight: 500; line-height: 1.5; color: var(--muted); background: #F1F5F3; }
+  .public-app .badge::before {
+    content: "";
+    display: inline-block;
+    flex: 0 0 13px;
+    width: 13px;
+    height: 13px;
+    background: var(--zj-public-status-icon, var(--zj-icon-info)) center / contain no-repeat;
+    pointer-events: none;
+  }
+  .public-app .badge.ready { --zj-public-status-icon: var(--zj-icon-check); color: #35654B; background: #EDF6F0; border-color: #DCECDF; }
+  .public-app .badge.pending { --zj-public-status-icon: var(--zj-icon-clock); color: #8A682E; background: #FBF6EA; border-color: #EEE2C7; }
+  .public-app .badge:is(.danger, .error) { --zj-public-status-icon: var(--zj-icon-alert); color: #A94843; background: #FCF1EF; border-color: #EFD9D5; }
+  .public-app .public-header > .badge { --zj-public-status-icon: var(--zj-icon-trace); white-space: nowrap; }
+  .public-app .public-quality-summary .btn { min-height: 38px; padding: 8px 13px; border-color: var(--green); border-radius: 8px; color: #FFFFFF; background: var(--green); font-size: 13px; }
+  .public-app .public-quality-summary .btn:hover:not(:disabled) { background: #286B52; border-color: #286B52; }
+  .public-app .public-quality-summary .btn.secondary { color: #3D5B4D; background: #FFFFFF; border-color: #CBD9D1; }
+  .public-app .public-quality-summary .btn.secondary:hover:not(:disabled) { color: var(--green); background: #F3F8F5; border-color: #A7C3B3; }
+  .public-app .published-facts { gap: 18px 24px; }
+  .public-app .published-facts :is(dt, small), .public-app .footnote { color: var(--muted); font-size: 12px; }
+  .public-app .published-facts dd { color: var(--ink); font-size: 14px; }
+  .public-app .notice { border-radius: 8px; line-height: 1.8; }
+  .public-app .notice.warning { color: #8A682E; background: #FBF6EA; border-color: #EEE2C7; }
+  .public-app .notice.danger { color: #A94843; background: #FCF1EF; border-color: #EFD9D5; }
+  .public-app .public-quality-summary .notice.success { color: #35654B; background: #F0F7F2; border-color: #DCECDF; }
+  .public-app .empty-state { padding: 28px 12px; }
+  .public-app .empty-state > .icon { display: none; }
+  .public-app .empty-state::before { content: ""; display: block; width: 88px; height: 70px; margin: 0 auto 12px; background: var(--zj-empty-fruit) center / contain no-repeat; pointer-events: none; }
+  .public-app .empty-state h3 { color: #4B6357; font-size: 14px; }
+  .public-app .timeline { margin-top: 22px; }
+  .public-app .timeline li { gap: 14px; padding-bottom: 24px; }
+  .public-app .timeline li:last-child { padding-bottom: 0; }
+  .public-app .timeline li:not(:last-child)::before { left: 11px; top: 19px; background-color: #DDE9E1; }
+  .public-app .timeline-dot {
+    position: relative;
+    width: 23px;
+    height: 23px;
+    margin-top: 1px;
+    border: 1px solid #D7E7DC;
+    border-radius: 50%;
+    background: #F3F8F4;
+  }
+  .public-app .timeline-dot::after { content: ""; position: absolute; inset: 4px; background: var(--zj-icon-trace) center / contain no-repeat; pointer-events: none; }
+  .public-app .timeline-content h3 { color: var(--ink); font-size: 14px; font-weight: 600; }
+  .public-app .timeline-content p { color: var(--muted); line-height: 1.8; }
+  .public-app .timeline time, .public-app .public-disclaimer, .public-app .public-footer { color: var(--muted); font-size: 12px; }
+  .public-app :is(a, button, summary):focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+}
+@media screen and (max-width: 640px) {
+  .public-app .public-header { padding: 17px 16px; gap: 10px; }
+  .public-app .public-header strong { font-size: 19px; }
+  .public-app .public-header > .badge { font-size: 11px; padding: 4px 6px; }
+  .public-app .public-main { padding: 20px 14px 24px; background-size: 110px 110px; }
+  .public-app :is(.card, .public-hero, .public-disclaimer) { padding: 18px; border-radius: 10px; margin-bottom: 18px; }
+  .public-app .public-hero h1 { font-size: 23px; }
+  .public-app .public-product { padding: 14px; margin-top: 18px; }
+  .public-app .public-quality-grade { padding: 14px; }
+  .public-app .public-quality-summary .btn { min-height: 44px; }
+  .public-app .public-quality-heading { align-items: flex-start; flex-wrap: wrap; }
+  .public-app .public-disclaimer { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-app *, .public-app *::before, .public-app *::after { transition: none !important; animation: none !important; }
+}
+@media print {
+  .public-app { max-width: none; background: #FFFFFF; color: #222222; }
+  .public-app :is(.public-main, .brand-mark) { background-image: none !important; }
+  .public-app .brand-mark { display: none !important; }
+  .public-app .public-quality-heading h2::before,
+  .public-app .badge::before,
+  .public-app .empty-state::before,
+  .public-app .timeline-dot::after { content: none !important; display: none !important; }
+  .public-app :is(.brand-mark > .icon, .empty-state > .icon) { display: none !important; }
+  .public-app :is(.card, .public-hero, .public-product, .public-disclaimer) { background: #FFFFFF; box-shadow: none; border-color: #CCCCCC; }
+}
+/* Orchard polish round 2 for published records. No character mascots here. */
+@media screen {
+  .public-app { color: #546E7A; }
+  .public-app .public-header { padding: 22px 28px; }
+  .public-app .public-main { padding: 32px 26px 36px; }
+  .public-app :is(.card, .public-hero, .public-disclaimer) { padding: 28px; margin-bottom: 24px; border-color: #E7EEEA; border-radius: 14px; box-shadow: var(--zj-shadow); }
+  .public-app .public-hero h1 { font-size: 28px; font-weight: 700; }
+  .public-app .public-product { padding: 18px 20px; border-color: #E5EDE7; border-radius: 10px; background: #F6FAF7; }
+  .public-app .card h2 { font-size: 17px; font-weight: 650; }
+  .public-app .card p { line-height: 1.85; }
+  .public-app .public-disclaimer { font-size: 12px; background: #FBFDFB; box-shadow: var(--zj-shadow-quiet); }
+  .public-app .public-quality-summary:has(> .notice.success) { border-color: #DCEAE0; }
+  .public-app .public-quality-summary:has(> .notice.warning) { border-color: #EDE2CE; }
+  .public-app .badge { padding: 4px 10px; min-height: 26px; border-radius: 999px; }
+  .public-app .badge.ready { color: #35664E; background: #EAF4EE; border-color: #DEEBE2; }
+  .public-app .badge.pending { color: #86632D; background: #FAF3E6; border-color: #EEE2C9; }
+  .public-app .badge.partial { color: #3E7162; background: #ECF5F1; border-color: #DCEAE2; }
+  .public-app .badge:is(.danger, .error) { color: #A34B46; background: #FAECE9; border-color: #EED8D3; }
+  .public-app .public-quality-summary .btn { min-height: 42px; padding: 10px 16px; border-radius: 10px; background-color: #2F7D5F; background-image: var(--zj-button-gradient); box-shadow: 0 3px 8px rgb(47 125 95 / 10%); }
+  .public-app .public-quality-summary .btn.secondary { color: #416451; background: #FFFFFF; border-color: #C3D7C9; box-shadow: 0 1px 2px rgb(47 125 95 / 3%); }
+  .public-app .public-quality-summary .btn.secondary:hover:not(:disabled) { background: #F0F7F2; border-color: #9FBEAA; }
+  .public-app :is(a, button, summary) { transition: background-color var(--zj-duration) var(--zj-easing), border-color var(--zj-duration) var(--zj-easing), color var(--zj-duration) var(--zj-easing), box-shadow var(--zj-duration) var(--zj-easing); }
+  .public-app .public-quality-heading h2::before { background-image: var(--zj-apple-trace); width: 21px; height: 21px; }
+  .public-app .timeline-dot { width: 25px; height: 25px; background: #F5FAF6; border-color: #DCE9E0; }
+  .public-app .timeline-dot::after { inset: 3px; background-image: var(--zj-apple-trace); opacity: .85; }
+  .public-app .timeline li:not(:last-child)::before { left: 12px; top: 21px; }
+  .public-app .timeline li { padding-bottom: 28px; }
+  .public-app .timeline li:last-child { padding-bottom: 0; }
+  .public-app .empty-state h3 { font-weight: 600; }
+  .public-app .empty-state p { font-size: 12px; }
+}
+@media screen and (max-width: 640px) {
+  .public-app .public-header { padding: 18px 16px; }
+  .public-app .public-main { padding: 22px 15px 28px; }
+  .public-app :is(.card, .public-hero, .public-disclaimer) { padding: 20px; margin-bottom: 20px; border-radius: 12px; }
+  .public-app .public-hero h1 { font-size: 25px; }
+  .public-app .public-product { padding: 15px; }
+  .public-app .public-quality-summary .btn { min-height: 44px; }
+  .public-app .public-header > .badge { padding-inline: 7px; }
+  .public-app .public-quality-heading h2::before { width: 18px; height: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-app *, .public-app *::before, .public-app *::after { transition: none !important; animation: none !important; }
+}
+@media print {
+  .public-app, .public-app * { box-shadow: none !important; text-shadow: none !important; background-image: none !important; color: #111111 !important; }
+  .public-app :is(.card, .public-hero, .public-product, .public-disclaimer, .notice, .badge, .ui-grade-value) { background-color: #FFFFFF !important; border-color: #C9C9C9 !important; }
+  .public-app .timeline-dot { background-color: #FFFFFF !important; border-color: #999999 !important; }
+  .public-app .timeline li:not(:last-child)::before { background-color: #CCCCCC !important; }
+}
+
+/* Apple workspace round 3: published records share typography and semantic colours. */
+@media screen {
+  .public-app { --ink: #1F2933; --muted: #4A5568; --green: #19834F; --line: #E0EBDD; max-width: 980px; font-family: var(--zj-font-ui); font-size: 14px; color: #1F2933; background: #F5FAF4; }
+  .public-app :is(button, input, select, textarea) { font-family: var(--zj-font-ui); }
+  .public-app .public-header { padding: 20px 24px; border-color: #DCE9D8; }
+  .public-app .public-header strong { color: #1F2933; font-weight: 750; }
+  .public-app .brand-mark { background-color: #FFF0EA; background-image: var(--zj-apple-line); }
+  .public-app .public-main { max-width: none; padding: 24px 20px 28px; }
+  .public-app :is(.card, .public-hero, .public-disclaimer) { padding: 22px; margin-bottom: 18px; border-color: #E0EBDD; box-shadow: var(--zj-shadow); }
+  .public-app .public-hero h1 { color: #1F2933; font-size: 30px; font-weight: 700; line-height: 1.3; }
+  .public-app .card h2 { color: #1F2933; font-size: 17px; font-weight: 650; }
+  .public-app .public-product { padding: 16px 18px; margin-top: 18px; border-color: #D7E8D1; background: #F0F8EC; }
+  .public-app .card p { color: #4A5568; line-height: 1.75; }
+  .public-app :is(.footnote, .public-footer, .public-disclaimer, .timeline-meta, .timeline time) { color: #5F6C80; font-size: 12px; }
+  .public-app .published-facts { gap: 16px 20px; margin-block: 18px; }
+  .public-app .published-facts dd { color: #1F2933; }
+  .public-app .badge.ready { color: #176D43; background: #E0F5E8; border-color: #BFE5CA; }
+  .public-app .badge.pending { color: #88510B; background: #FFF0CE; border-color: #F4D18E; }
+  .public-app .badge.partial { color: #236C5B; background: #E2F4EE; border-color: #C4E7DA; }
+  .public-app .badge:is(.danger, .error) { color: #B32F44; background: #FFE7E8; border-color: #F4BEC6; }
+  .public-app .badge.neutral { color: #526475; background: #EDF2F4; border-color: #DCE5E9; }
+  .public-app .notice.warning { color: #88510B; background: #FFF5DF; border-color: #F1D5A0; }
+  .public-app .notice.danger { color: #B32F44; background: #FFECEE; border-color: #F4BEC6; }
+  .public-app .public-quality-summary .notice.success { color: #176D43; background: #EAF7EE; border-color: #BFE5CA; }
+  .public-app .ui-grade[data-grade="A"] .ui-grade-value { color: #176D43; background: #E0F5E8; }
+  .public-app .ui-grade[data-grade="B"] .ui-grade-value { color: #236C5B; background: #E2F4EE; }
+  .public-app .ui-grade[data-grade="C"] .ui-grade-value { color: #88510B; background: #FFF0CE; }
+  .public-app .ui-grade[data-grade="REJECT"] .ui-grade-value { color: #B32F44; background: #FFE7E8; }
+  .public-app .public-quality-summary .btn { color: #FFFFFF; font-weight: 650; border-color: #19834F; background-color: #19834F; background-image: var(--zj-button-gradient); }
+  .public-app .public-quality-summary .btn:hover:not(:disabled) { border-color: #167345; background-color: #177449; background-image: var(--zj-button-gradient); }
+  .public-app .public-quality-summary .btn.secondary { color: #176F45; border-color: #A7CDB0; background: #FFFFFF; }
+  .public-app .public-quality-summary .btn.secondary:hover:not(:disabled) { color: #176F45; border-color: #71B98C; background: #EAF7EC; }
+  .public-app .timeline li { padding-bottom: 22px; }
+  .public-app .timeline li:last-child { padding-bottom: 0; }
+  .public-app .timeline-dot { border-color: #99CAA3; background: #EAF7EC; }
+  .public-app .timeline li:not(:last-child)::before { background: #CCE3C7; }
+  .public-app :is(a, button, summary):focus-visible { outline-color: #19834F; }
+}
+@media screen and (max-width: 640px) {
+  .public-app .public-main { padding: 20px 14px 24px; }
+  .public-app .public-header { padding: 18px 16px; }
+  .public-app :is(.card, .public-hero, .public-disclaimer) { padding: 18px; margin-bottom: 16px; }
+  .public-app .public-hero h1 { font-size: 26px; }
+  .public-app .public-product { padding: 14px; }
+}
+
+/* Orchard interactions round 4: shared selection, IP empty state, motion boundaries. */
+@media screen {
+  .public-app .empty-state::before { background-image: var(--zj-apple-3d); background-size: 60px 68px; }
+  .public-app .public-main { background-image: var(--zj-fruit-silhouette); background-repeat: no-repeat; background-position: right 20px bottom 24px; background-size: 150px 162px; background-attachment: fixed; }
+}
+@media screen and (max-width: 760px) {
+  .public-app *, .public-app *::before, .public-app *::after { animation: none !important; transition: none !important; }
+  .public-app .public-main { background-image: none; background-attachment: scroll; }
+  .public-app .empty-state::before, .public-app .public-quality-heading h2::before, .public-app .timeline-dot::after { content: none; display: none; }
+  .public-app .empty-state > .icon { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-app .public-main { background-attachment: scroll; }
+}
+@media print {
+  .public-app *, .public-app *::before, .public-app *::after { animation: none !important; transition: none !important; }
+  .public-app .public-main { background-image: none !important; background-attachment: scroll; }
+}
+
+/* Orchard IP scenes round 5: status expressions and a small inline mobile bubble. */
+@media screen {
+  .public-app .badge.ready { --zj-public-status-icon: var(--zj-tag-apple-smile); }
+  .public-app .badge.pending { --zj-public-status-icon: var(--zj-tag-apple-waiting); }
+  .public-app .badge:is(.danger, .error) { --zj-public-status-icon: var(--zj-tag-apple-worried); }
+}
+@media screen and (max-width: 760px) {
+  .public-app .empty-state { position: relative; }
+  .public-app .empty-state > .icon { display: block; visibility: hidden; }
+  .public-app .empty-state::before { content: ""; display: block; position: absolute; left: calc(50% - 36px); top: 18px; width: 40px; height: 48px; margin: 0; background: var(--zj-apple-3d) center / contain no-repeat; pointer-events: none; }
+  .public-app .empty-state::after { content: "按页面提示查看已公开记录。"; position: absolute; left: calc(50% + 6px); top: 8px; width: 100px; max-width: calc(50% - 12px); box-sizing: border-box; padding: 6px 8px 13px; font: 11px/1.35 var(--zj-font-ui); color: #36523F; background: var(--zj-bubble-regular) center / 100% 100% no-repeat; pointer-events: none; }
+}
+@media screen and (max-width: 360px) {
+  .public-app .empty-state::after { left: calc(50% + 4px); width: 88px; font-size: 10.5px; }
+}
+@media print {
+  .public-app .empty-state::before, .public-app .empty-state::after { content: none !important; display: none !important; }
+}

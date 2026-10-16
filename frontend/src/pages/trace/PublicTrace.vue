@@ -1,4 +1,5 @@
 <script setup>
+import '../../styles/public-trace.css'
 import PublicQualitySummary from '../../components/PublicQualitySummary.vue'
 import { useRoute } from 'vue-router'
 import { getPublicTrace } from '../../api/trace.js'
@@ -28,7 +29,7 @@ const { data, loading, error, reload } = useAsyncData(
 
       <template v-if="data">
         <section class="public-hero">
-          <p class="eyebrow">BATCH TRACEABILITY</p>
+          <p class="eyebrow">批次信息</p>
           <h1>{{ data.product || '果蔬批次' }}</h1>
           <p class="mono">{{ data.batch_code }}</p>
           <div class="public-product">
@@ -59,6 +60,6 @@ const { data, loading, error, reload } = useAsyncData(
       </p>
     </main>
 
-    <footer class="public-footer">智检鲜达 · 每一条记录，都有来源</footer>
+    <footer class="public-footer">智检鲜达 · 批次溯源</footer>
   </div>
 </template>
