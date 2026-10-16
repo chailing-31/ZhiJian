@@ -1428,7 +1428,7 @@
 @media screen and (min-width: 1760px) and (min-height: 640px) {
   .zj-application { --zj-ip-display: block; --zj-ip-left: calc(var(--ui-sidebar) + 8px); --zj-ip-bottom: 24px; --zj-ip-width: 128px; --zj-ip-height: 176px; --zj-tip-left: calc(var(--ui-sidebar) + 8px); --zj-tip-bottom: 208px; --zj-tip-width: 128px; }
 }
-@media screen and (min-width: 1180px) and (hover: hover) and (pointer: fine) {
+@media screen and (min-width: 761px) and (hover: hover) and (pointer: fine) {
   /* Footer is plain text, with no links or controls. Only the picture is a hit area. */
   .zj-application .sidebar-bottom { pointer-events: none; }
   .zj-application .sidebar-bottom::before { pointer-events: auto; animation: var(--zj-ip-signal, none), var(--zj-ip-blink, none); }
@@ -1592,7 +1592,7 @@
 @media screen and (min-width: 1760px) and (min-height: 640px) {
   .zj-application { --zj-ip-display: block; --zj-ip-left: calc(var(--ui-sidebar) + 0px); --zj-ip-bottom: 24px; --zj-ip-width: 128px; --zj-ip-height: 176px; --zj-tip-left: calc(var(--ui-sidebar) + 32px); --zj-tip-bottom: 194px; --zj-tip-width: 104px; }
 }
-@media screen and (min-width: 1180px) and (hover: hover) and (pointer: fine) {
+@media screen and (min-width: 761px) and (hover: hover) and (pointer: fine) {
   .zj-application .sidebar-bottom::before { animation: var(--zj-ip-entrance), var(--zj-ip-signal, none), var(--zj-ip-blink, none); }
   .zj-application .sidebar-bottom:hover::after { content: var(--zj-ip-fact); pointer-events: none; opacity: 1; transform: scale(1); animation: zj-fact-pop .25s ease-out 1; }
   .zj-application .sidebar-bottom:active::after { content: var(--zj-ip-press-fact); pointer-events: none; animation: zj-fact-press .25s ease-out 1; }
@@ -1622,4 +1622,44 @@
   .zj-application .main-content :is(.card:has(> .ui-list-toolbar), .ui-recent-panel) > .empty-state::before,
   .zj-application .main-content :is(.card:has(> .ui-list-toolbar), .ui-recent-panel) > .empty-state::after { content: none !important; display: none !important; }
   .zj-application .sidebar-bottom { animation: none !important; }
+}
+
+/* Orchard IP visibility fix R5.1 2026-10-16
+   Keep the original dimensional SVG visible on desktop, including laptop heights.
+   Where the sidebar has no safe vertical gap, reserve a rail beside the content. */
+@media screen and (min-width: 761px) {
+  .zj-application .sidebar-bottom::before { z-index: 0; }
+}
+@media screen and (min-width: 761px) and (max-width: 1179px) {
+  .zj-application {
+    --zj-ip-display: block;
+    --zj-ip-left: calc(var(--ui-sidebar) + 2px); --zj-ip-bottom: 20px;
+    --zj-ip-width: 80px; --zj-ip-height: 112px;
+    --zj-tip-left: calc(var(--ui-sidebar) + 10px); --zj-tip-bottom: 138px; --zj-tip-width: 82px;
+  }
+  .zj-application .main-content { padding-left: 108px; }
+  .zj-application .sidebar-bottom::after { padding: 8px 8px 18px; font-size: 10.5px; }
+}
+@media screen and (min-width: 1180px) and (max-height: 839px) {
+  .zj-application {
+    --zj-ip-display: block;
+    --zj-ip-left: calc(var(--ui-sidebar) + 4px); --zj-ip-bottom: 24px;
+    --zj-ip-width: 128px; --zj-ip-height: 176px;
+    --zj-tip-left: calc(var(--ui-sidebar) + 32px); --zj-tip-bottom: 206px; --zj-tip-width: 104px;
+  }
+  .zj-application .main-content { padding-left: 144px; }
+}
+@media screen and (min-width: 1180px) and (max-height: 479px) {
+  .zj-application {
+    --zj-ip-left: calc(var(--ui-sidebar) + 12px); --zj-ip-bottom: 16px;
+    --zj-ip-width: 96px; --zj-ip-height: 128px; --zj-tip-bottom: 150px;
+  }
+}
+@media screen and (min-width: 761px) and (max-height: 359px) {
+  .zj-application {
+    --zj-ip-left: calc(var(--ui-sidebar) + 12px); --zj-ip-bottom: 12px;
+    --zj-ip-width: 64px; --zj-ip-height: 88px;
+  }
+  /* Extremely short windows keep the apple; only the bubble gives way. */
+  .zj-application .sidebar-bottom::after { display: none; }
 }
