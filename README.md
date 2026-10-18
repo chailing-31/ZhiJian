@@ -148,6 +148,10 @@ GET /trace/{batch_code}
 
 ## Windows 本机启动
 
+不想使用命令行时，先双击 `setup-dependencies.bat` 安装一次依赖，再双击 `start-project.bat`。
+它会分别打开 MySQL、B 规则服务、Spring Boot 和 Vue 的窗口，并自动打开 `http://127.0.0.1:5173/`。
+需要视觉质检时，再双击 `start-ai.bat`；AI 服务需要单独的 Python 环境和模型依赖。
+
 完整 Demo 推荐：
 
 ```text
