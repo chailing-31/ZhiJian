@@ -2,6 +2,9 @@
 setlocal
 cd /d "%~dp0backend"
 
+if exist "%~dp0.env.local" (
+  for /f "usebackq eol=# tokens=1,* delims==" %%A in ("%~dp0.env.local") do if not "%%A"=="" set "%%A=%%B"
+)
 if not defined DB_HOST set "DB_HOST=127.0.0.1"
 if not defined DB_PORT set "DB_PORT=3306"
 if not defined DB_NAME set "DB_NAME=smart_fresh_demo"
