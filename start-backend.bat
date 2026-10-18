@@ -8,6 +8,7 @@ if not defined DB_NAME set "DB_NAME=smart_fresh_demo"
 if not defined DB_USER set "DB_USER=demo"
 if not defined DB_PASSWORD set "DB_PASSWORD=local_demo_password"
 if not defined BUSINESS_SERVICE_BASE_URL set "BUSINESS_SERVICE_BASE_URL=http://127.0.0.1:8002"
+if not defined MAVEN_ARGS set "MAVEN_ARGS=-Dmaven.repo.local=%USERPROFILE%\.m2\repository"
 
 if not exist "mvnw.cmd" (
   echo Maven wrapper was not found in the backend folder.
@@ -17,7 +18,13 @@ if not exist "mvnw.cmd" (
 
 echo Starting Spring Boot backend at http://127.0.0.1:8080
 echo Database: %DB_HOST%:%DB_PORT%/%DB_NAME%
-call mvnw.cmd spring-boot:run
+where mvn >nul 2>&1
+if not errorlevel 1 (
+  call mvn.cmd spring-boot:run
+) else (
+  echo Global Maven was not found. Trying the project Maven wrapper...
+  call mvnw.cmd spring-boot:run
+)
 echo Backend stopped.
 pause
 endlocal
