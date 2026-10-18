@@ -23,6 +23,13 @@ if not exist "node_modules\vite\bin\vite.js" (
   )
 )
 
+netstat -ano | findstr ":5173" | findstr "LISTENING" >nul
+if not errorlevel 1 (
+  echo Frontend is already running at http://127.0.0.1:5173
+  start "" http://127.0.0.1:5173/
+  exit /b 0
+)
+
 echo Starting Vue frontend at http://127.0.0.1:5173
 call npm.cmd run dev
 echo Frontend stopped.
