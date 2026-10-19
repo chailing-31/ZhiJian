@@ -1,0 +1,24 @@
+{
+  "task": "apple_surface_defect_detection",
+  "model_version": "ssda-y8n-a15-multidomain-20261006-05c5329e",
+  "weights": "best.pt",
+  "weights_sha256": "05c5329e01d4c3bea9a1ca48f336a215dbf985b914af63268c9e34fb01f96ed1",
+  "classes": [
+    {
+      "id": 0,
+      "name": "ssda_class_0",
+      "label": "表面擦伤（Scratch）"
+    },
+    {
+      "id": 1,
+      "name": "ssda_class_1",
+      "label": "虫害损伤（Pest damage）"
+    }
+  ],
+  "confidence_threshold": 0.25,
+  "iou_threshold": 0.5,
+  "image_size": 640,
+  "training_data_source": "A15 multi-domain development training set; see project development records.",
+  "evaluation_status": "not_evaluated",
+  "evaluation_report": "../../../docs/AI_MODEL_A15.md"
+}

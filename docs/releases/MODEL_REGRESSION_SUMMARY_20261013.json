@@ -1,0 +1,235 @@
+{
+  "source": "operator-uploaded paired regression JSON; summary only, no image paths or raw labels",
+  "report_file_sha256": "bbd9ab6215de82e9990cf437ab989df89e754669129eac438efe945b38c24808",
+  "label_audit_file_sha256": "5376056c10d261372d310ce5df40067976db3f1d54ec8645c72dc56f66662919",
+  "split": "train",
+  "independent_test_verified": false,
+  "grade_accuracy_measured": false,
+  "selection": {
+    "method": "sorted_path_first_limit_same_as_original_V3",
+    "available_images": 771,
+    "selected_images": 100,
+    "limit": 100,
+    "random_sample": false,
+    "full_directory_evaluated": false
+  },
+  "label_counts": {
+    "strict_valid_images": 99,
+    "images_requiring_approval": 1,
+    "invalid_images": 0,
+    "issue_lines": 1
+  },
+  "source_labels_modified": false,
+  "models": {
+    "old-native": {
+      "identity": {
+        "model_version": "ssda-yolov8n-20261001-8c45a0602dad-n050-sem1",
+        "weights_sha256": "8c45a0602dadf8b9f48b609e29d6d3b5e5868db5f68682da8b32583e104827a4"
+      },
+      "native_parameters": {
+        "confidence_threshold": 0.25,
+        "iou_threshold": 0.5,
+        "image_size": 640
+      },
+      "effective_runtime": {
+        "version": "detail-runtime-v3.1",
+        "profile": "baseline",
+        "manifest_image_size": 640,
+        "confidence_threshold": 0.25,
+        "nms_iou": 0.5,
+        "enhanced_performance_verified": false,
+        "ultralytics": "8.4.51",
+        "torch": "2.10.0+cpu",
+        "device": "cpu"
+      },
+      "overall": {
+        "tp": 197,
+        "fp": 44,
+        "fn": 42,
+        "precision": 0.8174273858921162,
+        "recall": 0.8242677824267782,
+        "f1": 0.8208333333333333
+      },
+      "per_class": {
+        "0": {
+          "tp": 69,
+          "fp": 23,
+          "fn": 23,
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1": 0.75
+        },
+        "1": {
+          "tp": 128,
+          "fp": 21,
+          "fn": 19,
+          "precision": 0.8590604026845637,
+          "recall": 0.8707482993197279,
+          "f1": 0.8648648648648649
+        }
+      },
+      "latency_mean_ms": 68.10538700025063,
+      "zero_target_images": 0,
+      "zero_target_image_fp_rate": null
+    },
+    "old-matched": {
+      "identity": {
+        "model_version": "ssda-yolov8n-20261001-8c45a0602dad-n050-sem1",
+        "weights_sha256": "8c45a0602dadf8b9f48b609e29d6d3b5e5868db5f68682da8b32583e104827a4"
+      },
+      "native_parameters": {
+        "confidence_threshold": 0.25,
+        "iou_threshold": 0.5,
+        "image_size": 640
+      },
+      "effective_runtime": {
+        "version": "detail-runtime-v3.1",
+        "profile": "baseline",
+        "manifest_image_size": 640,
+        "confidence_threshold": 0.25,
+        "nms_iou": 0.5,
+        "enhanced_performance_verified": false,
+        "ultralytics": "8.4.51",
+        "torch": "2.10.0+cpu",
+        "device": "cpu"
+      },
+      "overall": {
+        "tp": 197,
+        "fp": 44,
+        "fn": 42,
+        "precision": 0.8174273858921162,
+        "recall": 0.8242677824267782,
+        "f1": 0.8208333333333333
+      },
+      "per_class": {
+        "0": {
+          "tp": 69,
+          "fp": 23,
+          "fn": 23,
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1": 0.75
+        },
+        "1": {
+          "tp": 128,
+          "fp": 21,
+          "fn": 19,
+          "precision": 0.8590604026845637,
+          "recall": 0.8707482993197279,
+          "f1": 0.8648648648648649
+        }
+      },
+      "latency_mean_ms": 73.4623630013084,
+      "zero_target_images": 0,
+      "zero_target_image_fp_rate": null
+    },
+    "a15-matched": {
+      "identity": {
+        "model_version": "ssda-y8n-a15-multidomain-20261006-05c5329e",
+        "weights_sha256": "05c5329e01d4c3bea9a1ca48f336a215dbf985b914af63268c9e34fb01f96ed1"
+      },
+      "native_parameters": {
+        "confidence_threshold": 0.25,
+        "iou_threshold": 0.5,
+        "image_size": 640
+      },
+      "effective_runtime": {
+        "version": "detail-runtime-v3.1",
+        "profile": "baseline",
+        "manifest_image_size": 640,
+        "confidence_threshold": 0.25,
+        "nms_iou": 0.5,
+        "enhanced_performance_verified": false,
+        "ultralytics": "8.4.51",
+        "torch": "2.10.0+cpu",
+        "device": "cpu"
+      },
+      "overall": {
+        "tp": 0,
+        "fp": 19,
+        "fn": 239,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "per_class": {
+        "0": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 92,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "1": {
+          "tp": 0,
+          "fp": 19,
+          "fn": 147,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      },
+      "latency_mean_ms": 73.91908800054807,
+      "zero_target_images": 0,
+      "zero_target_image_fp_rate": null
+    },
+    "a15-detail": {
+      "identity": {
+        "model_version": "ssda-y8n-a15-multidomain-20261006-05c5329e",
+        "weights_sha256": "05c5329e01d4c3bea9a1ca48f336a215dbf985b914af63268c9e34fb01f96ed1"
+      },
+      "native_parameters": {
+        "confidence_threshold": 0.25,
+        "iou_threshold": 0.5,
+        "image_size": 640
+      },
+      "effective_runtime": {
+        "version": "detail-runtime-v3.1",
+        "profile": "detail-v3",
+        "manifest_image_size": 640,
+        "confidence_threshold": 0.25,
+        "nms_iou": 0.5,
+        "enhanced_performance_verified": false,
+        "ultralytics": "8.4.51",
+        "torch": "2.10.0+cpu",
+        "device": "cpu"
+      },
+      "overall": {
+        "tp": 0,
+        "fp": 22,
+        "fn": 239,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "per_class": {
+        "0": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 92,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "1": {
+          "tp": 0,
+          "fp": 22,
+          "fn": 147,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      },
+      "latency_mean_ms": 216.26763999811374,
+      "zero_target_images": 0,
+      "zero_target_image_fp_rate": null
+    }
+  },
+  "limitations": [
+    "training subset, deterministic prefix selection",
+    "no target-negative images in this subset",
+    "not mAP or quality-grade accuracy",
+    "one explicitly approved in-memory clipped box"
+  ]
+}
